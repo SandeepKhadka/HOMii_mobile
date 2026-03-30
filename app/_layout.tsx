@@ -15,6 +15,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -31,6 +32,7 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
 
   if (!fontsLoaded) return null;
 

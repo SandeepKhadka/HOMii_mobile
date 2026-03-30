@@ -1,11 +1,11 @@
-import { View, Pressable, ImageBackground, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Pressable, ImageBackground, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
 
   return (
@@ -16,7 +16,7 @@ export default function SignInScreen() {
       {/* Top hero — same background as welcome */}
       <ImageBackground
         source={require("@/assets/images/onboarding.png")}
-        className="h-[40%]"
+        className="h-[35%]"
         resizeMode="cover"
       >
         {/* Back button */}
@@ -48,10 +48,10 @@ export default function SignInScreen() {
 
       {/* Bottom card — slides up over the image */}
       <View
-        className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-8 justify-between"
+        className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-8"
         style={{ paddingBottom: insets.bottom + 16 }}
       >
-        <View>
+        <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
           <View className="gap-1 mb-6">
             <Text
               className="text-grey-900"
@@ -62,14 +62,21 @@ export default function SignInScreen() {
                 letterSpacing: -0.5,
               }}
             >
-              Welcome back
+              Create account
             </Text>
             <Text variant="body" color="muted">
-              Sign in to continue your journey
+              Join thousands of international students
             </Text>
           </View>
 
           <View className="gap-4 mb-6">
+            <Input
+              label="Full Name"
+              placeholder="Your full name"
+              autoCapitalize="words"
+              autoComplete="name"
+              leftIcon={<Ionicons name="person-outline" size={18} color={Colors.grey[400]} />}
+            />
             <Input
               label="Email"
               placeholder="your@university.ac.uk"
@@ -80,7 +87,7 @@ export default function SignInScreen() {
             />
             <Input
               label="Password"
-              placeholder="Enter your password"
+              placeholder="Create a password"
               secureTextEntry
               leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.grey[400]} />}
             />
@@ -89,23 +96,23 @@ export default function SignInScreen() {
           <Button
             variant="primary"
             size="lg"
-            label="Sign In"
+            label="Create Account"
             fullWidth
             onPress={() => {
-              // TODO: Supabase email auth
+              // TODO: Supabase sign-up
               router.replace("/(onboarding)/language");
             }}
           />
-        </View>
 
-        <View className="flex-row justify-center gap-1">
-          <Text variant="body" color="muted">Don't have an account?</Text>
-          <Pressable onPress={() => router.replace("/(auth)/sign-up")}>
-            <Text variant="bodyMedium" color="primary" className="font-semibold">
-              Sign up
-            </Text>
-          </Pressable>
-        </View>
+          <View className="flex-row justify-center gap-1 mt-4 mb-4">
+            <Text variant="body" color="muted">Already have an account?</Text>
+            <Pressable onPress={() => router.replace("/(auth)/sign-in")}>
+              <Text variant="bodyMedium" color="primary" className="font-semibold">
+                Sign in
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );

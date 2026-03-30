@@ -19,9 +19,8 @@ export default function TabsLayout() {
           backgroundColor: Colors.white,
           borderTopColor:  Colors.grey[100],
           borderTopWidth:  1,
-          height:          64,
-          paddingBottom:   10,
-          paddingTop:      8,
+          paddingTop:      6,
+          paddingBottom:   8,
         },
         tabBarLabelStyle: {
           fontFamily: "BricolageGrotesque_500Medium",

@@ -19,11 +19,9 @@ export default function LanguageScreen() {
 
   return (
     <Screen className="bg-white" edges={["top", "bottom"]}>
-      {/* Back */}
+      {/* Spacer (no back button — this is the first onboarding screen) */}
       <View className="px-4 pt-2">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <Ionicons name="arrow-back" size={22} color={Colors.grey[900]} />
-        </Pressable>
+        <View className="h-10" />
       </View>
 
       <View className="flex-1 px-6 pt-4 gap-6">

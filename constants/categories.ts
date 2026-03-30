@@ -15,6 +15,7 @@ export interface Category {
   color:       string; // header background
   textColor:   string; // header text
   apps:        CategoryApp[];
+  checklistItems: string[];
   tip?:        { title: string; description: string };
 }
 
@@ -27,15 +28,17 @@ export const CATEGORIES: Category[] = [
     color: Colors.category.documents,
     textColor: "#FFFFFF",
     apps: [],
+    checklistItems: ["Passports", "University Enrollment", "Immigration Status", "Proof of address"],
     tip: undefined,
   },
   {
     id: "accommodation",
     title: "Accomodation",
-    subtitle: "Visa and University documents",
+    subtitle: "Find your student home",
     icon: "home-outline",
     color: Colors.category.accommodation,
     textColor: "#FFFFFF",
+    checklistItems: ["Search properties", "Compare prices", "Book accommodation", "Confirm booking"],
     apps: [
       { name: "OnTheMarket", description: "Search properties on rent", icon: "" },
       { name: "RightMove",   description: "Find your next student home.", icon: "" },
@@ -44,10 +47,11 @@ export const CATEGORIES: Category[] = [
   {
     id: "banking",
     title: "Banking",
-    subtitle: "Visa and University documents",
+    subtitle: "Set up your UK bank account",
     icon: "card-outline",
     color: Colors.category.banking,
     textColor: "#FFFFFF",
+    checklistItems: ["Open bank account", "Set up online banking", "Get debit card"],
     apps: [
       { name: "Monzo",    description: "Digital banking for everyone",  icon: "" },
       { name: "Starling", description: "Award-winning bank account",    icon: "" },
@@ -60,10 +64,11 @@ export const CATEGORIES: Category[] = [
   {
     id: "sims",
     title: "Simcards",
-    subtitle: "Visa and University documents",
+    subtitle: "Get a UK SIM card",
     icon: "phone-portrait-outline",
     color: Colors.category.sims,
     textColor: "#FFFFFF",
+    checklistItems: ["Compare plans", "Get SIM card", "Activate SIM"],
     apps: [
       { name: "Giffgaff",  description: "The network run by you",      icon: "", recommended: true },
       { name: "EE",         description: "The UK's fastest network",    icon: "" },
@@ -75,28 +80,31 @@ export const CATEGORIES: Category[] = [
   {
     id: "flights",
     title: "Flights",
-    subtitle: "Visa and University documents",
+    subtitle: "Book your flights to the UK",
     icon: "airplane-outline",
     color: Colors.category.flights,
     textColor: "#FFFFFF",
+    checklistItems: ["Book flights", "Confirm booking", "Check baggage allowance"],
     apps: [],
   },
   {
     id: "insurance",
     title: "Insurance",
-    subtitle: "Visa and University documents",
+    subtitle: "Protect yourself in the UK",
     icon: "shield-checkmark-outline",
     color: Colors.category.insurance,
     textColor: "#FFFFFF",
+    checklistItems: ["Health insurance", "Travel insurance", "Contents insurance"],
     apps: [],
   },
   {
     id: "transport",
     title: "Transport",
-    subtitle: "Visa and University documents",
+    subtitle: "Get around your new city",
     icon: "bus-outline",
     color: Colors.category.transport,
     textColor: "#FFFFFF",
+    checklistItems: ["Get travel card", "Download transport apps", "Plan your route"],
     apps: [
       { name: "Trainline",   description: "Save on rail & coach tickets",  icon: "", recommended: true },
       { name: "Uber",        description: "Rides in most UK cities",        icon: "" },
@@ -107,10 +115,11 @@ export const CATEGORIES: Category[] = [
   {
     id: "food",
     title: "Food",
-    subtitle: "Visa and University documents",
+    subtitle: "Find food and groceries",
     icon: "restaurant-outline",
     color: Colors.category.food,
     textColor: "#FFFFFF",
+    checklistItems: ["Find local supermarkets", "Download delivery apps", "Explore local restaurants"],
     apps: [
       { name: "Deliveroo",  description: "Food delivery from local restaurants", icon: "" },
       { name: "Uber Eats",  description: "Your favorite food, delivered",        icon: "" },
@@ -119,19 +128,21 @@ export const CATEGORIES: Category[] = [
   {
     id: "university",
     title: "University",
-    subtitle: "Visa and University documents",
+    subtitle: "Get set up at your university",
     icon: "school-outline",
     color: Colors.category.university,
     textColor: "#FFFFFF",
+    checklistItems: ["Campus orientation", "Student ID", "Library access", "Enroll in courses"],
     apps: [],
   },
   {
     id: "discounts",
     title: "Discounts",
-    subtitle: "Visa and University documents",
+    subtitle: "Unlock student deals",
     icon: "pricetag-outline",
     color: Colors.category.discounts,
     textColor: "#FFFFFF",
+    checklistItems: ["Get student discount card", "Verify student status"],
     apps: [
       { name: "UNiDAYS", description: "Student discounts and deals", icon: "" },
     ],
@@ -143,19 +154,21 @@ export const CATEGORIES: Category[] = [
   {
     id: "socialEvents",
     title: "Social Events",
-    subtitle: "Visa and University documents",
+    subtitle: "Meet people and have fun",
     icon: "calendar-outline",
     color: Colors.category.socialEvents,
     textColor: "#FFFFFF",
+    checklistItems: ["Join student union", "Find events", "Join societies"],
     apps: [],
   },
   {
     id: "exploreUK",
     title: "Explore UK",
-    subtitle: "Visa and University documents",
+    subtitle: "Discover your new home",
     icon: "compass-outline",
     color: Colors.category.exploreUK,
     textColor: "#FFFFFF",
+    checklistItems: ["Local attractions", "Day trips", "City guides"],
     apps: [],
   },
 ];
@@ -185,10 +198,3 @@ export const PHASES = [
   },
 ] as const;
 
-// Documents sub-items
-export const DOCUMENT_ITEMS = [
-  "Passports",
-  "University Enrollment",
-  "Immigration Status",
-  "Proof of address",
-] as const;

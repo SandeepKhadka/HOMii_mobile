@@ -1,45 +1,48 @@
-import { View, Pressable } from "react-native";
+import { View, Pressable, ImageBackground } from "react-native";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
-import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function WelcomeScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
     <View className="flex-1 bg-white">
-      {/* Top hero — London skyline with floating icons */}
-      <View className="h-[55%] bg-primary-400 relative overflow-hidden">
-        {/* Gradient overlay */}
-        <View className="absolute inset-0 bg-primary-300 opacity-60" />
-
-        {/* Floating category icons */}
-        <View className="absolute top-16 left-6 w-12 h-12 rounded-full bg-white/20 items-center justify-center">
-          <Ionicons name="card-outline" size={22} color="#fff" />
-        </View>
-        <View className="absolute top-14 right-8 w-12 h-12 rounded-full bg-white/20 items-center justify-center">
-          <Ionicons name="car-outline" size={22} color="#fff" />
-        </View>
-        <View className="absolute top-28 left-14 w-10 h-10 rounded-full bg-white/15 items-center justify-center">
-          <Ionicons name="chatbox-outline" size={18} color="#fff" />
-        </View>
-        <View className="absolute top-24 right-24 w-10 h-10 rounded-full bg-white/15 items-center justify-center">
-          <Ionicons name="restaurant-outline" size={18} color="#fff" />
-        </View>
-        <View className="absolute top-36 left-28 w-11 h-11 rounded-full bg-white/20 items-center justify-center">
-          <Ionicons name="phone-portrait-outline" size={20} color="#fff" />
-        </View>
-
-        {/* Logo */}
-        <View className="flex-1 items-center justify-center pt-8">
-          <Text variant="h2" color="inverse" className="font-heading text-4xl tracking-tight">
+      {/* Top hero — London skyline background image */}
+      <ImageBackground
+        source={require("@/assets/images/onboarding.png")}
+        className="h-[58%]"
+        resizeMode="cover"
+      >
+        {/* Logo — positioned to match Figma (top: 98px from screen top) */}
+        <View className="items-center" style={{ marginTop: insets.top + 60 }}>
+          <Text
+            color="inverse"
+            style={{
+              fontFamily: "BricolageGrotesque_800ExtraBold",
+              fontSize: 40,
+              lineHeight: 56,
+              letterSpacing: -0.4,
+              textAlign: "center",
+            }}
+          >
             HOMii
           </Text>
         </View>
-      </View>
+      </ImageBackground>
 
-      {/* Bottom card — slides up */}
-      <View className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-10 pb-8 justify-between">
+      {/* Bottom card — slides up over the image */}
+      <View className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-10 justify-between" style={{ paddingBottom: insets.bottom + 16 }}>
         <View className="items-center gap-3">
-          <Text variant="h1" className="text-center font-heading text-[37px] leading-[45px] tracking-tight text-grey-900">
+          <Text
+            className="text-center text-grey-900"
+            style={{
+              fontFamily: "BricolageGrotesque_700Bold",
+              fontSize: 37,
+              lineHeight: 45,
+              letterSpacing: -0.8,
+            }}
+          >
             Set up your UK{"\n"}life in minutes
           </Text>
           <Text variant="body" color="muted" className="text-center">
@@ -53,7 +56,7 @@ export default function WelcomeScreen() {
             size="lg"
             label="Create account"
             fullWidth
-            onPress={() => router.push("/(auth)/sign-in")}
+            onPress={() => router.push("/(auth)/sign-up")}
           />
           <View className="flex-row justify-center gap-1">
             <Text variant="body" color="muted">
