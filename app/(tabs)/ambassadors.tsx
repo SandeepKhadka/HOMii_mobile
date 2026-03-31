@@ -1,7 +1,9 @@
-import { View } from "react-native";
+import { View, Pressable } from "react-native";
 import { router } from "expo-router";
-import { Screen, Text, Button } from "@/components/ui";
+import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const WHAT_YOU_DO = [
   "Share HOMii with students at your university",
@@ -16,11 +18,23 @@ const WHAT_YOU_GET = [
 ];
 
 export default function AmbassadorsScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Screen scrollable className="bg-white" edges={["top", "bottom"]}>
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="bg-navy px-6 py-5">
-        <Text variant="h3" color="inverse" className="font-heading">
+      <View
+        className="flex-row items-center px-6 pb-4"
+        style={{ backgroundColor: Colors.navy.DEFAULT, paddingTop: insets.top + 12 }}
+      >
+        <Text
+          color="inverse"
+          style={{
+            fontFamily: "BricolageGrotesque_700Bold",
+            fontSize: 20,
+            lineHeight: 28,
+          }}
+        >
           Ambassador
         </Text>
       </View>
@@ -32,42 +46,64 @@ export default function AmbassadorsScreen() {
         </Text>
 
         {/* What you'll do */}
-        <View className="gap-4">
-          <Text variant="h3" className="text-center font-heading">
+        <View className="gap-3">
+          <Text
+            className="text-grey-900"
+            style={{
+              fontFamily: "BricolageGrotesque_700Bold",
+              fontSize: 18,
+              textAlign: "center",
+            }}
+          >
             What you'll do
           </Text>
           {WHAT_YOU_DO.map((item) => (
-            <Text key={item} variant="body" className="text-grey-800">
-              {item}
-            </Text>
+            <View key={item} className="flex-row items-start gap-3 px-2">
+              <Ionicons name="checkmark-circle" size={20} color={Colors.teal.DEFAULT} style={{ marginTop: 2 }} />
+              <Text variant="body" className="flex-1 text-grey-700">{item}</Text>
+            </View>
           ))}
         </View>
 
         {/* What you'll get */}
-        <View className="gap-4">
-          <Text variant="h3" className="text-center font-heading">
+        <View className="gap-3">
+          <Text
+            className="text-grey-900"
+            style={{
+              fontFamily: "BricolageGrotesque_700Bold",
+              fontSize: 18,
+              textAlign: "center",
+            }}
+          >
             What you'll get
           </Text>
           {WHAT_YOU_GET.map((item) => (
-            <Text key={item} variant="body" className="text-grey-800">
-              {item}
-            </Text>
+            <View key={item} className="flex-row items-start gap-3 px-2">
+              <Ionicons name="checkmark-circle" size={20} color={Colors.primary[500]} style={{ marginTop: 2 }} />
+              <Text variant="body" className="flex-1 text-grey-700">{item}</Text>
+            </View>
           ))}
         </View>
       </View>
 
-      {/* CTA */}
-      <View className="px-6 pb-8 pt-4">
+      {/* CTA buttons */}
+      <View className="px-6 gap-3" style={{ paddingBottom: insets.bottom + 16 }}>
         <Button
           variant="primary"
           size="lg"
           label="Continue to Sign Up"
           fullWidth
-          onPress={() => {
-            // TODO: navigate to ambassador signup
-          }}
+          onPress={() => router.push("/ambassador/signup" as any)}
         />
+        <Pressable
+          onPress={() => router.push("/ambassador/dashboard" as any)}
+          className="items-center py-2"
+        >
+          <Text variant="bodyMedium" color="primary" className="font-semibold">
+            Already an ambassador? View Dashboard
+          </Text>
+        </Pressable>
       </View>
-    </Screen>
+    </View>
   );
 }

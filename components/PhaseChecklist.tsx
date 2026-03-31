@@ -12,7 +12,8 @@ interface PhaseChecklistProps {
   subtitle: string;
   categoryIds: readonly string[];
   backgroundImage: ImageSourcePropType;
-  onContinue: () => void;
+  onContinue?: () => void;
+  continueLabel?: string;
 }
 
 const CATEGORY_ICONS: Record<string, { name: React.ComponentProps<typeof Ionicons>["name"]; bg: string; color: string }> = {
@@ -36,6 +37,7 @@ export default function PhaseChecklist({
   categoryIds,
   backgroundImage,
   onContinue,
+  continueLabel = "Continue",
 }: PhaseChecklistProps) {
   const insets = useSafeAreaInsets();
   const { isCategoryCompleted, completedCount } = useOnboardingProgress();
@@ -139,16 +141,17 @@ export default function PhaseChecklist({
         {/* Spacer pushes button to bottom */}
         <View className="flex-1" />
 
-        {/* Continue button at bottom — background image shows through below checklist */}
-        <View className="px-6 pt-4" style={{ paddingBottom: insets.bottom + 24 }}>
-          <Button
-            variant="primary"
-            size="lg"
-            label="Continue"
-            fullWidth
-            onPress={onContinue}
-          />
-        </View>
+        {onContinue && (
+          <View className="px-6 pt-4" style={{ paddingBottom: insets.bottom + 24 }}>
+            <Button
+              variant="primary"
+              size="lg"
+              label={continueLabel}
+              fullWidth
+              onPress={onContinue}
+            />
+          </View>
+        )}
       </View>
     </ImageBackground>
   );

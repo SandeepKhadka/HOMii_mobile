@@ -1,25 +1,47 @@
-import { View, Pressable, ImageBackground, KeyboardAvoidingView, Platform } from "react-native";
+import { useState } from "react";
+import { View, Pressable, ImageBackground, ScrollView, Alert, Keyboard } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSignIn = async () => {
+    Keyboard.dismiss();
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    setLoading(true);
+    const { error } = await signIn(email, password);
+    setLoading(false);
+    if (error) {
+      Alert.alert("Sign In Failed", error);
+    }
+  };
 
   return (
-    <KeyboardAvoidingView
+    <ScrollView
       className="flex-1 bg-white"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      bounces={false}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{ flexGrow: 1 }}
     >
-      {/* Top hero — same background as welcome */}
+      {/* Top hero */}
       <ImageBackground
         source={require("@/assets/images/onboarding.png")}
-        className="h-[40%]"
+        style={{ height: 220 }}
         resizeMode="cover"
       >
-        {/* Back button */}
         <View className="px-4" style={{ paddingTop: insets.top + 8 }}>
           <Pressable
             onPress={() => router.back()}
@@ -29,7 +51,6 @@ export default function SignInScreen() {
           </Pressable>
         </View>
 
-        {/* Logo */}
         <View className="flex-1 items-center justify-center">
           <Text
             color="inverse"
@@ -46,10 +67,10 @@ export default function SignInScreen() {
         </View>
       </ImageBackground>
 
-      {/* Bottom card — slides up over the image */}
+      {/* Bottom card */}
       <View
         className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-8 justify-between"
-        style={{ paddingBottom: insets.bottom + 16 }}
+        style={{ paddingBottom: insets.bottom + 24, minHeight: 400 }}
       >
         <View>
           <View className="gap-1 mb-6">
@@ -76,30 +97,39 @@ export default function SignInScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              value={email}
+              onChangeText={setEmail}
               leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.grey[400]} />}
             />
             <Input
               label="Password"
               placeholder="Enter your password"
-              secureTextEntry
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
               leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.grey[400]} />}
+              rightIcon={
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={Colors.grey[400]}
+                />
+              }
+              onRightIconPress={() => setShowPassword(!showPassword)}
             />
           </View>
 
           <Button
             variant="primary"
             size="lg"
-            label="Sign In"
+            label={loading ? "Signing in..." : "Sign In"}
             fullWidth
-            onPress={() => {
-              // TODO: Supabase email auth
-              router.replace("/(onboarding)/language");
-            }}
+            onPress={handleSignIn}
           />
         </View>
 
-        <View className="flex-row justify-center gap-1">
-          <Text variant="body" color="muted">Don't have an account?</Text>
+        <View className="flex-row justify-center gap-1 mt-6">
+          <Text variant="body" color="muted">Don&apos;t have an account?</Text>
           <Pressable onPress={() => router.replace("/(auth)/sign-up")}>
             <Text variant="bodyMedium" color="primary" className="font-semibold">
               Sign up
@@ -107,6 +137,6 @@ export default function SignInScreen() {
           </Pressable>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }

@@ -54,7 +54,7 @@ export default function ChecklistIntroScreen() {
                   shadowRadius: 6,
                 }}
                 onPress={() => {
-                  router.push(`/(onboarding)/${phase.id}` as any);
+                  router.push({ pathname: `/(onboarding)/${phase.id}` as any, params: { onboarding: "true" } });
                 }}
               >
                 <Ionicons
@@ -83,7 +83,7 @@ export default function ChecklistIntroScreen() {
             size="lg"
             label="Continue"
             fullWidth
-            onPress={() => router.push("/(onboarding)/before-fly")}
+            onPress={() => router.push({ pathname: "/(onboarding)/before-fly" as any, params: { onboarding: "true" } })}
           />
         </View>
       </View>

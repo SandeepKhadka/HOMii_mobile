@@ -4,9 +4,16 @@ import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function CompleteScreen() {
   const insets = useSafeAreaInsets();
+  const { updateProfile } = useAuth();
+
+  const handleContinue = async () => {
+    await updateProfile({ onboarding_completed: true });
+    router.replace("/(tabs)");
+  };
 
   return (
     <ImageBackground
@@ -44,7 +51,6 @@ export default function CompleteScreen() {
 
         {/* Center content */}
         <View className="flex-1 items-center justify-center">
-          {/* Big circle icon */}
           <View
             className="w-36 h-36 rounded-full items-center justify-center"
             style={{
@@ -73,7 +79,7 @@ export default function CompleteScreen() {
             size="lg"
             label="Continue to Home"
             fullWidth
-            onPress={() => router.replace("/(tabs)")}
+            onPress={handleContinue}
           />
         </View>
       </View>

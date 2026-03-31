@@ -1,7 +1,13 @@
+import { useState, useCallback } from "react";
 import { View, ScrollView, Pressable } from "react-native";
-import { router } from "expo-router";
-import { Text, Button } from "@/components/ui";
+import { router, useFocusEffect } from "expo-router";
+import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { CATEGORIES } from "@/constants/categories";
 
 const ESSENTIAL_APPS = [
   { id: "food",         title: "Food",           icon: "restaurant-outline" as const, color: "#FEF3C7", iconColor: "#F97316" },
@@ -12,48 +18,113 @@ const ESSENTIAL_APPS = [
   { id: "socialEvents", title: "Social Events",   icon: "calendar-outline"   as const, color: "#FFE4E6", iconColor: "#F472B6" },
 ];
 
+// Total checklist items across all categories
+const TOTAL_ITEMS = CATEGORIES.reduce((sum, cat) => sum + cat.checklistItems.length, 0);
+
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const { user, profile } = useAuth();
+  const [completedTotal, setCompletedTotal] = useState(0);
+
+  const fetchProgress = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("onboarding_progress")
+      .select("completed_items")
+      .eq("user_id", user.id);
+    if (data) {
+      const total = data.reduce((sum: number, row: any) => {
+        return sum + (row.completed_items?.length || 0);
+      }, 0);
+      setCompletedTotal(total);
+    }
+  }, [user]);
+
+  // Refetch every time tab is focused (in case user completed items)
+  useFocusEffect(
+    useCallback(() => {
+      fetchProgress();
+    }, [fetchProgress])
+  );
+
+  const progressPercent = TOTAL_ITEMS > 0 ? Math.round((completedTotal / TOTAL_ITEMS) * 100) : 0;
+  const firstName = profile?.full_name?.split(" ")[0] || "Student";
+
   return (
     <View className="flex-1 bg-background">
       {/* Hero header */}
-      <View className="bg-primary-400 pt-14 pb-8 px-6 rounded-b-3xl">
+      <View className="bg-primary-400 pb-8 px-6 rounded-b-3xl" style={{ paddingTop: insets.top + 12 }}>
         <View className="flex-row justify-between items-center">
           <Text variant="h3" color="inverse" className="font-heading">
             HOMii
           </Text>
-          <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
+          <Pressable
+            onPress={() => router.push("/(tabs)/profile" as any)}
+            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+          >
             <Ionicons name="person-outline" size={20} color="#fff" />
-          </View>
+          </Pressable>
         </View>
         <Text variant="subtitle" color="inverse" className="mt-1 opacity-90">
-          Hello, Luke
+          Hello, {firstName}
         </Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 -mt-4">
-        {/* Continue journey CTA */}
-        <View className="mx-6 mt-2">
-          <Button
-            variant="primary"
-            size="lg"
-            label="Continue your journey."
-            fullWidth
-            onPress={() => {}}
-          />
-        </View>
-
-        {/* Setup progress */}
-        <View className="px-6 mt-6 gap-2">
-          <Text variant="label" className="text-grey-500 tracking-widest">
-            SETUP PROGRESS
-          </Text>
-          <View className="h-2 bg-grey-200 rounded-full overflow-hidden">
-            <View className="h-full w-1/4 bg-primary-500 rounded-full" />
+        {/* Setup progress — clickable card */}
+        <Pressable
+          onPress={() => router.push("/(tabs)/setup" as any)}
+          className="mx-6 mt-6 mb-4 bg-white rounded-2xl px-5 py-5"
+          style={{
+            elevation: 3,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+          }}
+        >
+          <View className="flex-row justify-between items-center mb-3">
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="rocket-outline" size={20} color={Colors.primary[500]} />
+              <Text
+                className="text-grey-900"
+                style={{
+                  fontFamily: "BricolageGrotesque_600SemiBold",
+                  fontSize: 15,
+                }}
+              >
+                Setup Progress
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-1">
+              <Text
+                style={{
+                  fontFamily: "BricolageGrotesque_700Bold",
+                  fontSize: 15,
+                  color: Colors.primary[500],
+                }}
+              >
+                {progressPercent}%
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={Colors.primary[500]} />
+            </View>
           </View>
-        </View>
+          <View className="h-3 bg-grey-100 rounded-full overflow-hidden">
+            <View
+              className="h-full rounded-full"
+              style={{
+                width: `${progressPercent}%`,
+                backgroundColor: progressPercent === 100 ? Colors.success.DEFAULT : Colors.primary[500],
+              }}
+            />
+          </View>
+          <Text variant="caption" color="muted" className="mt-2">
+            {completedTotal}/{TOTAL_ITEMS} tasks completed
+          </Text>
+        </Pressable>
 
         {/* Essential Apps */}
-        <View className="px-6 mt-6">
+        <View className="px-6 mt-4">
           <View className="flex-row justify-between items-center mb-4">
             <Text variant="h3" className="font-heading text-grey-900">
               ESSENTIAL APPS
