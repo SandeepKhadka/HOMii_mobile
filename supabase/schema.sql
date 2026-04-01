@@ -35,8 +35,9 @@ begin
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data->>'full_name', '')
-  );
+    coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', '')
+  )
+  on conflict (id) do nothing;
   return new;
 end;
 $$ language plpgsql security definer;

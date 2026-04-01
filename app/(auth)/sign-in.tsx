@@ -8,8 +8,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignInScreen() {
+  const { signIn, signInWithGoogle } = useAuth();
   const insets = useSafeAreaInsets();
-  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -126,6 +126,19 @@ export default function SignInScreen() {
             fullWidth
             onPress={handleSignIn}
           />
+
+          <Pressable
+            onPress={async () => {
+              const { error } = await signInWithGoogle();
+              if (error) Alert.alert("Google Sign-In Failed", error);
+            }}
+            className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5 mt-2"
+          >
+            <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
+            <Text variant="bodyMedium" className="text-grey-700 font-semibold">
+              Continue with Google
+            </Text>
+          </Pressable>
         </View>
 
         <View className="flex-row justify-center gap-1 mt-6">

@@ -1,18 +1,16 @@
 import { router, useLocalSearchParams } from "expo-router";
 import PhaseChecklist from "@/components/PhaseChecklist";
 import { PHASES } from "@/constants/categories";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 const phase = PHASES[2];
 
 export default function SettlingInScreen() {
   const { onboarding } = useLocalSearchParams<{ onboarding?: string }>();
-  const { updateProfile } = useAuth();
   const isOnboarding = onboarding === "true";
 
-  const handleContinueToHome = async () => {
-    await updateProfile({ onboarding_completed: true });
-    router.replace("/(tabs)");
+  const handleContinueToHome = () => {
+    router.push("/(onboarding)/complete");
   };
 
   return (

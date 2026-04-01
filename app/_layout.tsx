@@ -26,18 +26,25 @@ function RouteGuard() {
   useEffect(() => {
     if (loading) return;
 
-    const inAuthGroup = segments[0] === "(auth)";
+    // Hide splash screen now that we know where to navigate
+    SplashScreen.hideAsync();
 
-    if (!session && !inAuthGroup) {
-      router.replace("/(auth)/welcome");
-    } else if (session && inAuthGroup) {
-      // Wait for profile to load before deciding
-      if (profile === null) return;
-      if (!profile.onboarding_completed) {
-        router.replace("/(onboarding)/language");
-      } else {
-        router.replace("/(tabs)");
-      }
+    const currentSegment = segments[0];
+    const inAuthGroup = currentSegment === "(auth)";
+    const inOnboarding = currentSegment === "(onboarding)";
+    const inTabs = currentSegment === "(tabs)";
+    console.log("[RouteGuard] session:", !!session, "profile:", !!profile, "onboarded:", profile?.onboarding_completed, "segment:", currentSegment);
+
+    if (!session) {
+      if (!inAuthGroup) router.replace("/(auth)/welcome");
+    } else if (!profile) {
+      // Session exists but profile not loaded yet — keep splash visible, wait
+      console.log("[RouteGuard] Waiting for profile to load...");
+      return;
+    } else if (profile.onboarding_completed) {
+      if (!inTabs) router.replace("/(tabs)");
+    } else {
+      if (!inOnboarding) router.replace("/(onboarding)/terms");
     }
   }, [session, loading, segments, profile]);
 
@@ -52,12 +59,6 @@ export default function RootLayout() {
     BricolageGrotesque_700Bold,
     BricolageGrotesque_800ExtraBold,
   });
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;
 

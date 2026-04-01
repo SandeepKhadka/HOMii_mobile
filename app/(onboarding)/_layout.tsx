@@ -10,9 +10,9 @@ export default function OnboardingLayout() {
           animation: "slide_from_right",
         }}
       >
+        <Stack.Screen name="terms" />
         <Stack.Screen name="language" />
         <Stack.Screen name="university" />
-        <Stack.Screen name="terms" />
         <Stack.Screen name="checklist-intro" />
         <Stack.Screen name="before-fly" />
         <Stack.Screen name="upon-arrival" />

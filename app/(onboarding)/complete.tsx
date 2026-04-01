@@ -1,88 +1,116 @@
-import { View, Pressable, ImageBackground } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { View, Animated, Easing } from "react-native";
 import { router } from "expo-router";
-import { Text, Button } from "@/components/ui";
+import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function CompleteScreen() {
-  const insets = useSafeAreaInsets();
   const { updateProfile } = useAuth();
+  const [done, setDone] = useState(false);
+  const spinAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.5)).current;
 
-  const handleContinue = async () => {
-    await updateProfile({ onboarding_completed: true });
-    router.replace("/(tabs)");
-  };
+  // Spin animation for loading
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinAnim, {
+        toValue: 1,
+        duration: 1200,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  // Complete onboarding and navigate
+  useEffect(() => {
+    const setup = async () => {
+      await updateProfile({ onboarding_completed: true });
+      // Brief delay so the user sees the success state
+      await new Promise((r) => setTimeout(r, 800));
+      setDone(true);
+    };
+    setup();
+  }, []);
+
+  // Success animation then navigate
+  useEffect(() => {
+    if (!done) return;
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setTimeout(() => router.replace("/(tabs)"), 600);
+    });
+  }, [done]);
+
+  const spin = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
 
   return (
-    <ImageBackground
-      source={require("@/assets/images/complete-bg.png")}
-      className="flex-1"
-      resizeMode="cover"
-    >
-      <View className="flex-1" style={{ backgroundColor: "rgba(255,255,255,0.3)", paddingTop: insets.top + 8 }}>
-        {/* Header */}
-        <View className="flex-row items-center px-4">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 items-center justify-center"
-          >
-            <Ionicons name="arrow-back" size={22} color={Colors.grey[900]} />
-          </Pressable>
-          <View className="flex-1 items-center">
-            <View
-              className="bg-white px-8 py-3 rounded-full"
+    <View className="flex-1 bg-white items-center justify-center px-8">
+      {!done ? (
+        <View className="items-center gap-6">
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <Ionicons name="sync-outline" size={56} color={Colors.primary[500]} />
+          </Animated.View>
+          <View className="items-center gap-2">
+            <Text
+              className="text-grey-900 text-center"
               style={{
-                elevation: 4,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
+                fontFamily: "BricolageGrotesque_700Bold",
+                fontSize: 24,
+                lineHeight: 32,
               }}
             >
-              <Text variant="h4" className="font-heading text-grey-900 text-center">
-                You are all set!
-              </Text>
-            </View>
-          </View>
-          <View className="w-10" />
-        </View>
-
-        {/* Center content */}
-        <View className="flex-1 items-center justify-center">
-          <View
-            className="w-36 h-36 rounded-full items-center justify-center"
-            style={{
-              backgroundColor: Colors.primary[400],
-              elevation: 8,
-              shadowColor: Colors.primary[500],
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 12,
-            }}
-          >
-            <Ionicons name="send" size={52} color="#fff" />
-          </View>
-        </View>
-
-        {/* Bottom section */}
-        <View className="px-6 gap-4" style={{ paddingBottom: insets.bottom + 24 }}>
-          <View className="border-t border-grey-200 pt-4 items-center">
-            <Text variant="body" color="muted">
-              Share this app with your friends
+              Setting up your profile
+            </Text>
+            <Text variant="body" color="muted" className="text-center">
+              We're personalizing your experience...
             </Text>
           </View>
-
-          <Button
-            variant="primary"
-            size="lg"
-            label="Continue to Home"
-            fullWidth
-            onPress={handleContinue}
-          />
         </View>
-      </View>
-    </ImageBackground>
+      ) : (
+        <Animated.View
+          style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}
+          className="items-center gap-6"
+        >
+          <View
+            className="w-28 h-28 rounded-full items-center justify-center"
+            style={{ backgroundColor: Colors.success.DEFAULT }}
+          >
+            <Ionicons name="checkmark" size={56} color="#fff" />
+          </View>
+          <View className="items-center gap-2">
+            <Text
+              className="text-grey-900 text-center"
+              style={{
+                fontFamily: "BricolageGrotesque_700Bold",
+                fontSize: 24,
+                lineHeight: 32,
+              }}
+            >
+              You're all set!
+            </Text>
+            <Text variant="body" color="muted" className="text-center">
+              Welcome to HOMii
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+    </View>
   );
 }

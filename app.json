@@ -40,7 +40,9 @@
           }
         }
       ],
-      "expo-navigation-bar"
+      "expo-navigation-bar",
+      "expo-localization",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

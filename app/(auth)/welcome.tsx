@@ -1,10 +1,19 @@
-import { View, Pressable, ImageBackground } from "react-native";
+import { View, Pressable, ImageBackground, Alert } from "react-native";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+  const { signInWithGoogle } = useAuth();
+
+  const handleGoogle = async () => {
+    const { error } = await signInWithGoogle();
+    if (error) Alert.alert("Google Sign-In Failed", error);
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -50,7 +59,7 @@ export default function WelcomeScreen() {
           </Text>
         </View>
 
-        <View className="gap-4">
+        <View className="gap-3">
           <Button
             variant="primary"
             size="lg"
@@ -58,7 +67,16 @@ export default function WelcomeScreen() {
             fullWidth
             onPress={() => router.push("/(auth)/sign-up")}
           />
-          <View className="flex-row justify-center gap-1">
+          <Pressable
+            onPress={handleGoogle}
+            className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5"
+          >
+            <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
+            <Text variant="bodyMedium" className="text-grey-700 font-semibold">
+              Continue with Google
+            </Text>
+          </Pressable>
+          <View className="flex-row justify-center gap-1 mt-1">
             <Text variant="body" color="muted">
               Already have an account?
             </Text>

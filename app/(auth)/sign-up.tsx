@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -158,6 +158,19 @@ export default function SignUpScreen() {
           fullWidth
           onPress={handleSignUp}
         />
+
+        <Pressable
+          onPress={async () => {
+            const { error } = await signInWithGoogle();
+            if (error) Alert.alert("Google Sign-In Failed", error);
+          }}
+          className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5 mt-2"
+        >
+          <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
+          <Text variant="bodyMedium" className="text-grey-700 font-semibold">
+            Continue with Google
+          </Text>
+        </Pressable>
 
         <View className="flex-row justify-center gap-1 mt-4">
           <Text variant="body" color="muted">Already have an account?</Text>

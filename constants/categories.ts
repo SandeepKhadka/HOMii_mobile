@@ -3,7 +3,7 @@ import { Colors } from "./colors";
 export interface CategoryApp {
   name:        string;
   description: string;
-  icon:        string; // placeholder for app icon
+  icon:        string;
   recommended?: boolean;
 }
 
@@ -11,37 +11,29 @@ export interface Category {
   id:          string;
   title:       string;
   subtitle:    string;
-  icon:        string; // Ionicons name
-  color:       string; // header background
-  textColor:   string; // header text
+  icon:        string;
+  color:       string;
+  textColor:   string;
   apps:        CategoryApp[];
   checklistItems: string[];
   tip?:        { title: string; description: string };
 }
 
 export const CATEGORIES: Category[] = [
+  // Phase 1 — Before You Fly
   {
-    id: "documents",
-    title: "Documents",
-    subtitle: "Visa and University documents",
-    icon: "document-text-outline",
-    color: Colors.category.documents,
+    id: "sims",
+    title: "SIM Cards",
+    subtitle: "Get a UK SIM card",
+    icon: "phone-portrait-outline",
+    color: Colors.category.sims,
     textColor: "#FFFFFF",
-    apps: [],
-    checklistItems: ["Passports", "University Enrollment", "Immigration Status", "Proof of address"],
-    tip: undefined,
-  },
-  {
-    id: "accommodation",
-    title: "Accomodation",
-    subtitle: "Find your student home",
-    icon: "home-outline",
-    color: Colors.category.accommodation,
-    textColor: "#FFFFFF",
-    checklistItems: ["Search properties", "Compare prices", "Book accommodation", "Confirm booking"],
+    checklistItems: ["Compare plans", "Get SIM card", "Activate SIM"],
     apps: [
-      { name: "OnTheMarket", description: "Search properties on rent", icon: "" },
-      { name: "RightMove",   description: "Find your next student home.", icon: "" },
+      { name: "Giffgaff",  description: "The network run by you",      icon: "", recommended: true },
+      { name: "EE",         description: "The UK's fastest network",    icon: "" },
+      { name: "O2",         description: "Priority and great coverage", icon: "" },
+      { name: "Vodafone",   description: "Reliable network provider",   icon: "" },
     ],
   },
   {
@@ -62,42 +54,6 @@ export const CATEGORIES: Category[] = [
     },
   },
   {
-    id: "sims",
-    title: "Simcards",
-    subtitle: "Get a UK SIM card",
-    icon: "phone-portrait-outline",
-    color: Colors.category.sims,
-    textColor: "#FFFFFF",
-    checklistItems: ["Compare plans", "Get SIM card", "Activate SIM"],
-    apps: [
-      { name: "Giffgaff",  description: "The network run by you",      icon: "", recommended: true },
-      { name: "EE",         description: "The UK's fastest network",    icon: "" },
-      { name: "O2",         description: "Priority and great coverage", icon: "" },
-      { name: "Virgin",     description: "Fast mobile data",            icon: "" },
-      { name: "Vodafone",   description: "Reliable network provider",   icon: "" },
-    ],
-  },
-  {
-    id: "flights",
-    title: "Flights",
-    subtitle: "Book your flights to the UK",
-    icon: "airplane-outline",
-    color: Colors.category.flights,
-    textColor: "#FFFFFF",
-    checklistItems: ["Book flights", "Confirm booking", "Check baggage allowance"],
-    apps: [],
-  },
-  {
-    id: "insurance",
-    title: "Insurance",
-    subtitle: "Protect yourself in the UK",
-    icon: "shield-checkmark-outline",
-    color: Colors.category.insurance,
-    textColor: "#FFFFFF",
-    checklistItems: ["Health insurance", "Travel insurance", "Contents insurance"],
-    apps: [],
-  },
-  {
     id: "transport",
     title: "Transport",
     subtitle: "Get around your new city",
@@ -109,92 +65,90 @@ export const CATEGORIES: Category[] = [
       { name: "Trainline",   description: "Save on rail & coach tickets",  icon: "", recommended: true },
       { name: "Uber",        description: "Rides in most UK cities",        icon: "" },
       { name: "Citymapper",  description: "London & major city routes",     icon: "" },
-      { name: "Stagecoach",  description: "Buses in many UK areas",         icon: "" },
     ],
   },
+
+  // Phase 2 — First 48 Hours
   {
     id: "food",
-    title: "Food",
-    subtitle: "Find food and groceries",
+    title: "Food Delivery",
+    subtitle: "Get food delivered to your door",
     icon: "restaurant-outline",
     color: Colors.category.food,
     textColor: "#FFFFFF",
-    checklistItems: ["Find local supermarkets", "Download delivery apps", "Explore local restaurants"],
+    checklistItems: ["Download delivery apps", "Place first order", "Find local restaurants"],
     apps: [
       { name: "Deliveroo",  description: "Food delivery from local restaurants", icon: "" },
       { name: "Uber Eats",  description: "Your favorite food, delivered",        icon: "" },
+      { name: "Just Eat",   description: "Takeaway delivered to your door",      icon: "" },
     ],
   },
   {
-    id: "university",
-    title: "University",
-    subtitle: "Get set up at your university",
-    icon: "school-outline",
-    color: Colors.category.university,
-    textColor: "#FFFFFF",
-    checklistItems: ["Campus orientation", "Student ID", "Library access", "Enroll in courses"],
-    apps: [],
-  },
-  {
     id: "discounts",
-    title: "Discounts",
-    subtitle: "Unlock student deals",
+    title: "Student Discounts",
+    subtitle: "Unlock student deals and save money",
     icon: "pricetag-outline",
     color: Colors.category.discounts,
     textColor: "#FFFFFF",
-    checklistItems: ["Get student discount card", "Verify student status"],
+    checklistItems: ["Get student discount card", "Verify student status", "Browse available deals"],
     apps: [
-      { name: "UNiDAYS", description: "Student discounts and deals", icon: "" },
+      { name: "UNiDAYS",       description: "Student discounts and deals",     icon: "" },
+      { name: "Student Beans", description: "Exclusive student offers",         icon: "" },
     ],
     tip: {
       title: "Verify your status",
       description: "Make sure you have your university email ready to unlock these deals.",
     },
   },
+
+  // Phase 3 — First Week
   {
-    id: "socialEvents",
-    title: "Social Events",
-    subtitle: "Meet people and have fun",
+    id: "groceries",
+    title: "Groceries",
+    subtitle: "Find supermarkets and grocery shopping",
+    icon: "cart-outline",
+    color: "#F97316",
+    textColor: "#FFFFFF",
+    checklistItems: ["Find local supermarkets", "Download grocery apps", "Plan weekly shop"],
+    apps: [
+      { name: "Tesco",       description: "Groceries delivered to your door",  icon: "" },
+      { name: "Sainsbury's", description: "Quality food and groceries",        icon: "" },
+      { name: "Aldi",        description: "Great quality, low prices",         icon: "" },
+    ],
+  },
+  {
+    id: "events",
+    title: "Events",
+    subtitle: "Freshers events, student nights and more",
     icon: "calendar-outline",
     color: Colors.category.socialEvents,
     textColor: "#FFFFFF",
-    checklistItems: ["Join student union", "Find events", "Join societies"],
-    apps: [],
-  },
-  {
-    id: "exploreUK",
-    title: "Explore UK",
-    subtitle: "Discover your new home",
-    icon: "compass-outline",
-    color: Colors.category.exploreUK,
-    textColor: "#FFFFFF",
-    checklistItems: ["Local attractions", "Day trips", "City guides"],
+    checklistItems: ["Join student union", "Find freshers events", "Join societies", "Explore campus activities"],
     apps: [],
   },
 ];
 
-// Checklist phases
+// Checklist phases — matches spec exactly
 export const PHASES = [
   {
     id: "before-fly",
-    title: "Before you fly",
+    title: "Before You Fly",
     subtitle: "Get everything ready before arrival",
     icon: "airplane-outline",
-    categories: ["documents", "accommodation", "banking", "sims", "flights", "insurance"],
+    categories: ["sims", "banking", "transport"],
   },
   {
     id: "upon-arrival",
-    title: "Upon Arrival",
-    subtitle: "Settle in smooth when you arrive.",
+    title: "First 48 Hours",
+    subtitle: "Settle in smooth when you arrive",
     icon: "location-outline",
-    categories: ["transport", "food", "university"],
+    categories: ["food", "discounts"],
   },
   {
     id: "settling-in",
-    title: "Settling In",
-    subtitle: "Get Comfortable and start your new life.",
+    title: "First Week",
+    subtitle: "Get comfortable and start your new life",
     icon: "home-outline",
-    categories: ["discounts", "socialEvents", "exploreUK"],
+    categories: ["groceries", "events"],
   },
 ] as const;
-

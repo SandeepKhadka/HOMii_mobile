@@ -17,18 +17,13 @@ interface PhaseChecklistProps {
 }
 
 const CATEGORY_ICONS: Record<string, { name: React.ComponentProps<typeof Ionicons>["name"]; bg: string; color: string }> = {
-  documents:     { name: "document-text",       bg: "#FEF3C7", color: "#F59E0B" },
-  accommodation: { name: "home",                bg: "#EDE9FE", color: "#7C3AED" },
-  banking:       { name: "card",                bg: "#CCFBF1", color: "#14B8A6" },
   sims:          { name: "phone-portrait",      bg: "#FEF3C7", color: "#F59E0B" },
-  flights:       { name: "airplane",            bg: "#DCFCE7", color: "#22C55E" },
-  insurance:     { name: "shield-checkmark",    bg: "#FEE2E2", color: "#DC2626" },
+  banking:       { name: "card",                bg: "#CCFBF1", color: "#14B8A6" },
   transport:     { name: "bus",                 bg: "#E2E8F0", color: "#1E293B" },
   food:          { name: "restaurant",          bg: "#FFEDD5", color: "#F97316" },
-  university:    { name: "school",              bg: "#E0F2FE", color: "#38BDF8" },
   discounts:     { name: "pricetag",            bg: "#FFE4E6", color: "#F43F5E" },
-  socialEvents:  { name: "calendar",            bg: "#FCE7F3", color: "#F472B6" },
-  exploreUK:     { name: "compass",             bg: "#E2E8F0", color: "#475569" },
+  groceries:     { name: "cart",                bg: "#FEF3C7", color: "#F97316" },
+  events:        { name: "calendar",            bg: "#FCE7F3", color: "#F472B6" },
 };
 
 export default function PhaseChecklist({

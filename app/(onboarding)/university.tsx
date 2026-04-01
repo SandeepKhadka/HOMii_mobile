@@ -1,47 +1,55 @@
 import { View, ScrollView, Pressable } from "react-native";
 import { useState, useMemo } from "react";
 import { router } from "expo-router";
-import { Screen, Text, Button, Input } from "@/components/ui";
+import { Text, Button, Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/contexts/AuthContext";
 
 const UNIVERSITIES = [
-  { name: "University of Manchester", city: "Manchester, UK" },
-  { name: "University College London", city: "London, UK" },
-  { name: "University of Birmingham", city: "Birmingham, UK" },
-  { name: "University of Edinburgh", city: "Edinburgh, UK" },
-  { name: "University of Leeds", city: "Leeds, UK" },
-  { name: "University of Sheffield", city: "Sheffield, UK" },
-  { name: "University of Nottingham", city: "Nottingham, UK" },
-  { name: "University of Liverpool", city: "Liverpool, UK" },
-  { name: "University of Bristol", city: "Bristol, UK" },
-  { name: "University of Exeter", city: "Exeter, UK" },
-  { name: "University of Southampton", city: "Southampton, UK" },
-  { name: "University of Leicester", city: "Leicester, UK" },
-  { name: "Newcastle University", city: "Newcastle, UK" },
-  { name: "Cardiff University", city: "Cardiff, UK" },
-  { name: "University of Glasgow", city: "Glasgow, UK" },
-  { name: "Queen's University Belfast", city: "Belfast, UK" },
-  { name: "University of Warwick", city: "Coventry, UK" },
-  { name: "Loughborough University", city: "Loughborough, UK" },
-  { name: "Coventry University", city: "Coventry, UK" },
-  { name: "De Montfort University", city: "Leicester, UK" },
+  { name: "University College London", city: "London" },
+  { name: "University of Manchester", city: "Manchester" },
+  { name: "University of Edinburgh", city: "Edinburgh" },
+  { name: "King's College London", city: "London" },
+  { name: "University of Glasgow", city: "Glasgow" },
+  { name: "University of Leeds", city: "Leeds" },
+  { name: "University of Birmingham", city: "Birmingham" },
+  { name: "Imperial College London", city: "London" },
+  { name: "University of Nottingham", city: "Nottingham" },
+  { name: "University of Bristol", city: "Bristol" },
+  { name: "University of the West of England (UWE Bristol)", city: "Bristol" },
+  { name: "University of Sheffield", city: "Sheffield" },
+  { name: "University of Liverpool", city: "Liverpool" },
+  { name: "Cardiff University", city: "Cardiff" },
+  { name: "University of Exeter", city: "Exeter" },
+  { name: "University of Southampton", city: "Southampton" },
+  { name: "University of Bath", city: "Bath" },
+  { name: "Swansea University", city: "Swansea" },
+  { name: "University of Essex", city: "Colchester" },
+  { name: "University of Huddersfield", city: "Huddersfield" },
 ];
 
 export default function UniversityScreen() {
+  const insets = useSafeAreaInsets();
+  const { updateProfile } = useAuth();
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const filtered = useMemo(
-    () => UNIVERSITIES.filter((u) => u.name.toLowerCase().includes(search.toLowerCase())),
+    () => UNIVERSITIES.filter((u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.city.toLowerCase().includes(search.toLowerCase())
+    ),
     [search],
   );
 
   return (
-    <Screen className="bg-white" edges={["top", "bottom"]}>
+    <View className="flex-1 bg-white" style={{ paddingTop: insets.top + 8 }}>
       {/* Back */}
-      <View className="px-4 pt-2">
+      <View className="px-4">
         <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
           <Ionicons name="arrow-back" size={22} color={Colors.grey[900]} />
         </Pressable>
@@ -55,11 +63,18 @@ export default function UniversityScreen() {
 
         {/* Title */}
         <View className="items-center gap-1">
-          <Text variant="h2" className="text-center font-heading text-grey-900">
-            Select you University
+          <Text
+            className="text-center text-grey-900"
+            style={{
+              fontFamily: "BricolageGrotesque_700Bold",
+              fontSize: 26,
+              lineHeight: 34,
+            }}
+          >
+            Select your University
           </Text>
           <Text variant="body" color="muted" className="text-center">
-            We will personalize your setup and{"\n"}resources
+            We'll personalize your setup and resources
           </Text>
         </View>
 
@@ -95,10 +110,8 @@ export default function UniversityScreen() {
                       {uni.city}
                     </Text>
                   </View>
-                  {selected === uni.name ? (
+                  {selected === uni.name && (
                     <Ionicons name="checkmark-circle" size={24} color={Colors.success.DEFAULT} />
-                  ) : (
-                    <View />
                   )}
                 </View>
               </Pressable>
@@ -113,16 +126,22 @@ export default function UniversityScreen() {
       </View>
 
       {/* Continue */}
-      <View className="px-6 pb-8">
+      <View className="px-6" style={{ paddingBottom: insets.bottom + 16 }}>
         <Button
           variant="primary"
           size="lg"
           label="Continue"
           fullWidth
           disabled={!selected}
-          onPress={() => router.push("/(onboarding)/terms")}
+          onPress={async () => {
+            if (!selected) return;
+            setSaving(true);
+            await updateProfile({ university: selected });
+            setSaving(false);
+            router.push("/(onboarding)/checklist-intro");
+          }}
         />
       </View>
-    </Screen>
+    </View>
   );
 }

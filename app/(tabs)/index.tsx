@@ -10,12 +10,13 @@ import { supabase } from "@/lib/supabase";
 import { CATEGORIES } from "@/constants/categories";
 
 const ESSENTIAL_APPS = [
-  { id: "food",         title: "Food",           icon: "restaurant-outline" as const, color: "#FEF3C7", iconColor: "#F97316" },
-  { id: "transport",    title: "Transport",       icon: "bus-outline"        as const, color: "#DBEAFE", iconColor: "#1E293B" },
-  { id: "university",   title: "University",      icon: "school-outline"     as const, color: "#E5E7EB", iconColor: "#6B7280" },
-  { id: "discounts",    title: "Discounts",       icon: "pricetag-outline"   as const, color: "#FFE4E6", iconColor: "#F43F5E" },
-  { id: "flights",      title: "Flights",         icon: "airplane-outline"   as const, color: "#E0E7FF", iconColor: "#6366F1" },
-  { id: "socialEvents", title: "Social Events",   icon: "calendar-outline"   as const, color: "#FFE4E6", iconColor: "#F472B6" },
+  { id: "sims",       title: "SIM Cards",          icon: "phone-portrait-outline" as const, color: "#FEF3C7", iconColor: "#F59E0B" },
+  { id: "banking",    title: "Banking",            icon: "card-outline"           as const, color: "#CCFBF1", iconColor: "#14B8A6" },
+  { id: "transport",  title: "Transport",          icon: "bus-outline"            as const, color: "#E2E8F0", iconColor: "#1E293B" },
+  { id: "food",       title: "Food Delivery",      icon: "restaurant-outline"     as const, color: "#FFEDD5", iconColor: "#F97316" },
+  { id: "discounts",  title: "Student Discounts",  icon: "pricetag-outline"       as const, color: "#FFE4E6", iconColor: "#F43F5E" },
+  { id: "groceries",  title: "Groceries",          icon: "cart-outline"           as const, color: "#FEF3C7", iconColor: "#F97316" },
+  { id: "events",     title: "Events",             icon: "calendar-outline"       as const, color: "#FCE7F3", iconColor: "#F472B6" },
 ];
 
 // Total checklist items across all categories
