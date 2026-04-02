@@ -18,6 +18,9 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   verifyOtp: (email: string, token: string) => Promise<{ error: string | null }>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: string | null }>;
+  verifyResetOtp: (email: string, token: string) => Promise<{ error: string | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Database["public"]["Tables"]["profiles"]["Update"]) => Promise<void>;
 }
@@ -122,9 +125,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
     });
     console.log("[Auth] SignUp result:", { user: data?.user?.id, session: !!data?.session, error: error?.message });
-    // If session exists immediately, email confirmation is disabled
-    const needsConfirmation = !error && !data.session;
-    return { error: error?.message ?? null, needsConfirmation };
+
+    if (error) {
+      // Check if user already exists (likely signed up with Google)
+      if (error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already been registered")) {
+        return { error: "An account with this email already exists. Try signing in with Google or use your password.", needsConfirmation: false };
+      }
+      return { error: error.message, needsConfirmation: false };
+    }
+
+    // Supabase may return a user with no session and fake identities to prevent email enumeration
+    // If the user has no identities, the email is already taken
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      return { error: "An account with this email already exists. Try signing in with Google or use your password.", needsConfirmation: false };
+    }
+
+    const needsConfirmation = !data.session;
+    return { error: null, needsConfirmation };
   };
 
   const signIn = async (email: string, password: string) => {
@@ -132,7 +149,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
       email,
       password,
     });
-    return { error: error?.message ?? null };
+    if (error) {
+      if (error.message === "Invalid login credentials") {
+        return { error: "Invalid email or password. If you signed up with Google, use 'Continue with Google' instead." };
+      }
+      return { error: error.message };
+    }
+    return { error: null };
   };
 
   const signInWithGoogle = async () => {
@@ -186,6 +209,27 @@ export function AuthProvider({ children }: PropsWithChildren) {
       email,
       token,
       type: "signup",
+    });
+    return { error: error?.message ?? null };
+  };
+
+  const resetPasswordForEmail = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    return { error: error?.message ?? null };
+  };
+
+  const verifyResetOtp = async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: "recovery",
+    });
+    return { error: error?.message ?? null };
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
     });
     return { error: error?.message ?? null };
   };
@@ -247,6 +291,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
         signIn,
         signInWithGoogle,
         verifyOtp,
+        resetPasswordForEmail,
+        verifyResetOtp,
+        updatePassword,
         signOut,
         updateProfile,
       }}

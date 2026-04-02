@@ -35,8 +35,15 @@ function RouteGuard() {
     const inTabs = currentSegment === "(tabs)";
     console.log("[RouteGuard] session:", !!session, "profile:", !!profile, "onboarded:", profile?.onboarding_completed, "segment:", currentSegment);
 
+    // Don't redirect away from reset-password (recovery OTP creates a session)
+    const isResettingPassword = inAuthGroup && segments[1] === "reset-password";
+
     if (!session) {
       if (!inAuthGroup) router.replace("/(auth)/welcome");
+    } else if (isResettingPassword) {
+      // Let the user finish resetting their password
+      SplashScreen.hideAsync();
+      return;
     } else if (!profile) {
       // Session exists but profile not loaded yet — keep splash visible, wait
       console.log("[RouteGuard] Waiting for profile to load...");
