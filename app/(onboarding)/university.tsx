@@ -1,5 +1,5 @@
-import { View, ScrollView, Pressable } from "react-native";
-import { useState, useMemo } from "react";
+import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { useState, useMemo, useEffect } from "react";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -7,8 +7,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { api } from "@/lib/api";
 
-const UNIVERSITIES = [
+// Fallback list in case API is unavailable
+const FALLBACK_UNIVERSITIES = [
   { name: "University College London", city: "London" },
   { name: "University of Manchester", city: "Manchester" },
   { name: "University of Edinburgh", city: "Edinburgh" },
@@ -34,12 +36,25 @@ const UNIVERSITIES = [
 export default function UniversityScreen() {
   const insets = useSafeAreaInsets();
   const { updateProfile } = useAuth();
+  const [universities, setUniversities] = useState(FALLBACK_UNIVERSITIES);
+  const [loadingUnis, setLoadingUnis] = useState(true);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    api.getUniversities()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setUniversities(data.map((u) => ({ name: u.name, city: u.city })));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingUnis(false));
+  }, []);
+
   const filtered = useMemo(
-    () => UNIVERSITIES.filter((u) =>
+    () => universities.filter((u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.city.toLowerCase().includes(search.toLowerCase())
     ),

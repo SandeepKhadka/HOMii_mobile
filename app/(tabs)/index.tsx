@@ -6,8 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
-import { CATEGORIES } from "@/constants/categories";
 
 const ESSENTIAL_APPS = [
   { id: "sims",       title: "SIM Cards",          icon: "phone-portrait-outline" as const, color: "#FEF3C7", iconColor: "#F59E0B" },
@@ -19,13 +19,12 @@ const ESSENTIAL_APPS = [
   { id: "events",     title: "Events",             icon: "calendar-outline"       as const, color: "#FCE7F3", iconColor: "#F472B6" },
 ];
 
-// Total checklist items across all categories
-const TOTAL_ITEMS = CATEGORIES.reduce((sum, cat) => sum + cat.checklistItems.length, 0);
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
+  const { categories } = useCategories();
   const [completedTotal, setCompletedTotal] = useState(0);
+  const TOTAL_ITEMS = categories.reduce((sum, cat) => sum + cat.checklistItems.length, 0);
 
   const fetchProgress = useCallback(async () => {
     if (!user) return;

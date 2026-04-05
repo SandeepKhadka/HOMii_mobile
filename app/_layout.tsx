@@ -15,6 +15,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { CategoriesProvider } from "@/contexts/CategoriesContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -73,6 +74,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
+          <CategoriesProvider>
           <StatusBar style="dark" />
           <RouteGuard />
           <Stack screenOptions={{ headerShown: false }}>
@@ -83,6 +85,7 @@ export default function RootLayout() {
             <Stack.Screen name="category/[id]" options={{ animation: "slide_from_right" }} />
             <Stack.Screen name="ambassador" options={{ animation: "slide_from_right" }} />
           </Stack>
+          </CategoriesProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
