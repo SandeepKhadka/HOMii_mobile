@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
-import { submitAmbassadorApplication } from "@/lib/ambassador";
+import { api } from "@/lib/api";
 
 export default function AmbassadorSignupScreen() {
   const insets = useSafeAreaInsets();
@@ -37,21 +37,15 @@ export default function AmbassadorSignupScreen() {
     }
 
     setLoading(true);
-    const { error } = await submitAmbassadorApplication({
-      userId: user.id,
-      studentEmail,
-      course,
-      motivation,
-      fullName: profile?.full_name ?? "ambassador",
-    });
-    setLoading(false);
-
-    if (error) {
-      Alert.alert("Error", error.message);
-    } else {
+    try {
+      await api.applyAmbassador({ studentEmail, course, motivation: motivation || undefined });
       Alert.alert("Success", "Your application has been submitted!", [
         { text: "OK", onPress: () => router.replace("/ambassador/dashboard" as any) },
       ]);
+    } catch (err) {
+      Alert.alert("Error", (err as Error).message);
+    } finally {
+      setLoading(false);
     }
   };
 

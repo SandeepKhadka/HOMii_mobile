@@ -74,7 +74,7 @@ export const api = {
 
   // Clicks (authenticated)
   trackClick: (appId: string, refId?: string) =>
-    request('/clicks', {
+    request<ClickResponse>('/clicks', {
       method: 'POST',
       body: JSON.stringify({ appId, refId }),
     }),
@@ -96,10 +96,35 @@ export const api = {
 
   // Ambassadors (authenticated)
   applyAmbassador: (data: { studentEmail: string; course: string; motivation?: string }) =>
-    request('/ambassadors/apply', {
+    request<AmbassadorApplication>('/ambassadors/apply', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  getAmbassadorStatus: () => request('/ambassadors/me'),
-  getAmbassadorStats: () => request('/ambassadors/stats'),
+  getAmbassadorStatus: () => request<AmbassadorApplication | null>('/ambassadors/me'),
+  getAmbassadorStats: () => request<AmbassadorStats | null>('/ambassadors/stats'),
 };
+
+export interface ClickResponse {
+  clickId: string;
+  redirectUrl: string | null;
+}
+
+export interface AmbassadorApplication {
+  id: string;
+  userId: string;
+  studentEmail: string;
+  course: string;
+  motivation?: string;
+  referralCode: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
+export interface AmbassadorStats {
+  referralCode: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  totalReferrals: number;
+  confirmedReferrals: number;
+  totalEarnings: number;
+  pendingEarnings: number;
+}

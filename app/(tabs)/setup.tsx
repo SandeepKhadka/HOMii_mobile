@@ -6,8 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
-import { CATEGORIES, PHASES } from "@/constants/categories";
 
 const PHASE_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name"]> = {
   "before-fly":   "airplane-outline",
@@ -18,6 +18,7 @@ const PHASE_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name"]>
 export default function SetupScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { categories, phases } = useCategories();
   const [progress, setProgress] = useState<Record<string, number>>({});
 
   useFocusEffect(
@@ -40,11 +41,11 @@ export default function SetupScreen() {
     }, [user])
   );
 
-  const getPhaseProgress = (phase: typeof PHASES[number]) => {
+  const getPhaseProgress = (phaseCategories: string[]) => {
     let done = 0;
     let total = 0;
-    phase.categories.forEach((catId) => {
-      const cat = CATEGORIES.find((c) => c.id === catId);
+    phaseCategories.forEach((catId) => {
+      const cat = categories.find((c) => c.id === catId);
       if (cat) {
         total += cat.checklistItems.length;
         done += progress[catId] || 0;
@@ -54,7 +55,7 @@ export default function SetupScreen() {
   };
 
   const totalDone = Object.values(progress).reduce((s, v) => s + v, 0);
-  const totalItems = CATEGORIES.reduce((s, c) => s + c.checklistItems.length, 0);
+  const totalItems = categories.reduce((s, c) => s + c.checklistItems.length, 0);
   const allComplete = totalDone >= totalItems && totalItems > 0;
 
   return (
@@ -68,11 +69,7 @@ export default function SetupScreen() {
           <Text
             color="inverse"
             className="flex-1 ml-2"
-            style={{
-              fontFamily: "BricolageGrotesque_700Bold",
-              fontSize: 20,
-              lineHeight: 28,
-            }}
+            style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20, lineHeight: 28 }}
           >
             Setup Progress
           </Text>
@@ -97,7 +94,6 @@ export default function SetupScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {allComplete ? (
-          /* All done state */
           <View className="items-center justify-center py-16 px-8">
             <View
               className="w-28 h-28 rounded-full items-center justify-center mb-6"
@@ -107,11 +103,7 @@ export default function SetupScreen() {
             </View>
             <Text
               className="text-grey-900 text-center"
-              style={{
-                fontFamily: "BricolageGrotesque_700Bold",
-                fontSize: 24,
-                lineHeight: 32,
-              }}
+              style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 24, lineHeight: 32 }}
             >
               You're all set!
             </Text>
@@ -120,20 +112,16 @@ export default function SetupScreen() {
             </Text>
           </View>
         ) : (
-          /* Phase cards */
           <View className="px-6 pt-6 gap-4">
             <Text
               className="text-grey-900"
-              style={{
-                fontFamily: "BricolageGrotesque_700Bold",
-                fontSize: 20,
-              }}
+              style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20 }}
             >
               Your setup journey
             </Text>
 
-            {PHASES.map((phase) => {
-              const { done, total } = getPhaseProgress(phase);
+            {phases.map((phase) => {
+              const { done, total } = getPhaseProgress(phase.categories as string[]);
               const phaseDone = done >= total && total > 0;
               const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -141,21 +129,13 @@ export default function SetupScreen() {
                 <Pressable
                   key={phase.id}
                   className="bg-white rounded-2xl px-5 py-5"
-                  style={{
-                    elevation: 2,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.06,
-                    shadowRadius: 6,
-                  }}
+                  style={{ elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6 }}
                   onPress={() => router.push(`/(onboarding)/${phase.id}` as any)}
                 >
                   <View className="flex-row items-center gap-4">
                     <View
                       className="w-12 h-12 rounded-xl items-center justify-center"
-                      style={{
-                        backgroundColor: phaseDone ? Colors.success.light : Colors.primary[50],
-                      }}
+                      style={{ backgroundColor: phaseDone ? Colors.success.light : Colors.primary[50] }}
                     >
                       <Ionicons
                         name={phaseDone ? "checkmark-circle" : (PHASE_ICONS[phase.id] || "ellipse-outline")}
@@ -166,10 +146,7 @@ export default function SetupScreen() {
                     <View className="flex-1">
                       <Text
                         className="text-grey-900"
-                        style={{
-                          fontFamily: "BricolageGrotesque_600SemiBold",
-                          fontSize: 16,
-                        }}
+                        style={{ fontFamily: "BricolageGrotesque_600SemiBold", fontSize: 16 }}
                       >
                         {phase.title}
                       </Text>
@@ -179,7 +156,6 @@ export default function SetupScreen() {
                     </View>
                     <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
                   </View>
-                  {/* Mini progress bar */}
                   <View className="h-1.5 bg-grey-100 rounded-full overflow-hidden mt-3">
                     <View
                       className="h-full rounded-full"

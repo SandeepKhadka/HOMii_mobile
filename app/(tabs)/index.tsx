@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { View, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,21 +9,25 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
 
-const ESSENTIAL_APPS = [
-  { id: "sims",       title: "SIM Cards",          icon: "phone-portrait-outline" as const, color: "#FEF3C7", iconColor: "#F59E0B" },
-  { id: "banking",    title: "Banking",            icon: "card-outline"           as const, color: "#CCFBF1", iconColor: "#14B8A6" },
-  { id: "transport",  title: "Transport",          icon: "bus-outline"            as const, color: "#E2E8F0", iconColor: "#1E293B" },
-  { id: "food",       title: "Food Delivery",      icon: "restaurant-outline"     as const, color: "#FFEDD5", iconColor: "#F97316" },
-  { id: "discounts",  title: "Student Discounts",  icon: "pricetag-outline"       as const, color: "#FFE4E6", iconColor: "#F43F5E" },
-  { id: "groceries",  title: "Groceries",          icon: "cart-outline"           as const, color: "#FEF3C7", iconColor: "#F97316" },
-  { id: "events",     title: "Events",             icon: "calendar-outline"       as const, color: "#FCE7F3", iconColor: "#F472B6" },
-];
+// Fallback icon + iconColor mapping by category ID (used if API doesn't provide icon)
+const CATEGORY_ICON_MAP: Record<string, { icon: React.ComponentProps<typeof Ionicons>["name"]; iconColor: string }> = {
+  sims:           { icon: "phone-portrait-outline", iconColor: "#F59E0B" },
+  banking:        { icon: "card-outline",           iconColor: "#14B8A6" },
+  transport:      { icon: "bus-outline",            iconColor: "#1E293B" },
+  food:           { icon: "restaurant-outline",     iconColor: "#F97316" },
+  "food-delivery":{ icon: "restaurant-outline",     iconColor: "#F97316" },
+  discounts:      { icon: "pricetag-outline",       iconColor: "#F43F5E" },
+  "student-discounts": { icon: "pricetag-outline",  iconColor: "#F43F5E" },
+  groceries:      { icon: "cart-outline",           iconColor: "#F97316" },
+  events:         { icon: "calendar-outline",       iconColor: "#F472B6" },
+};
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
-  const { categories } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
   const [completedTotal, setCompletedTotal] = useState(0);
+
   const TOTAL_ITEMS = categories.reduce((sum, cat) => sum + cat.checklistItems.length, 0);
 
   const fetchProgress = useCallback(async () => {
@@ -40,7 +44,6 @@ export default function HomeScreen() {
     }
   }, [user]);
 
-  // Refetch every time tab is focused (in case user completed items)
   useFocusEffect(
     useCallback(() => {
       fetchProgress();
@@ -68,32 +71,42 @@ export default function HomeScreen() {
         <Text variant="subtitle" color="inverse" className="mt-1 opacity-90">
           Hello, {firstName}
         </Text>
+        {profile?.university ? (
+          <Text variant="caption" color="inverse" className="opacity-70 mt-0.5">
+            {profile.university} · Starter Pack
+          </Text>
+        ) : null}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 -mt-4">
-        {/* Setup progress — clickable card */}
+        {/* Setup progress / Continue Setup banner */}
         <Pressable
           onPress={() => router.push("/(tabs)/setup" as any)}
-          className="mx-6 mt-6 mb-4 bg-white rounded-2xl px-5 py-5"
+          className="mx-6 mt-6 mb-4 rounded-2xl px-5 py-5"
           style={{
+            backgroundColor: progressPercent === 100 ? "#F0FDF4" : Colors.primary[500],
             elevation: 3,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
+            shadowOpacity: 0.1,
             shadowRadius: 8,
           }}
         >
           <View className="flex-row justify-between items-center mb-3">
             <View className="flex-row items-center gap-2">
-              <Ionicons name="rocket-outline" size={20} color={Colors.primary[500]} />
+              <Ionicons
+                name={progressPercent === 100 ? "checkmark-circle" : "rocket-outline"}
+                size={20}
+                color={progressPercent === 100 ? Colors.success.DEFAULT : "#fff"}
+              />
               <Text
-                className="text-grey-900"
                 style={{
                   fontFamily: "BricolageGrotesque_600SemiBold",
                   fontSize: 15,
+                  color: progressPercent === 100 ? Colors.success.DEFAULT : "#fff",
                 }}
               >
-                Setup Progress
+                {progressPercent === 100 ? "All set up!" : "Continue Setup"}
               </Text>
             </View>
             <View className="flex-row items-center gap-1">
@@ -101,69 +114,102 @@ export default function HomeScreen() {
                 style={{
                   fontFamily: "BricolageGrotesque_700Bold",
                   fontSize: 15,
-                  color: Colors.primary[500],
+                  color: progressPercent === 100 ? Colors.success.DEFAULT : "#fff",
                 }}
               >
                 {progressPercent}%
               </Text>
-              <Ionicons name="chevron-forward" size={16} color={Colors.primary[500]} />
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={progressPercent === 100 ? Colors.success.DEFAULT : "#fff"}
+              />
             </View>
           </View>
-          <View className="h-3 bg-grey-100 rounded-full overflow-hidden">
+          <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: progressPercent === 100 ? Colors.success.light : "rgba(255,255,255,0.3)" }}>
             <View
               className="h-full rounded-full"
               style={{
                 width: `${progressPercent}%`,
-                backgroundColor: progressPercent === 100 ? Colors.success.DEFAULT : Colors.primary[500],
+                backgroundColor: progressPercent === 100 ? Colors.success.DEFAULT : "#fff",
               }}
             />
           </View>
-          <Text variant="caption" color="muted" className="mt-2">
+          <Text
+            variant="caption"
+            className="mt-2"
+            style={{ color: progressPercent === 100 ? Colors.success.DEFAULT : "rgba(255,255,255,0.8)" }}
+          >
             {completedTotal}/{TOTAL_ITEMS} tasks completed
           </Text>
         </Pressable>
 
-        {/* Essential Apps */}
+        {/* Essential Apps — dynamic from API */}
         <View className="px-6 mt-4">
           <View className="flex-row justify-between items-center mb-4">
             <Text variant="h3" className="font-heading text-grey-900">
               ESSENTIAL APPS
             </Text>
-            <Pressable>
+            <Pressable onPress={() => router.push("/(tabs)/apps" as any)}>
               <Text variant="bodyMedium" color="muted">Explore All</Text>
             </Pressable>
           </View>
 
-          <View className="flex-row flex-wrap gap-4">
-            {ESSENTIAL_APPS.map((app) => (
-              <Pressable
-                key={app.id}
-                className="w-[47%] bg-white rounded-2xl overflow-hidden shadow-card"
-                onPress={() => router.push(`/category/${app.id}` as any)}
-              >
-                <View
-                  className="h-24 items-center justify-center"
-                  style={{ backgroundColor: app.color }}
-                >
-                  <Ionicons name={app.icon} size={28} color={app.iconColor} />
-                </View>
-                <View className="p-3">
-                  <Text variant="bodyMedium" className="text-grey-800">{app.title}</Text>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+          {categoriesLoading ? (
+            <View className="items-center py-8">
+              <ActivityIndicator size="small" color={Colors.primary[500]} />
+            </View>
+          ) : (
+            <View className="flex-row flex-wrap gap-4">
+              {categories.map((cat) => {
+                const iconInfo = CATEGORY_ICON_MAP[cat.id] || { icon: "apps-outline" as const, iconColor: "#6366F1" };
+                return (
+                  <Pressable
+                    key={cat.id}
+                    className="w-[47%] bg-white rounded-2xl overflow-hidden shadow-card"
+                    onPress={() => router.push(`/category/${cat.id}` as any)}
+                  >
+                    <View
+                      className="h-24 items-center justify-center"
+                      style={{ backgroundColor: cat.color + "20" }}
+                    >
+                      <Ionicons name={iconInfo.icon} size={28} color={iconInfo.iconColor} />
+                    </View>
+                    <View className="p-3">
+                      <Text variant="bodyMedium" className="text-grey-800">{cat.title}</Text>
+                      {cat.apps.length > 0 && (
+                        <Text variant="caption" color="muted">{cat.apps.length} app{cat.apps.length !== 1 ? "s" : ""}</Text>
+                      )}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
         </View>
 
-        {/* Explore UK banner */}
-        <View className="mx-6 mt-6 mb-8 bg-primary-400 rounded-2xl p-6">
-          <Text variant="h3" color="inverse" className="font-heading">
-            Explore UK
-          </Text>
-          <Text variant="body" color="inverse" className="opacity-80 mt-1">
-            Discover top local locations
-          </Text>
-        </View>
+        {/* Refer a Friend CTA */}
+        <Pressable
+          className="mx-6 mt-6 mb-8 rounded-2xl p-6 flex-row items-center gap-4"
+          style={{ backgroundColor: Colors.navy.DEFAULT }}
+          onPress={() => router.push("/(tabs)/ambassadors" as any)}
+        >
+          <View className="w-12 h-12 rounded-xl bg-white/15 items-center justify-center">
+            <Ionicons name="gift-outline" size={24} color="#fff" />
+          </View>
+          <View className="flex-1">
+            <Text
+              color="inverse"
+              style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 16, lineHeight: 22 }}
+            >
+              Refer Friends Coming to the UK
+            </Text>
+            <Text variant="caption" color="inverse" className="opacity-70 mt-0.5">
+              Earn 10% commission on every referral
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.6)" />
+        </Pressable>
       </ScrollView>
     </View>
   );

@@ -1,6 +1,7 @@
 import { Colors } from "./colors";
 
 export interface CategoryApp {
+  id?:         string;  // API app ID for click tracking
   name:        string;
   description: string;
   icon:        string;

@@ -1,12 +1,14 @@
-import { View, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable, Linking } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-import { Text, Button } from "@/components/ui";
+import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
-import { CATEGORIES } from "@/constants/categories";
+import { useCategories } from "@/contexts/CategoriesContext";
+import { api } from "@/lib/api";
 
 export default function CategoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const category = CATEGORIES.find((c) => c.id === id);
+  const { categories } = useCategories();
+  const category = categories.find((c) => c.id === id);
 
   if (!category) {
     return (
@@ -15,6 +17,18 @@ export default function CategoryDetailScreen() {
       </View>
     );
   }
+
+  const handleDownload = async (appId?: string) => {
+    if (!appId) return;
+    try {
+      const { redirectUrl } = await api.trackClick(appId);
+      if (redirectUrl) {
+        await Linking.openURL(redirectUrl);
+      }
+    } catch {
+      // silent fail — click tracking should not block UX
+    }
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -41,43 +55,67 @@ export default function CategoryDetailScreen() {
             />
           </View>
         </View>
+        {category.subtitle ? (
+          <Text variant="body" className="mt-2 opacity-80" style={{ color: category.textColor }}>
+            {category.subtitle}
+          </Text>
+        ) : null}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-6 pt-4">
         {/* App list */}
-        <View className="gap-3">
-          {category.apps.map((app, i) => (
-            <View
-              key={app.name}
-              className={`flex-row items-center p-4 rounded-2xl bg-white ${
-                app.recommended ? "border-2" : ""
-              }`}
-              style={app.recommended ? { borderColor: category.color, backgroundColor: category.color + "15" } : {}}
-            >
-              {/* App icon placeholder */}
+        {category.apps.length > 0 ? (
+          <View className="gap-3">
+            {category.apps.map((app) => (
               <View
-                className="w-12 h-12 rounded-xl items-center justify-center mr-4"
-                style={{ backgroundColor: category.color + "20" }}
+                key={app.id || app.name}
+                className={`flex-row items-center p-4 rounded-2xl bg-white ${
+                  app.recommended ? "border-2" : ""
+                }`}
+                style={app.recommended ? { borderColor: category.color, backgroundColor: category.color + "15" } : {}}
               >
-                <Ionicons name={category.icon as any} size={22} color={category.color} />
-              </View>
+                {/* App icon placeholder */}
+                <View
+                  className="w-12 h-12 rounded-xl items-center justify-center mr-4"
+                  style={{ backgroundColor: category.color + "20" }}
+                >
+                  <Ionicons name={category.icon as any} size={22} color={category.color} />
+                </View>
 
-              <View className="flex-1">
-                {app.recommended && (
-                  <View className="self-start px-2 py-0.5 rounded mb-1" style={{ backgroundColor: category.color }}>
-                    <Text variant="label" color="inverse" className="text-[8px]">RECOMMENDED</Text>
-                  </View>
-                )}
-                <Text variant="bodyMedium" className="text-grey-900">{app.name}</Text>
-                <Text variant="caption" color="muted">{app.description}</Text>
-              </View>
+                <View className="flex-1">
+                  {app.recommended && (
+                    <View className="self-start px-2 py-0.5 rounded mb-1" style={{ backgroundColor: category.color }}>
+                      <Text variant="label" color="inverse" className="text-[8px]">RECOMMENDED</Text>
+                    </View>
+                  )}
+                  <Text variant="bodyMedium" className="text-grey-900">{app.name}</Text>
+                  <Text variant="caption" color="muted">{app.description}</Text>
+                </View>
 
-              <Pressable className="bg-grey-900 px-4 py-2 rounded-full">
-                <Text variant="captionMedium" color="inverse">Download</Text>
-              </Pressable>
-            </View>
-          ))}
-        </View>
+                <Pressable
+                  className="bg-grey-900 px-4 py-2 rounded-full"
+                  onPress={() => handleDownload(app.id)}
+                >
+                  <Text variant="captionMedium" color="inverse">Download</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View className="items-center py-16">
+            <Text variant="body" color="muted">Coming soon</Text>
+          </View>
+        )}
+
+        {/* Affiliate disclosure */}
+        {category.apps.length > 0 && (
+          <View className="flex-row items-start gap-2 px-1 mt-4">
+            <Ionicons name="information-circle-outline" size={14} color="#94a3b8" style={{ marginTop: 1 }} />
+            <Text variant="caption" color="muted" className="flex-1 text-[11px]">
+              Some links may earn HOMii a commission at no extra cost to you.
+            </Text>
+          </View>
+        )}
 
         {/* Tip card */}
         {category.tip && (
@@ -91,12 +129,6 @@ export default function CategoryDetailScreen() {
                 {category.tip.description}
               </Text>
             </View>
-          </View>
-        )}
-
-        {category.apps.length === 0 && (
-          <View className="items-center py-16">
-            <Text variant="body" color="muted">Coming soon</Text>
           </View>
         )}
 
