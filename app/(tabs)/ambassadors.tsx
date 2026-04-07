@@ -6,6 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api, AmbassadorStats } from "@/lib/api";
+import { capture } from "@/lib/analytics";
+import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 
 const WHAT_YOU_DO = [
   "Share HOMii with students at your university",
@@ -35,11 +37,14 @@ export default function AmbassadorsScreen() {
     if (!stats?.referralCode) return;
     const link = `https://homii.app/r/${stats.referralCode}`;
     try {
-      await Share.share({
+      const result = await Share.share({
         message: `Join me on HOMii — the essential app for international students in the UK! ${link}`,
         url: link,
         title: "HOMii Referral",
       });
+      if (result.action === Share.sharedAction) {
+        capture('referral_link_shared', { referral_code: stats.referralCode });
+      }
     } catch {
       // user cancelled
     }
@@ -52,17 +57,14 @@ export default function AmbassadorsScreen() {
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
-      <View
-        className="flex-row items-center px-6 pb-4"
-        style={{ backgroundColor: Colors.navy.DEFAULT, paddingTop: insets.top + 12 }}
-      >
+      <GradientHeader colors={HEADER_GRADIENTS.ambassadors} style={{ paddingTop: insets.top + 12, paddingBottom: 16, paddingHorizontal: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <Text
           color="inverse"
           style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20, lineHeight: 28 }}
         >
           Ambassador
         </Text>
-      </View>
+      </GradientHeader>
 
       {checkingStatus ? (
         <View className="flex-1 items-center justify-center">

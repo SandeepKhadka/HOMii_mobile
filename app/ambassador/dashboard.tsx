@@ -7,6 +7,7 @@ import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Clipboard from "expo-clipboard";
 import { api, AmbassadorStats } from "@/lib/api";
+import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 
 export default function AmbassadorDashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -95,23 +96,19 @@ export default function AmbassadorDashboardScreen() {
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
-      <View
-        className="flex-row items-center px-4 pb-4"
-        style={{ backgroundColor: Colors.teal.DEFAULT, paddingTop: insets.top + 12 }}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          className="w-10 h-10 items-center justify-center"
-        >
-          <Ionicons name="arrow-back" size={22} color="#fff" />
-        </Pressable>
-        <Text
-          color="inverse"
-          style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20, lineHeight: 28, marginLeft: 8 }}
-        >
-          Dashboard
-        </Text>
-      </View>
+      <GradientHeader colors={HEADER_GRADIENTS.ambassadors} style={{ paddingTop: insets.top + 12, paddingBottom: 16, paddingHorizontal: 16, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        <View className="flex-row items-center">
+          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+            <Ionicons name="arrow-back" size={22} color="#fff" />
+          </Pressable>
+          <Text
+            color="inverse"
+            style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20, lineHeight: 28, marginLeft: 8 }}
+          >
+            Dashboard
+          </Text>
+        </View>
+      </GradientHeader>
 
       <ScrollView
         className="flex-1"

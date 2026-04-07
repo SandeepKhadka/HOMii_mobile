@@ -44,6 +44,9 @@
       "expo-localization",
       "expo-web-browser"
     ],
+    "updates": {
+      "enabled": false
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

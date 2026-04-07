@@ -3,17 +3,14 @@ import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
-import { PHASES } from "@/constants/categories";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const PHASE_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name"]> = {
-  "before-fly":   "airplane-outline",
-  "upon-arrival":  "location-outline",
-  "settling-in":   "home-outline",
-};
+import { useCategories } from "@/contexts/CategoriesContext";
 
 export default function ChecklistIntroScreen() {
   const insets = useSafeAreaInsets();
+  const { phases } = useCategories();
+
+  const firstPhase = phases[0];
 
   return (
     <ImageBackground
@@ -40,9 +37,9 @@ export default function ChecklistIntroScreen() {
             Lets get you set up
           </Text>
 
-          {/* Phase cards */}
+          {/* Phase cards — dynamic from context */}
           <View className="gap-4">
-            {PHASES.map((phase) => (
+            {phases.map((phase) => (
               <Pressable
                 key={phase.id}
                 className="flex-row items-center bg-white/90 rounded-2xl px-5 py-5 gap-4"
@@ -58,7 +55,7 @@ export default function ChecklistIntroScreen() {
                 }}
               >
                 <Ionicons
-                  name={PHASE_ICONS[phase.id] || "ellipse-outline"}
+                  name={(phase.icon || "ellipse-outline") as any}
                   size={24}
                   color={Colors.grey[900]}
                 />
@@ -76,14 +73,18 @@ export default function ChecklistIntroScreen() {
           </View>
         </View>
 
-        {/* Continue */}
+        {/* Continue — starts from first phase */}
         <View className="px-6" style={{ paddingBottom: insets.bottom + 24 }}>
           <Button
             variant="primary"
             size="lg"
             label="Continue"
             fullWidth
-            onPress={() => router.push({ pathname: "/(onboarding)/before-fly" as any, params: { onboarding: "true" } })}
+            onPress={() => {
+              if (firstPhase) {
+                router.push({ pathname: `/(onboarding)/${firstPhase.id}` as any, params: { onboarding: "true" } });
+              }
+            }}
           />
         </View>
       </View>

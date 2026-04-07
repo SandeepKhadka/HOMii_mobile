@@ -4,6 +4,7 @@ import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { CATEGORIES } from "@/constants/categories";
 import { useOnboardingProgress } from "@/contexts/OnboardingProgressContext";
+import { capture } from "@/lib/analytics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 
@@ -64,7 +65,18 @@ export default function CategoryChecklistScreen() {
             return (
               <Pressable
                 key={item}
-                onPress={() => toggleItem(category.id, item)}
+                onPress={() => {
+                  const completing = !isItemCompleted(category.id, item);
+                  if (completing) {
+                    const allOthersDone = category.checklistItems
+                      .filter((i) => i !== item)
+                      .every((i) => isItemCompleted(category.id, i));
+                    if (allOthersDone) {
+                      capture('checklist_category_completed', { category_id: category.id, category_name: category.title });
+                    }
+                  }
+                  toggleItem(category.id, item);
+                }}
                 className="flex-row items-center bg-white rounded-2xl px-5 py-4"
                 style={{
                   elevation: 2,

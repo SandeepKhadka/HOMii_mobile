@@ -4,6 +4,10 @@ import { supabase } from "@/lib/supabase";
 import { Database } from "@/types/database";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "@/lib/api";
+
+const PENDING_REFERRAL_KEY = 'pendingReferralCode';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -111,7 +115,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (session?.user) {
       setLoading(true);
       console.log("[Auth] Session user detected, fetching profile for:", session.user.id.slice(0, 8));
-      fetchProfile(session.user.id).finally(() => setLoading(false));
+      fetchProfile(session.user.id).finally(() => {
+        setLoading(false);
+        // Apply any referral code stored from a deep link (homii://r/{code})
+        AsyncStorage.getItem(PENDING_REFERRAL_KEY).then((code) => {
+          if (!code) return;
+          AsyncStorage.removeItem(PENDING_REFERRAL_KEY);
+          api.attributeReferral(code).catch((e) => {
+            console.log("[Referral] Attribution skipped (already attributed or invalid):", (e as Error).message);
+          });
+        });
+      });
     }
   }, [session?.user?.id]);
 
@@ -159,49 +173,62 @@ export function AuthProvider({ children }: PropsWithChildren) {
   };
 
   const signInWithGoogle = async () => {
-    const redirectUrl = AuthSession.makeRedirectUri();
-    console.log("[Auth] Google redirect URL:", redirectUrl);
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: redirectUrl,
-        skipBrowserRedirect: true,
-      },
-    });
-    if (error || !data.url) {
-      return { error: error?.message ?? "Failed to start Google sign-in" };
-    }
-    console.log("[Auth] Opening Google OAuth URL");
-    const result = await WebBrowser.openAuthSessionAsync(
-      data.url,
-      redirectUrl,
-      { showInRecents: true }
-    );
-    console.log("[Auth] WebBrowser result type:", result.type);
-    if (result.type === "success") {
-      console.log("[Auth] Redirect URL received:", result.url?.slice(0, 100));
-      const url = result.url;
-      // Extract tokens from URL hash fragment
-      const hashPart = url.split("#")[1];
-      if (hashPart) {
-        const params = new URLSearchParams(hashPart);
-        const accessToken = params.get("access_token");
-        const refreshToken = params.get("refresh_token");
-        console.log("[Auth] Tokens found:", !!accessToken, !!refreshToken);
-        if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          return { error: sessionError?.message ?? null };
-        }
+    // Show loading overlay immediately so there's no flash when browser closes
+    setLoading(true);
+    try {
+      const redirectUrl = AuthSession.makeRedirectUri();
+      console.log("[Auth] Google redirect URL:", redirectUrl);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: true,
+        },
+      });
+      if (error || !data.url) {
+        setLoading(false);
+        return { error: error?.message ?? "Failed to start Google sign-in" };
       }
-      return { error: "No tokens received from Google" };
+      console.log("[Auth] Opening Google OAuth URL");
+      const result = await WebBrowser.openAuthSessionAsync(
+        data.url,
+        redirectUrl,
+        { showInRecents: true }
+      );
+      console.log("[Auth] WebBrowser result type:", result.type);
+      if (result.type === "success") {
+        console.log("[Auth] Redirect URL received:", result.url?.slice(0, 100));
+        const url = result.url;
+        // Extract tokens from URL hash fragment
+        const hashPart = url.split("#")[1];
+        if (hashPart) {
+          const params = new URLSearchParams(hashPart);
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+          console.log("[Auth] Tokens found:", !!accessToken, !!refreshToken);
+          if (accessToken && refreshToken) {
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (sessionError) setLoading(false);
+            // On success: profile-fetch useEffect will call setLoading(false)
+            return { error: sessionError?.message ?? null };
+          }
+        }
+        setLoading(false);
+        return { error: "No tokens received from Google" };
+      }
+      if (result.type === "cancel" || result.type === "dismiss") {
+        setLoading(false);
+        return { error: null }; // User cancelled
+      }
+      setLoading(false);
+      return { error: "Google sign-in failed" };
+    } catch (e: any) {
+      setLoading(false);
+      return { error: e?.message ?? "Google sign-in failed" };
     }
-    if (result.type === "cancel" || result.type === "dismiss") {
-      return { error: null }; // User cancelled
-    }
-    return { error: "Google sign-in failed" };
   };
 
   const verifyOtp = async (email: string, token: string) => {

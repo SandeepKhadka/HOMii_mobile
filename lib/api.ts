@@ -63,14 +63,30 @@ export interface ApiCategory {
   checklistItems: ApiChecklistItem[];
 }
 
+export interface ApiPhase {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  sortOrder: number;
+  active: boolean;
+}
+
 export const api = {
   // Universities
   getUniversities: () => request<ApiUniversity[]>('/universities'),
+
+  // Phases (public — returns only active phases)
+  getPhases: () => request<ApiPhase[]>('/phases'),
 
   // Categories
   getCategories: () => request<ApiCategory[]>('/categories'),
   getCategoriesByPhase: (phase: string) => request<ApiCategory[]>(`/categories?phase=${phase}`),
   getCategoryBySlug: (slug: string) => request<ApiCategory | null>(`/categories/${slug}`),
+  getCategoriesPaginated: (page: number, limit = 6) =>
+    request<{ items: ApiCategory[]; total: number; page: number; limit: number; hasMore: boolean }>(
+      `/categories?page=${page}&limit=${limit}`
+    ),
 
   // Clicks (authenticated)
   trackClick: (appId: string, refId?: string) =>

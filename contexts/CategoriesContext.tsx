@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, PropsWithChildren } from "react";
-import { api, ApiCategory } from "@/lib/api";
+import { api, ApiCategory, ApiPhase } from "@/lib/api";
 import { CATEGORIES, PHASES, Category } from "@/constants/categories";
 
 export interface PhaseData {
@@ -49,17 +49,30 @@ function mapApiToCategory(apiCat: ApiCategory): Category {
   };
 }
 
-// Build dynamic phases from API categories, preserving phase metadata from constants
-function buildDynamicPhases(cats: ApiCategory[]): PhaseData[] {
-  return (PHASES as unknown as PhaseData[]).map((phase) => {
-    const phaseCats = cats.filter((c) => c.phase === phase.id);
-    if (phaseCats.length === 0) {
-      // Keep static categories if API didn't return any for this phase
-      return phase;
-    }
+// Metadata fallback for known phase IDs (used when API doesn't return phase definitions)
+const PHASE_META: Record<string, { title: string; subtitle: string; icon: string }> = {
+  "before-fly":   { title: "Before You Fly",  subtitle: "Get everything ready before arrival",       icon: "airplane-outline" },
+  "upon-arrival": { title: "First 48 Hours",   subtitle: "Settle in smooth when you arrive",          icon: "location-outline" },
+  "settling-in":  { title: "First Week",       subtitle: "Get comfortable and start your new life",   icon: "home-outline" },
+};
+
+// Build phases from the API phases list (ordered by sortOrder, already filtered to active).
+// Groups categories by their `phase` slug field.
+function buildDynamicPhases(cats: ApiCategory[], apiPhases: ApiPhase[]): PhaseData[] {
+  const phaseMap: Record<string, string[]> = {};
+  for (const cat of cats) {
+    if (!phaseMap[cat.phase]) phaseMap[cat.phase] = [];
+    phaseMap[cat.phase].push(SLUG_TO_ID[cat.slug] || cat.slug);
+  }
+
+  return apiPhases.map((p) => {
+    const fallback = PHASE_META[p.slug] ?? { subtitle: "", icon: "ellipse-outline" };
     return {
-      ...phase,
-      categories: phaseCats.map((c) => SLUG_TO_ID[c.slug] || c.slug),
+      id: p.slug,
+      title: p.name,
+      subtitle: fallback.subtitle,
+      icon: p.icon || fallback.icon,   // prefer icon from admin, fallback to hardcoded
+      categories: phaseMap[p.slug] || [],
     };
   });
 }
@@ -72,12 +85,13 @@ export function CategoriesProvider({ children }: PropsWithChildren) {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const data = await api.getCategories();
-      if (data && data.length > 0) {
-        const mapped = data.map(mapApiToCategory);
-        setCategories(mapped);
-        setPhases(buildDynamicPhases(data));
-        console.log("[Categories] Loaded from API:", mapped.length);
+      const [cats, apiPhases] = await Promise.all([api.getCategories(), api.getPhases()]);
+      if (cats && cats.length > 0) {
+        setCategories(cats.map(mapApiToCategory));
+        if (apiPhases && apiPhases.length > 0) {
+          setPhases(buildDynamicPhases(cats, apiPhases));
+        }
+        console.log("[Categories] Loaded from API:", cats.length, "cats,", apiPhases?.length ?? 0, "phases");
       }
     } catch (e) {
       console.log("[Categories] API fetch failed, using fallback:", (e as Error).message);

@@ -8,12 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
-
-const PHASE_ICONS: Record<string, React.ComponentProps<typeof Ionicons>["name"]> = {
-  "before-fly":   "airplane-outline",
-  "upon-arrival":  "location-outline",
-  "settling-in":   "home-outline",
-};
+import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 
 export default function SetupScreen() {
   const insets = useSafeAreaInsets();
@@ -61,7 +56,7 @@ export default function SetupScreen() {
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="bg-primary-400 pb-6 px-6 rounded-b-3xl" style={{ paddingTop: insets.top + 12 }}>
+      <GradientHeader colors={HEADER_GRADIENTS.setup} style={{ paddingTop: insets.top + 12, paddingBottom: 24, paddingHorizontal: 24, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
         <View className="flex-row items-center">
           <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
             <Ionicons name="arrow-back" size={22} color="#fff" />
@@ -90,7 +85,7 @@ export default function SetupScreen() {
             />
           </View>
         </View>
-      </View>
+      </GradientHeader>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {allComplete ? (
@@ -138,7 +133,7 @@ export default function SetupScreen() {
                       style={{ backgroundColor: phaseDone ? Colors.success.light : Colors.primary[50] }}
                     >
                       <Ionicons
-                        name={phaseDone ? "checkmark-circle" : (PHASE_ICONS[phase.id] || "ellipse-outline")}
+                        name={phaseDone ? "checkmark-circle" : ((phase.icon || "ellipse-outline") as any)}
                         size={24}
                         color={phaseDone ? Colors.success.DEFAULT : Colors.primary[500]}
                       />

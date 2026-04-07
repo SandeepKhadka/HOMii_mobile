@@ -1,14 +1,25 @@
+import { useEffect } from "react";
 import { View, ScrollView, Pressable, Linking } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { api } from "@/lib/api";
+import { capture } from "@/lib/analytics";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GradientHeader, { lightenHex } from "@/components/GradientHeader";
 
 export default function CategoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { categories } = useCategories();
   const category = categories.find((c) => c.id === id);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (category) {
+      capture('category_apps_viewed', { category_id: id, category_name: category.title });
+    }
+  }, [id]);
 
   if (!category) {
     return (
@@ -18,8 +29,9 @@ export default function CategoryDetailScreen() {
     );
   }
 
-  const handleDownload = async (appId?: string) => {
+  const handleDownload = async (appId?: string, appName?: string) => {
     if (!appId) return;
+    capture('partner_download_clicked', { app_id: appId, app_name: appName, category_id: id });
     try {
       const { redirectUrl } = await api.trackClick(appId);
       if (redirectUrl) {
@@ -32,35 +44,34 @@ export default function CategoryDetailScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      {/* Colored header */}
-      <View
-        className="pt-14 pb-5 px-6 rounded-b-2xl"
-        style={{ backgroundColor: category.color }}
+      {/* Gradient header */}
+      <GradientHeader
+        colors={[category.color, lightenHex(category.color, 0.6)]}
+        style={{
+          paddingTop: insets.top + 12,
+          paddingBottom: 20,
+          paddingHorizontal: 16,
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+        }}
       >
         <View className="flex-row items-center justify-between">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 items-center justify-center"
-          >
-            <Ionicons name="arrow-back" size={22} color={category.textColor} />
+          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+            <Ionicons name="arrow-back" size={22} color="#fff" />
           </Pressable>
-          <Text variant="h3" className="font-heading flex-1 ml-2" style={{ color: category.textColor }}>
+          <Text variant="h3" className="font-heading flex-1 ml-2" style={{ color: "#fff" }}>
             {category.title}
           </Text>
           <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
-            <Ionicons
-              name={category.icon as any}
-              size={20}
-              color={category.textColor}
-            />
+            <Ionicons name={category.icon as any} size={20} color="#fff" />
           </View>
         </View>
         {category.subtitle ? (
-          <Text variant="body" className="mt-2 opacity-80" style={{ color: category.textColor }}>
+          <Text variant="body" className="mt-2 opacity-80" style={{ color: "#fff" }}>
             {category.subtitle}
           </Text>
         ) : null}
-      </View>
+      </GradientHeader>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-6 pt-4">
         {/* App list */}
@@ -94,7 +105,7 @@ export default function CategoryDetailScreen() {
 
                 <Pressable
                   className="bg-grey-900 px-4 py-2 rounded-full"
-                  onPress={() => handleDownload(app.id)}
+                  onPress={() => handleDownload(app.id, app.name)}
                 >
                   <Text variant="captionMedium" color="inverse">Download</Text>
                 </Pressable>

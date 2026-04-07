@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,19 +9,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
+import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
 
-// Fallback icon + iconColor mapping by category ID (used if API doesn't provide icon)
-const CATEGORY_ICON_MAP: Record<string, { icon: React.ComponentProps<typeof Ionicons>["name"]; iconColor: string }> = {
-  sims:           { icon: "phone-portrait-outline", iconColor: "#F59E0B" },
-  banking:        { icon: "card-outline",           iconColor: "#14B8A6" },
-  transport:      { icon: "bus-outline",            iconColor: "#1E293B" },
-  food:           { icon: "restaurant-outline",     iconColor: "#F97316" },
-  "food-delivery":{ icon: "restaurant-outline",     iconColor: "#F97316" },
-  discounts:      { icon: "pricetag-outline",       iconColor: "#F43F5E" },
-  "student-discounts": { icon: "pricetag-outline",  iconColor: "#F43F5E" },
-  groceries:      { icon: "cart-outline",           iconColor: "#F97316" },
-  events:         { icon: "calendar-outline",       iconColor: "#F472B6" },
-};
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -56,7 +46,7 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-background">
       {/* Hero header */}
-      <View className="bg-primary-400 pb-8 px-6 rounded-b-3xl" style={{ paddingTop: insets.top + 12 }}>
+      <GradientHeader colors={HEADER_GRADIENTS.home} style={{ paddingTop: insets.top + 12, paddingBottom: 32, paddingHorizontal: 24, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
         <View className="flex-row justify-between items-center">
           <Text variant="h3" color="inverse" className="font-heading">
             HOMii
@@ -76,7 +66,7 @@ export default function HomeScreen() {
             {profile.university} · Starter Pack
           </Text>
         ) : null}
-      </View>
+      </GradientHeader>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 -mt-4">
         {/* Setup progress / Continue Setup banner */}
@@ -161,20 +151,24 @@ export default function HomeScreen() {
             </View>
           ) : (
             <View className="flex-row flex-wrap gap-4">
-              {categories.map((cat) => {
-                const iconInfo = CATEGORY_ICON_MAP[cat.id] || { icon: "apps-outline" as const, iconColor: "#6366F1" };
+              {categories.slice(0, 6).map((cat) => {
+                const gradientEnd = lightenHex(cat.color, 0.6);
                 return (
                   <Pressable
                     key={cat.id}
                     className="w-[47%] bg-white rounded-2xl overflow-hidden shadow-card"
                     onPress={() => router.push(`/category/${cat.id}` as any)}
                   >
-                    <View
-                      className="h-24 items-center justify-center"
-                      style={{ backgroundColor: cat.color + "20" }}
+                    <LinearGradient
+                      colors={[cat.color, gradientEnd]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={{ height: 96, alignItems: "center", justifyContent: "center" }}
                     >
-                      <Ionicons name={iconInfo.icon} size={28} color={iconInfo.iconColor} />
-                    </View>
+                      <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: "rgba(255,255,255,0.85)", alignItems: "center", justifyContent: "center" }}>
+                        <Ionicons name={(cat.icon || "apps-outline") as any} size={26} color={cat.color} />
+                      </View>
+                    </LinearGradient>
                     <View className="p-3">
                       <Text variant="bodyMedium" className="text-grey-800">{cat.title}</Text>
                       {cat.apps.length > 0 && (

@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -25,29 +26,23 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
-      <View
-        className="bg-primary-400 px-6 pb-8 rounded-b-3xl items-center"
-        style={{ paddingTop: insets.top + 16 }}
+      <GradientHeader
+        colors={HEADER_GRADIENTS.profile}
+        style={{ paddingTop: insets.top + 16, paddingBottom: 32, paddingHorizontal: 24, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, alignItems: "center" }}
       >
-        <View
-          className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-3"
-        >
+        <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-3">
           <Ionicons name="person" size={36} color="#fff" />
         </View>
         <Text
           color="inverse"
-          style={{
-            fontFamily: "BricolageGrotesque_700Bold",
-            fontSize: 22,
-            lineHeight: 28,
-          }}
+          style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 22, lineHeight: 28 }}
         >
           {profile?.full_name || "Student"}
         </Text>
         <Text variant="body" color="inverse" className="opacity-80 mt-1">
           {profile?.email || ""}
         </Text>
-      </View>
+      </GradientHeader>
 
       <View className="flex-1 px-6 pt-6 justify-between" style={{ paddingBottom: insets.bottom + 16 }}>
         <View className="gap-4">

@@ -6,7 +6,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/api/v1/admin/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"admin@homii.app\",\"password\":\"Admin@123\"}')",
       "Bash(curl -s http://localhost:3000/api/v1/admin/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"admin@homii.app\",\"password\":\"Admin@123\"}')",
       "Bash(curl -s http://localhost:3000/api/v1/admin/stats -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNlOWQ5OTYwLWU2MzAtNDk3Mi05OGI1LWVjMDU1MDk0NTdmNyIsImVtYWlsIjoiYWRtaW5AaG9taWkuYXBwIiwicm9sZSI6InN1cGVyX2FkbWluIiwibmFtZSI6IlNhbmRlZXAgS2hhZGthIiwiaWF0IjoxNzc1NDg4MDUzLCJleHAiOjE3NzU1NzQ0NTN9.OVJJ1VG_YECcInpH45IQ7HZdC-d3Le2Ym8ELQNl5oW4\")",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "Bash(npx expo:*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -n \"attributeReferral\" \"c:\\\\Users\\\\ACER\\\\Desktop\\\\HOMii\\\\mobile app\\\\HOMii\"/**/*.tsx)"
     ]
   }
 }

@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { capture } from "@/lib/analytics";
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -14,6 +15,9 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      screenListeners={({ route }) => ({
+        tabPress: () => capture('home_tab_changed', { tab: route.name }),
+      })}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor:   Colors.primary[500],

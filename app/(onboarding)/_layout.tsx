@@ -14,9 +14,7 @@ export default function OnboardingLayout() {
         <Stack.Screen name="language" />
         <Stack.Screen name="university" />
         <Stack.Screen name="checklist-intro" />
-        <Stack.Screen name="before-fly" />
-        <Stack.Screen name="upon-arrival" />
-        <Stack.Screen name="settling-in" />
+        <Stack.Screen name="[phaseId]" />
         <Stack.Screen name="category-checklist" />
         <Stack.Screen name="complete" />
       </Stack>
