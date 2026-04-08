@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, PropsWithChildren } from "react";
 import { api, ApiCategory, ApiPhase } from "@/lib/api";
 import { CATEGORIES, PHASES, Category } from "@/constants/categories";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface PhaseData {
   id: string;
@@ -30,8 +31,18 @@ const SLUG_TO_ID: Record<string, string> = {
   "student-discounts": "discounts",
 };
 
-// Map API response to the existing Category interface used by all screens
-function mapApiToCategory(apiCat: ApiCategory): Category {
+// Map API response to the existing Category interface used by all screens.
+// universityName: if provided, filters out apps that have a restricted supportedUniversities
+// list that doesn't include this university.
+function mapApiToCategory(apiCat: ApiCategory, universityName?: string | null): Category {
+  const visibleApps = apiCat.apps.filter((app) => {
+    if (!app.supportedUniversities || app.supportedUniversities.length === 0) return true;
+    if (!universityName) return false; // university-restricted app, user has no university set
+    return app.supportedUniversities.some(
+      (u) => u.toLowerCase() === universityName.toLowerCase(),
+    );
+  });
+
   return {
     id: SLUG_TO_ID[apiCat.slug] || apiCat.slug,
     title: apiCat.name,
@@ -39,8 +50,8 @@ function mapApiToCategory(apiCat: ApiCategory): Category {
     icon: apiCat.icon || "apps-outline",
     color: apiCat.color || "#6366F1",
     textColor: "#FFFFFF",
-    apps: apiCat.apps.map((app) => ({
-      id: app.id,           // Preserved for click tracking
+    apps: visibleApps.map((app) => ({
+      id: app.id,
       name: app.name,
       description: app.description || "",
       icon: app.icon || "",
@@ -78,6 +89,7 @@ function buildDynamicPhases(cats: ApiCategory[], apiPhases: ApiPhase[]): PhaseDa
 }
 
 export function CategoriesProvider({ children }: PropsWithChildren) {
+  const { profile } = useAuth();
   const [categories, setCategories] = useState<Category[]>(CATEGORIES);
   const [phases, setPhases] = useState<PhaseData[]>(PHASES as unknown as PhaseData[]);
   const [loading, setLoading] = useState(false);
@@ -87,7 +99,7 @@ export function CategoriesProvider({ children }: PropsWithChildren) {
       setLoading(true);
       const [cats, apiPhases] = await Promise.all([api.getCategories(), api.getPhases()]);
       if (cats && cats.length > 0) {
-        setCategories(cats.map(mapApiToCategory));
+        setCategories(cats.map((cat) => mapApiToCategory(cat, profile?.university)));
         if (apiPhases && apiPhases.length > 0) {
           setPhases(buildDynamicPhases(cats, apiPhases));
         }
@@ -102,7 +114,7 @@ export function CategoriesProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [profile?.university]);
 
   return (
     <CategoriesContext.Provider

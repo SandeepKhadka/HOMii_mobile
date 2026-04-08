@@ -42,10 +42,15 @@
       ],
       "expo-navigation-bar",
       "expo-localization",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@sentry/react-native"
     ],
     "updates": {
-      "enabled": false
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "experiments": {
       "typedRoutes": true,

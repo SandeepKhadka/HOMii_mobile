@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { View, ScrollView, Pressable, Linking } from "react-native";
+import { View, ScrollView, Pressable, Linking, Platform } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@/contexts/CategoriesContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { capture } from "@/lib/analytics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,6 +13,7 @@ import GradientHeader, { lightenHex } from "@/components/GradientHeader";
 export default function CategoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { categories } = useCategories();
+  const { profile } = useAuth();
   const category = categories.find((c) => c.id === id);
   const insets = useSafeAreaInsets();
 
@@ -33,7 +35,11 @@ export default function CategoryDetailScreen() {
     if (!appId) return;
     capture('partner_download_clicked', { app_id: appId, app_name: appName, category_id: id });
     try {
-      const { redirectUrl } = await api.trackClick(appId);
+      const { redirectUrl } = await api.trackClick(appId, {
+        refId: profile?.ref_id ?? undefined,
+        platform: Platform.OS,
+        actionType: 'download',
+      });
       if (redirectUrl) {
         await Linking.openURL(redirectUrl);
       }

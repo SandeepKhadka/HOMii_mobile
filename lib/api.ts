@@ -33,6 +33,12 @@ export interface ApiUniversity {
   id: string;
   name: string;
   city: string;
+  resourceLinks?: {
+    campusMap?: string;
+    studentUnion?: string;
+    accommodation?: string;
+    universityApp?: string;
+  } | null;
 }
 
 export interface ApiApp {
@@ -41,6 +47,7 @@ export interface ApiApp {
   description: string | null;
   icon: string | null;
   sortOrder: number;
+  supportedUniversities: string[]; // empty = visible to all
 }
 
 export interface ApiChecklistItem {
@@ -89,10 +96,10 @@ export const api = {
     ),
 
   // Clicks (authenticated)
-  trackClick: (appId: string, refId?: string) =>
+  trackClick: (appId: string, options?: { refId?: string; platform?: string; actionType?: string }) =>
     request<ClickResponse>('/clicks', {
       method: 'POST',
-      body: JSON.stringify({ appId, refId }),
+      body: JSON.stringify({ appId, ...options }),
     }),
 
   // Referrals (authenticated)

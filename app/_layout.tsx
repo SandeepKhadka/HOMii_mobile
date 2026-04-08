@@ -1,6 +1,13 @@
 import "../global.css";
 
+import * as Sentry from "@sentry/react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  enabled: !!process.env.EXPO_PUBLIC_SENTRY_DSN,
+});
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
@@ -89,7 +96,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded] = useFonts({
     BricolageGrotesque_400Regular,
     BricolageGrotesque_500Medium,
@@ -113,6 +120,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="category/[id]" options={{ animation: "slide_from_right" }} />
             <Stack.Screen name="ambassador" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="settings" options={{ animation: "slide_from_right" }} />
           </Stack>
           <RouteGuard />
           </CategoriesProvider>
@@ -121,3 +129,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);

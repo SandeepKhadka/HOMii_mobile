@@ -9,7 +9,15 @@ export interface Database {
           full_name: string | null;
           email: string;
           university: string | null;
+          university_id: string | null;
           language: string | null;
+          language_code: string | null;
+          device_locale: string | null;
+          language_selected_at: string | null;
+          ref_id: string | null;
+          accepted_terms_at: string | null;
+          accepted_terms_version: string | null;
+          accepted_terms_locale: string | null;
           onboarding_completed: boolean;
           created_at: string;
           updated_at: string;
@@ -19,7 +27,15 @@ export interface Database {
           full_name?: string | null;
           email: string;
           university?: string | null;
+          university_id?: string | null;
           language?: string | null;
+          language_code?: string | null;
+          device_locale?: string | null;
+          language_selected_at?: string | null;
+          ref_id?: string | null;
+          accepted_terms_at?: string | null;
+          accepted_terms_version?: string | null;
+          accepted_terms_locale?: string | null;
           onboarding_completed?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -27,7 +43,15 @@ export interface Database {
         Update: {
           full_name?: string | null;
           university?: string | null;
+          university_id?: string | null;
           language?: string | null;
+          language_code?: string | null;
+          device_locale?: string | null;
+          language_selected_at?: string | null;
+          ref_id?: string | null; // write-once — set by referral attribution only, never exposed in UI
+          accepted_terms_at?: string | null;
+          accepted_terms_version?: string | null;
+          accepted_terms_locale?: string | null;
           onboarding_completed?: boolean;
         };
       };

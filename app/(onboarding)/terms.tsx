@@ -5,6 +5,10 @@ import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getLocales } from "expo-localization";
+import { useAuth } from "@/contexts/AuthContext";
+
+const TERMS_VERSION = "1.0";
 
 const SECTIONS = [
   {
@@ -35,7 +39,21 @@ const SECTIONS = [
 
 export default function TermsScreen() {
   const insets = useSafeAreaInsets();
+  const { updateProfile } = useAuth();
   const [agreed, setAgreed] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleAccept = async () => {
+    setSaving(true);
+    const locale = getLocales()[0]?.languageTag ?? "en";
+    await updateProfile({
+      accepted_terms_at: new Date().toISOString(),
+      accepted_terms_version: TERMS_VERSION,
+      accepted_terms_locale: locale,
+    });
+    setSaving(false);
+    router.push("/(onboarding)/language");
+  };
 
   const handleDecline = () => {
     Alert.alert(
@@ -126,8 +144,8 @@ export default function TermsScreen() {
           size="lg"
           label="Accept and Continue"
           fullWidth
-          disabled={!agreed}
-          onPress={() => router.push("/(onboarding)/language")}
+          disabled={!agreed || saving}
+          onPress={handleAccept}
         />
 
         <Pressable onPress={handleDecline} className="items-center py-1">

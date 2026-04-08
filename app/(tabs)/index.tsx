@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { useState, useCallback, useEffect } from "react";
+import { View, ScrollView, Pressable, ActivityIndicator, FlatList, Linking } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { Text } from "@/components/ui";
@@ -9,14 +9,27 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
+import { api, ApiUniversity } from "@/lib/api";
 import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
 
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
-  const { categories, loading: categoriesLoading } = useCategories();
+  const { categories, phases, loading: categoriesLoading } = useCategories();
   const [completedTotal, setCompletedTotal] = useState(0);
+  const [activePhaseId, setActivePhaseId] = useState<string | null>(null);
+  const [uniResources, setUniResources] = useState<ApiUniversity['resourceLinks']>(null);
+
+  useEffect(() => {
+    if (!profile?.university) return;
+    api.getUniversities().then((unis) => {
+      const match = unis.find(
+        (u) => u.name.toLowerCase() === profile.university!.toLowerCase()
+      );
+      setUniResources(match?.resourceLinks ?? null);
+    }).catch(() => {});
+  }, [profile?.university]);
 
   const TOTAL_ITEMS = categories.reduce((sum, cat) => sum + cat.checklistItems.length, 0);
 
@@ -43,6 +56,12 @@ export default function HomeScreen() {
   const progressPercent = TOTAL_ITEMS > 0 ? Math.round((completedTotal / TOTAL_ITEMS) * 100) : 0;
   const firstName = profile?.full_name?.split(" ")[0] || "Student";
 
+  // Filter categories by selected phase; if no phase selected, show all
+  const activePhase = phases.find((p) => p.id === activePhaseId);
+  const visibleCategories = activePhase
+    ? categories.filter((cat) => activePhase.categories.includes(cat.id))
+    : categories;
+
   return (
     <View className="flex-1 bg-background">
       {/* Hero header */}
@@ -63,7 +82,7 @@ export default function HomeScreen() {
         </Text>
         {profile?.university ? (
           <Text variant="caption" color="inverse" className="opacity-70 mt-0.5">
-            {profile.university} · Starter Pack
+            Starter Pack for {profile.university} Students
           </Text>
         ) : null}
       </GradientHeader>
@@ -135,8 +154,8 @@ export default function HomeScreen() {
         </Pressable>
 
         {/* Essential Apps — dynamic from API */}
-        <View className="px-6 mt-4">
-          <View className="flex-row justify-between items-center mb-4">
+        <View className="mt-4">
+          <View className="flex-row justify-between items-center mb-3 px-6">
             <Text variant="h3" className="font-heading text-grey-900">
               ESSENTIAL APPS
             </Text>
@@ -145,13 +164,48 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
+          {/* Phase filter tabs */}
+          {phases.length > 0 && (
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={[{ id: null, title: "All" }, ...phases.map((p) => ({ id: p.id, title: p.title }))]}
+              keyExtractor={(item) => item.id ?? "all"}
+              contentContainerStyle={{ paddingHorizontal: 24, gap: 8, paddingBottom: 12 }}
+              renderItem={({ item }) => {
+                const isActive = item.id === activePhaseId;
+                return (
+                  <Pressable
+                    onPress={() => setActivePhaseId(item.id)}
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 7,
+                      borderRadius: 20,
+                      backgroundColor: isActive ? Colors.primary[500] : Colors.grey[100],
+                    }}
+                  >
+                    <Text
+                      variant="caption"
+                      style={{
+                        fontFamily: "BricolageGrotesque_600SemiBold",
+                        color: isActive ? "#fff" : Colors.grey[600],
+                      }}
+                    >
+                      {item.title}
+                    </Text>
+                  </Pressable>
+                );
+              }}
+            />
+          )}
+
           {categoriesLoading ? (
             <View className="items-center py-8">
               <ActivityIndicator size="small" color={Colors.primary[500]} />
             </View>
           ) : (
-            <View className="flex-row flex-wrap gap-4">
-              {categories.slice(0, 6).map((cat) => {
+            <View className="flex-row flex-wrap gap-4 px-6">
+              {visibleCategories.slice(0, 6).map((cat) => {
                 const gradientEnd = lightenHex(cat.color, 0.6);
                 return (
                   <Pressable
@@ -181,6 +235,43 @@ export default function HomeScreen() {
             </View>
           )}
         </View>
+
+        {/* University Resources */}
+        {uniResources && Object.values(uniResources).some(Boolean) && (
+          <View className="mt-6 mx-6">
+            <Text variant="h3" className="font-heading text-grey-900 mb-3">
+              UNIVERSITY RESOURCES
+            </Text>
+            <View className="bg-white rounded-2xl overflow-hidden" style={{ elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 }}>
+              {(
+                [
+                  { key: 'campusMap', label: 'Campus Map', icon: 'map-outline' },
+                  { key: 'studentUnion', label: 'Student Union', icon: 'people-outline' },
+                  { key: 'accommodation', label: 'Accommodation', icon: 'home-outline' },
+                  { key: 'universityApp', label: 'University App', icon: 'phone-portrait-outline' },
+                ] as { key: keyof NonNullable<ApiUniversity['resourceLinks']>; label: string; icon: string }[]
+              )
+                .filter(({ key }) => !!uniResources![key])
+                .map(({ key, label, icon }, i, arr) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => Linking.openURL(uniResources![key]!)}
+                    className="flex-row items-center px-4 py-3.5"
+                    style={i < arr.length - 1 ? { borderBottomWidth: 1, borderBottomColor: Colors.grey[100] } : {}}
+                  >
+                    <View
+                      className="w-8 h-8 rounded-lg items-center justify-center mr-3"
+                      style={{ backgroundColor: Colors.primary[50] }}
+                    >
+                      <Ionicons name={icon as any} size={17} color={Colors.primary[500]} />
+                    </View>
+                    <Text variant="bodyMedium" className="flex-1 text-grey-800">{label}</Text>
+                    <Ionicons name="open-outline" size={15} color={Colors.grey[400]} />
+                  </Pressable>
+                ))}
+            </View>
+          </View>
+        )}
 
         {/* Refer a Friend CTA */}
         <Pressable

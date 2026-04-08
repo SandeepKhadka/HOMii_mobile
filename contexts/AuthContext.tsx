@@ -118,12 +118,26 @@ export function AuthProvider({ children }: PropsWithChildren) {
       fetchProfile(session.user.id).finally(() => {
         setLoading(false);
         // Apply any referral code stored from a deep link (homii://r/{code})
-        AsyncStorage.getItem(PENDING_REFERRAL_KEY).then((code) => {
+        AsyncStorage.getItem(PENDING_REFERRAL_KEY).then(async (code) => {
           if (!code) return;
-          AsyncStorage.removeItem(PENDING_REFERRAL_KEY);
-          api.attributeReferral(code).catch((e) => {
+          await AsyncStorage.removeItem(PENDING_REFERRAL_KEY);
+          try {
+            await api.attributeReferral(code);
+            // Also save the ref_id to the profile so it's sent on future clicks
+            // Only set once — if already set, skip (updateProfile handles the upsert)
+            const { data: currentProfile } = await supabase
+              .from("profiles")
+              .select("ref_id")
+              .single();
+            if (!currentProfile?.ref_id) {
+              await supabase
+                .from("profiles")
+                .update({ ref_id: code })
+                .eq("id", session!.user.id);
+            }
+          } catch (e) {
             console.log("[Referral] Attribution skipped (already attributed or invalid):", (e as Error).message);
-          });
+          }
         });
       });
     }

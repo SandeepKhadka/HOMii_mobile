@@ -1,10 +1,11 @@
-import { View, Alert } from "react-native";
+import { View, Alert, Pressable } from "react-native";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -55,16 +56,23 @@ export default function ProfileScreen() {
               <Text variant="body" className="text-grey-800 ml-3 flex-1">Edit Profile</Text>
               <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
             </View>
-            <View className="flex-row items-center px-4 py-4 border-b border-grey-100">
+            <Pressable
+              onPress={() => router.push("/settings" as any)}
+              className="flex-row items-center px-4 py-4 border-b border-grey-100"
+            >
               <Ionicons name="school-outline" size={20} color={Colors.grey[500]} />
               <Text variant="body" className="text-grey-800 ml-3 flex-1">University</Text>
               <Text variant="caption" color="muted">{profile?.university || "Not set"}</Text>
-            </View>
-            <View className="flex-row items-center px-4 py-4">
-              <Ionicons name="language-outline" size={20} color={Colors.grey[500]} />
-              <Text variant="body" className="text-grey-800 ml-3 flex-1">Language</Text>
-              <Text variant="caption" color="muted">{profile?.language || "en"}</Text>
-            </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} className="ml-1" />
+            </Pressable>
+            <Pressable
+              onPress={() => router.push("/settings" as any)}
+              className="flex-row items-center px-4 py-4"
+            >
+              <Ionicons name="settings-outline" size={20} color={Colors.grey[500]} />
+              <Text variant="body" className="text-grey-800 ml-3 flex-1">Settings</Text>
+              <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
+            </Pressable>
           </View>
         </View>
 
