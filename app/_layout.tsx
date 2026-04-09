@@ -1,4 +1,5 @@
 import "../global.css";
+import "@/lib/i18n";
 
 import * as Sentry from "@sentry/react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
@@ -24,8 +25,10 @@ import { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CategoriesProvider } from "@/contexts/CategoriesContext";
+import { AlertProvider } from "@/contexts/AlertContext";
 import { Colors } from "@/constants/colors";
 import { identify, reset } from "@/lib/analytics";
+import { setAppLanguage } from "@/lib/i18n";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -46,7 +49,11 @@ function RouteGuard() {
     const inOnboarding = currentSegment === "(onboarding)";
     const inTabs = currentSegment === "(tabs)";
     const inAllowedDeepRoute =
-      currentSegment === "category" || currentSegment === "ambassador" || currentSegment === "r";
+      currentSegment === "category" ||
+      currentSegment === "ambassador" ||
+      currentSegment === "r" ||
+      currentSegment === "settings" ||
+      currentSegment === "edit-profile";
 
     console.log("[RouteGuard] session:", !!session, "profile:", !!profile, "onboarded:", profile?.onboarding_completed, "segment:", currentSegment);
 
@@ -67,6 +74,13 @@ function RouteGuard() {
       if (!inOnboarding && !inAllowedDeepRoute) router.replace("/(onboarding)/terms");
     }
   }, [session, loading, segments, profile]);
+
+  // Sync i18n language from profile
+  useEffect(() => {
+    if (profile?.language_code) {
+      setAppLanguage(profile.language_code);
+    }
+  }, [profile?.language_code]);
 
   // Identify / reset analytics user on auth state change
   useEffect(() => {
@@ -111,6 +125,7 @@ function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
+          <AlertProvider>
           <CategoriesProvider>
           <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false }}>
@@ -121,9 +136,11 @@ function RootLayout() {
             <Stack.Screen name="category/[id]" options={{ animation: "slide_from_right" }} />
             <Stack.Screen name="ambassador" options={{ animation: "slide_from_right" }} />
             <Stack.Screen name="settings" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="edit-profile" options={{ animation: "slide_from_right" }} />
           </Stack>
           <RouteGuard />
           </CategoriesProvider>
+          </AlertProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

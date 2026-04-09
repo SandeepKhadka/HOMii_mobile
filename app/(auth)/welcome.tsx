@@ -1,18 +1,22 @@
-import { View, Pressable, ImageBackground, Alert } from "react-native";
+import { View, Pressable, ImageBackground } from "react-native";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
+import { useTranslation } from "react-i18next";
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
   const { signInWithGoogle } = useAuth();
+  const { showAlert } = useAlert();
+  const { t } = useTranslation();
 
   const handleGoogle = async () => {
     const { error } = await signInWithGoogle();
-    if (error) Alert.alert("Google Sign-In Failed", error);
+    if (error) showAlert(t("common.googleSignInFailed"), error, undefined, "error");
   };
 
   return (
@@ -23,7 +27,7 @@ export default function WelcomeScreen() {
         className="h-[58%]"
         resizeMode="cover"
       >
-        {/* Logo — positioned to match Figma (top: 98px from screen top) */}
+        {/* Logo */}
         <View className="items-center" style={{ marginTop: insets.top + 60 }}>
           <Text
             color="inverse"
@@ -40,7 +44,7 @@ export default function WelcomeScreen() {
         </View>
       </ImageBackground>
 
-      {/* Bottom card — slides up over the image */}
+      {/* Bottom card */}
       <View className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-10 justify-between" style={{ paddingBottom: insets.bottom + 16 }}>
         <View className="items-center gap-3">
           <Text
@@ -52,10 +56,10 @@ export default function WelcomeScreen() {
               letterSpacing: -0.8,
             }}
           >
-            Set up your UK{"\n"}life in minutes
+            {t("auth.welcome.hero")}
           </Text>
           <Text variant="body" color="muted" className="text-center">
-            The ultimate landing guide for international{"\n"}students.
+            {t("auth.welcome.subtitle")}
           </Text>
         </View>
 
@@ -63,7 +67,7 @@ export default function WelcomeScreen() {
           <Button
             variant="primary"
             size="lg"
-            label="Create account"
+            label={t("auth.welcome.createAccount")}
             fullWidth
             onPress={() => router.push("/(auth)/sign-up")}
           />
@@ -73,16 +77,16 @@ export default function WelcomeScreen() {
           >
             <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
             <Text variant="bodyMedium" className="text-grey-700 font-semibold">
-              Continue with Google
+              {t("common.continueWithGoogle")}
             </Text>
           </Pressable>
           <View className="flex-row justify-center gap-1 mt-1">
             <Text variant="body" color="muted">
-              Already have an account?
+              {t("auth.welcome.hasAccount")}
             </Text>
             <Pressable onPress={() => router.push("/(auth)/sign-in")}>
               <Text variant="bodyMedium" color="primary" className="uppercase font-semibold">
-                LOGIN
+                {t("auth.welcome.login")}
               </Text>
             </Pressable>
           </View>

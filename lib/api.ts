@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import i18n from './i18n';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
@@ -10,10 +11,12 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const headers = await getAuthHeaders();
+  const lang = i18n.language || 'en';
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      'Accept-Language': lang,
       ...headers,
       ...options?.headers,
     },
@@ -28,6 +31,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 // ─── Public endpoints (no auth) ────────────────────────────
+
+export interface ApiLanguage {
+  id: string;
+  code: string;       // "en", "zh_Hans", "fr"
+  name: string;       // "English", "French"
+  nativeName: string; // "English", "Français"
+  flag?: string;      // "🇬🇧"
+  sortOrder: number;
+}
 
 export interface ApiUniversity {
   id: string;
@@ -80,6 +92,9 @@ export interface ApiPhase {
 }
 
 export const api = {
+  // Languages (public — fetched at startup, no auth required)
+  getLanguages: () => request<ApiLanguage[]>('/languages'),
+
   // Universities
   getUniversities: () => request<ApiUniversity[]>('/universities'),
 
@@ -125,6 +140,7 @@ export const api = {
     }),
   getAmbassadorStatus: () => request<AmbassadorApplication | null>('/ambassadors/me'),
   getAmbassadorStats: () => request<AmbassadorStats | null>('/ambassadors/stats'),
+  getAmbassadorReferrals: () => request<AmbassadorReferral[]>('/ambassadors/referrals'),
 };
 
 export interface ClickResponse {
@@ -150,4 +166,10 @@ export interface AmbassadorStats {
   confirmedReferrals: number;
   totalEarnings: number;
   pendingEarnings: number;
+}
+
+export interface AmbassadorReferral {
+  id: string;
+  status: 'PENDING' | 'CONFIRMED' | 'PAID';
+  createdAt: string;
 }

@@ -10,11 +10,13 @@ import { api, ApiCategory } from "@/lib/api";
 import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
 import { capture } from "@/lib/analytics";
 import { useFocusEffect } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 6;
 
 export default function AppsScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -68,7 +70,7 @@ export default function AppsScreen() {
         }}
       >
         <Text color="inverse" style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 22, lineHeight: 28 }}>
-          All Apps
+          {t("apps.title")}
         </Text>
         <Text variant="body" color="inverse" className="opacity-80 mt-0.5">
           Explore all essential tools for your UK journey
@@ -96,7 +98,7 @@ export default function AppsScreen() {
         <View className="flex-1 items-center justify-center px-8">
           <Ionicons name="apps-outline" size={48} color="#9CA3AF" />
           <Text variant="bodyMedium" color="muted" className="text-center mt-3">
-            No apps available yet.
+            {t("apps.empty")}
           </Text>
         </View>
       ) : (
@@ -151,7 +153,7 @@ export default function AppsScreen() {
               {loadingMore ? (
                 <ActivityIndicator size="small" color={Colors.primary[500]} />
               ) : (
-                <Text variant="bodyMedium" style={{ color: Colors.primary[500] }}>Load More</Text>
+                <Text variant="bodyMedium" style={{ color: Colors.primary[500] }}>{t("apps.loadMore")}</Text>
               )}
             </Pressable>
           )}

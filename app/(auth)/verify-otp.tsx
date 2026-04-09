@@ -1,26 +1,29 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { View, Pressable, ImageBackground, TextInput, Alert } from "react-native";
+import { View, Pressable, ImageBackground, TextInput } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
 
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN = 90; // 1:30 in seconds
+const RESEND_COOLDOWN = 90;
 
 export default function VerifyOtpScreen() {
   const insets = useSafeAreaInsets();
   const { email } = useLocalSearchParams<{ email: string }>();
   const { verifyOtp } = useAuth();
+  const { showAlert } = useAlert();
+  const { t } = useTranslation();
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  // Countdown timer
   useEffect(() => {
     if (countdown <= 0) return;
     const timer = setInterval(() => {
@@ -39,7 +42,6 @@ export default function VerifyOtpScreen() {
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
-
     if (text && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -54,35 +56,31 @@ export default function VerifyOtpScreen() {
   const handleVerify = async () => {
     const code = otp.join("");
     if (code.length !== OTP_LENGTH) {
-      Alert.alert("Error", "Please enter the full 6-digit code");
+      showAlert(t("common.error"), t("auth.verifyOtp.fullCode"), undefined, "error");
       return;
     }
     setLoading(true);
     const { error } = await verifyOtp(email!, code);
     setLoading(false);
     if (error) {
-      Alert.alert("Verification Failed", error);
+      showAlert(t("auth.verifyOtp.verificationFailed"), error, undefined, "error");
     }
   };
 
   const handleResend = useCallback(async () => {
     if (countdown > 0) return;
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email: email!,
-    });
+    const { error } = await supabase.auth.resend({ type: "signup", email: email! });
     if (error) {
-      Alert.alert("Error", error.message);
+      showAlert(t("common.error"), error.message, undefined, "error");
     } else {
       setCountdown(RESEND_COOLDOWN);
       setOtp(Array(OTP_LENGTH).fill(""));
-      Alert.alert("Code Resent", "Check your email for a new code");
+      showAlert(t("auth.verifyOtp.codeResent"), t("auth.verifyOtp.checkEmail"), undefined, "success");
     }
-  }, [countdown, email]);
+  }, [countdown, email, t]);
 
   return (
     <View className="flex-1 bg-white">
-      {/* Top hero */}
       <ImageBackground
         source={require("@/assets/images/onboarding.png")}
         style={{ height: 220 }}
@@ -96,7 +94,6 @@ export default function VerifyOtpScreen() {
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </Pressable>
         </View>
-
         <View className="flex-1 items-center justify-center">
           <View
             className="w-20 h-20 rounded-full items-center justify-center"
@@ -107,7 +104,6 @@ export default function VerifyOtpScreen() {
         </View>
       </ImageBackground>
 
-      {/* Bottom card */}
       <View
         className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-8"
         style={{ paddingBottom: insets.bottom + 16 }}
@@ -115,22 +111,16 @@ export default function VerifyOtpScreen() {
         <View className="items-center gap-2 mb-8">
           <Text
             className="text-grey-900 text-center"
-            style={{
-              fontFamily: "BricolageGrotesque_700Bold",
-              fontSize: 28,
-              lineHeight: 36,
-              letterSpacing: -0.5,
-            }}
+            style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 28, lineHeight: 36, letterSpacing: -0.5 }}
           >
-            Check your email
+            {t("auth.verifyOtp.title")}
           </Text>
           <Text variant="body" color="muted" className="text-center">
-            We sent a verification code to{"\n"}
+            {t("auth.verifyOtp.subtitle")}{"\n"}
             <Text variant="bodyMedium" className="text-grey-900">{email}</Text>
           </Text>
         </View>
 
-        {/* OTP input boxes */}
         <View className="flex-row justify-center gap-3 mb-8">
           {otp.map((digit, index) => (
             <TextInput
@@ -142,15 +132,10 @@ export default function VerifyOtpScreen() {
               keyboardType="number-pad"
               maxLength={1}
               style={{
-                width: 48,
-                height: 56,
-                borderWidth: 2,
+                width: 48, height: 56, borderWidth: 2,
                 borderColor: digit ? Colors.primary[500] : Colors.grey[200],
-                borderRadius: 12,
-                textAlign: "center",
-                fontSize: 22,
-                fontFamily: "BricolageGrotesque_700Bold",
-                color: Colors.grey[900],
+                borderRadius: 12, textAlign: "center", fontSize: 22,
+                fontFamily: "BricolageGrotesque_700Bold", color: Colors.grey[900],
                 backgroundColor: digit ? Colors.primary[50] : Colors.white,
               }}
             />
@@ -160,16 +145,15 @@ export default function VerifyOtpScreen() {
         <Button
           variant="primary"
           size="lg"
-          label={loading ? "Verifying..." : "Verify Email"}
+          label={loading ? t("common.verifying") : t("auth.verifyOtp.submit")}
           fullWidth
           onPress={handleVerify}
         />
 
-        {/* Resend with countdown */}
         <View className="items-center mt-6">
           {countdown > 0 ? (
             <Text variant="body" color="muted">
-              Resend code in{" "}
+              {t("common.resendCodeIn")}{" "}
               <Text variant="bodyMedium" className="text-grey-900 font-semibold">
                 {formatTime(countdown)}
               </Text>
@@ -177,9 +161,9 @@ export default function VerifyOtpScreen() {
           ) : (
             <Pressable onPress={handleResend}>
               <Text variant="body" color="muted">
-                Didn't receive the code?{" "}
+                {t("common.didntReceiveCode")}{" "}
                 <Text variant="bodyMedium" color="primary" className="font-semibold">
-                  Resend
+                  {t("common.resend")}
                 </Text>
               </Text>
             </Pressable>

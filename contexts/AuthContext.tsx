@@ -207,7 +207,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const result = await WebBrowser.openAuthSessionAsync(
         data.url,
         redirectUrl,
-        { showInRecents: true }
+        { showInRecents: false }
       );
       console.log("[Auth] WebBrowser result type:", result.type);
       if (result.type === "success") {

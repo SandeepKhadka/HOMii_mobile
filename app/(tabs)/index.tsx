@@ -11,12 +11,14 @@ import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
 import { api, ApiUniversity } from "@/lib/api";
 import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
+import { useTranslation } from "react-i18next";
 
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
   const { categories, phases, loading: categoriesLoading } = useCategories();
+  const { t } = useTranslation();
   const [completedTotal, setCompletedTotal] = useState(0);
   const [activePhaseId, setActivePhaseId] = useState<string | null>(null);
   const [uniResources, setUniResources] = useState<ApiUniversity['resourceLinks']>(null);
@@ -66,23 +68,17 @@ export default function HomeScreen() {
     <View className="flex-1 bg-background">
       {/* Hero header */}
       <GradientHeader colors={HEADER_GRADIENTS.home} style={{ paddingTop: insets.top + 12, paddingBottom: 32, paddingHorizontal: 24, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
-        <View className="flex-row justify-between items-center">
+        <View>
           <Text variant="h3" color="inverse" className="font-heading">
             HOMii
           </Text>
-          <Pressable
-            onPress={() => router.push("/(tabs)/profile" as any)}
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
-          >
-            <Ionicons name="person-outline" size={20} color="#fff" />
-          </Pressable>
         </View>
         <Text variant="subtitle" color="inverse" className="mt-1 opacity-90">
-          Hello, {firstName}
+          {t("home.hello", { name: firstName })}
         </Text>
         {profile?.university ? (
           <Text variant="caption" color="inverse" className="opacity-70 mt-0.5">
-            Starter Pack for {profile.university} Students
+            {t("home.starterPack", { university: profile.university })}
           </Text>
         ) : null}
       </GradientHeader>
@@ -157,10 +153,10 @@ export default function HomeScreen() {
         <View className="mt-4">
           <View className="flex-row justify-between items-center mb-3 px-6">
             <Text variant="h3" className="font-heading text-grey-900">
-              ESSENTIAL APPS
+              {t("home.essentialApps").toUpperCase()}
             </Text>
             <Pressable onPress={() => router.push("/(tabs)/apps" as any)}>
-              <Text variant="bodyMedium" color="muted">Explore All</Text>
+              <Text variant="bodyMedium" color="muted">{t("home.viewAll")}</Text>
             </Pressable>
           </View>
 
@@ -287,10 +283,10 @@ export default function HomeScreen() {
               color="inverse"
               style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 16, lineHeight: 22 }}
             >
-              Refer Friends Coming to the UK
+              {t("home.referFriends.title")}
             </Text>
             <Text variant="caption" color="inverse" className="opacity-70 mt-0.5">
-              Earn 10% commission on every referral
+              {t("home.referFriends.subtitle")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.6)" />

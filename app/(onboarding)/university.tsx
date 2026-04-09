@@ -8,6 +8,7 @@ import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 // Fallback list in case API is unavailable
 const FALLBACK_UNIVERSITIES = [
@@ -35,6 +36,7 @@ const FALLBACK_UNIVERSITIES = [
 
 export default function UniversityScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { updateProfile } = useAuth();
   const [universities, setUniversities] = useState(FALLBACK_UNIVERSITIES);
   const [loadingUnis, setLoadingUnis] = useState(true);
@@ -58,7 +60,7 @@ export default function UniversityScreen() {
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.city.toLowerCase().includes(search.toLowerCase())
     ),
-    [search],
+    [search, universities],
   );
 
   return (
@@ -80,22 +82,18 @@ export default function UniversityScreen() {
         <View className="items-center gap-1">
           <Text
             className="text-center text-grey-900"
-            style={{
-              fontFamily: "BricolageGrotesque_700Bold",
-              fontSize: 26,
-              lineHeight: 34,
-            }}
+            style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 26, lineHeight: 34 }}
           >
-            Select your University
+            {t("settings.changeUniversity")}
           </Text>
           <Text variant="body" color="muted" className="text-center">
-            We'll personalize your setup and resources
+            {t("onboarding.university.subtitle")}
           </Text>
         </View>
 
         {/* Search */}
         <Input
-          placeholder="Search for your university"
+          placeholder={t("settings.searchUniversity")}
           value={search}
           onChangeText={setSearch}
           leftIcon={<Ionicons name="search-outline" size={18} color={Colors.grey[400]} />}
@@ -103,41 +101,47 @@ export default function UniversityScreen() {
         />
 
         {/* List */}
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-          <View className="gap-3 pb-4">
-            {filtered.map((uni) => (
-              <Pressable
-                key={uni.name}
-                onPress={() => setSelected(uni.name)}
-                className={cn(
-                  "px-5 py-4 rounded-2xl border",
-                  selected === uni.name
-                    ? "border-primary-200 bg-primary-50"
-                    : "border-grey-200 bg-white",
-                )}
-              >
-                <View className="flex-row items-center">
-                  <View className="flex-1">
-                    <Text variant="bodyMedium" className="text-grey-900">
-                      {uni.name}
-                    </Text>
-                    <Text variant="caption" color="muted">
-                      {uni.city}
-                    </Text>
-                  </View>
-                  {selected === uni.name && (
-                    <Ionicons name="checkmark-circle" size={24} color={Colors.success.DEFAULT} />
-                  )}
-                </View>
-              </Pressable>
-            ))}
-            {filtered.length === 0 && (
-              <Text variant="body" color="muted" className="text-center py-8">
-                No universities found
-              </Text>
-            )}
+        {loadingUnis ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="small" color={Colors.primary[500]} />
           </View>
-        </ScrollView>
+        ) : (
+          <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+            <View className="gap-3 pb-4">
+              {filtered.map((uni) => (
+                <Pressable
+                  key={uni.name}
+                  onPress={() => setSelected(uni.name)}
+                  className={cn(
+                    "px-5 py-4 rounded-2xl border",
+                    selected === uni.name
+                      ? "border-primary-200 bg-primary-50"
+                      : "border-grey-200 bg-white",
+                  )}
+                >
+                  <View className="flex-row items-center">
+                    <View className="flex-1">
+                      <Text variant="bodyMedium" className="text-grey-900">
+                        {uni.name}
+                      </Text>
+                      <Text variant="caption" color="muted">
+                        {uni.city}
+                      </Text>
+                    </View>
+                    {selected === uni.name && (
+                      <Ionicons name="checkmark-circle" size={24} color={Colors.success.DEFAULT} />
+                    )}
+                  </View>
+                </Pressable>
+              ))}
+              {filtered.length === 0 && (
+                <Text variant="body" color="muted" className="text-center py-8">
+                  {t("settings.noUniversities")}
+                </Text>
+              )}
+            </View>
+          </ScrollView>
+        )}
       </View>
 
       {/* Continue */}
@@ -145,9 +149,9 @@ export default function UniversityScreen() {
         <Button
           variant="primary"
           size="lg"
-          label="Continue"
+          label={saving ? "..." : t("onboarding.language.continue")}
           fullWidth
-          disabled={!selected}
+          disabled={!selected || saving}
           onPress={async () => {
             if (!selected) return;
             setSaving(true);

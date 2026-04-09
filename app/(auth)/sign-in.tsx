@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { View, Pressable, ImageBackground, ScrollView, Alert, Keyboard } from "react-native";
+import { View, Pressable, ImageBackground, ScrollView, Keyboard } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
+import { useTranslation } from "react-i18next";
 
 export default function SignInScreen() {
   const { signIn, signInWithGoogle } = useAuth();
+  const { showAlert } = useAlert();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,14 +22,14 @@ export default function SignInScreen() {
   const handleSignIn = async () => {
     Keyboard.dismiss();
     if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+      showAlert(t("common.error"), t("common.fillAllFields"), undefined, "error");
       return;
     }
     setLoading(true);
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
-      Alert.alert("Sign In Failed", error);
+      showAlert(t("auth.signIn.failed"), error, undefined, "error");
     }
   };
 
@@ -83,17 +87,17 @@ export default function SignInScreen() {
                 letterSpacing: -0.5,
               }}
             >
-              Welcome back
+              {t("auth.signIn.title")}
             </Text>
             <Text variant="body" color="muted">
-              Sign in to continue your journey
+              {t("auth.signIn.subtitle")}
             </Text>
           </View>
 
           <View className="gap-4 mb-6">
             <Input
-              label="Email"
-              placeholder="your@university.ac.uk"
+              label={t("common.email")}
+              placeholder={t("auth.signIn.emailPlaceholder")}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -102,8 +106,8 @@ export default function SignInScreen() {
               leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.grey[400]} />}
             />
             <Input
-              label="Password"
-              placeholder="Enter your password"
+              label={t("common.password")}
+              placeholder={t("auth.signIn.passwordPlaceholder")}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
@@ -122,7 +126,7 @@ export default function SignInScreen() {
           <View className="items-end mb-2">
             <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
               <Text variant="body" color="primary" className="font-semibold">
-                Forgot password?
+                {t("auth.signIn.forgotPassword")}
               </Text>
             </Pressable>
           </View>
@@ -130,7 +134,7 @@ export default function SignInScreen() {
           <Button
             variant="primary"
             size="lg"
-            label={loading ? "Signing in..." : "Sign In"}
+            label={loading ? t("auth.signIn.submitting") : t("auth.signIn.submit")}
             fullWidth
             onPress={handleSignIn}
           />
@@ -138,22 +142,22 @@ export default function SignInScreen() {
           <Pressable
             onPress={async () => {
               const { error } = await signInWithGoogle();
-              if (error) Alert.alert("Google Sign-In Failed", error);
+              if (error) showAlert(t("common.googleSignInFailed"), error, undefined, "error");
             }}
             className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5 mt-2"
           >
             <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
             <Text variant="bodyMedium" className="text-grey-700 font-semibold">
-              Continue with Google
+              {t("common.continueWithGoogle")}
             </Text>
           </Pressable>
         </View>
 
         <View className="flex-row justify-center gap-1 mt-6">
-          <Text variant="body" color="muted">Don&apos;t have an account?</Text>
+          <Text variant="body" color="muted">{t("auth.signIn.noAccount")}</Text>
           <Pressable onPress={() => router.replace("/(auth)/sign-up")}>
             <Text variant="bodyMedium" color="primary" className="font-semibold">
-              Sign up
+              {t("auth.signIn.signUp")}
             </Text>
           </Pressable>
         </View>

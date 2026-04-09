@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, Alert } from "react-native";
+import { View, ScrollView, Pressable, Linking } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
@@ -7,6 +7,9 @@ import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getLocales } from "expo-localization";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
+import { useTranslation } from "react-i18next";
+import { LINKS } from "@/constants/links";
 
 const TERMS_VERSION = "1.0";
 
@@ -40,6 +43,8 @@ const SECTIONS = [
 export default function TermsScreen() {
   const insets = useSafeAreaInsets();
   const { updateProfile } = useAuth();
+  const { showAlert } = useAlert();
+  const { t } = useTranslation();
   const [agreed, setAgreed] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -56,10 +61,11 @@ export default function TermsScreen() {
   };
 
   const handleDecline = () => {
-    Alert.alert(
-      "Terms Required",
-      "You must accept the terms to use HOMii.",
-      [{ text: "OK" }]
+    showAlert(
+      t("onboarding.terms.declineTitle"),
+      t("onboarding.terms.declineMessage"),
+      [{ text: "OK" }],
+      "warning"
     );
   };
 
@@ -80,10 +86,10 @@ export default function TermsScreen() {
               lineHeight: 34,
             }}
           >
-            Terms & Conditions
+            {t("onboarding.terms.title")}
           </Text>
           <Text variant="body" color="muted" className="text-center">
-            Please review our terms carefully
+            {t("onboarding.terms.subtitle")}
           </Text>
         </View>
       </View>
@@ -95,14 +101,14 @@ export default function TermsScreen() {
       >
         {/* Links to full documents */}
         <View className="flex-row justify-center gap-6 my-4">
-          <Pressable onPress={() => {/* TODO: Link to Terms URL */}}>
+          <Pressable onPress={() => Linking.openURL(LINKS.termsOfService)}>
             <Text variant="bodyMedium" color="primary" className="font-semibold underline">
-              Terms of Service
+              {t("onboarding.terms.termsOfService")}
             </Text>
           </Pressable>
-          <Pressable onPress={() => {/* TODO: Link to Privacy URL */}}>
+          <Pressable onPress={() => Linking.openURL(LINKS.privacyPolicy)}>
             <Text variant="bodyMedium" color="primary" className="font-semibold underline">
-              Privacy Policy
+              {t("onboarding.terms.privacyPolicy")}
             </Text>
           </Pressable>
         </View>
@@ -135,14 +141,14 @@ export default function TermsScreen() {
             style={{ marginTop: 2 }}
           />
           <Text variant="caption" color="secondary" className="flex-1" style={{ lineHeight: 18 }}>
-            I agree to the Terms of Service and Privacy Policy
+            {t("onboarding.terms.agree")}
           </Text>
         </Pressable>
 
         <Button
           variant="primary"
           size="lg"
-          label="Accept and Continue"
+          label={t("onboarding.terms.accept")}
           fullWidth
           disabled={!agreed || saving}
           onPress={handleAccept}
@@ -150,7 +156,7 @@ export default function TermsScreen() {
 
         <Pressable onPress={handleDecline} className="items-center py-1">
           <Text variant="bodyMedium" color="muted">
-            Decline
+            {t("onboarding.terms.decline")}
           </Text>
         </Pressable>
       </View>

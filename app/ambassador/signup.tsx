@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { View, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, TextInput } from "react-native";
+import { View, Pressable, ScrollView, KeyboardAvoidingView, Platform, TextInput } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
 import { api } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 export default function AmbassadorSignupScreen() {
   const insets = useSafeAreaInsets();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const { showAlert } = useAlert();
+  const { t } = useTranslation();
   const [studentEmail, setStudentEmail] = useState("");
   const [confirmEmail, setConfirmEmail] = useState("");
   const [course, setCourse] = useState("");
@@ -20,30 +24,30 @@ export default function AmbassadorSignupScreen() {
 
   const handleSubmit = async () => {
     if (!studentEmail || !confirmEmail || !course) {
-      Alert.alert("Error", "Please fill in all required fields");
+      showAlert(t("common.error"), t("ambassadorSignup.fillRequired"), undefined, "error");
       return;
     }
     if (studentEmail !== confirmEmail) {
-      Alert.alert("Error", "Email addresses do not match");
+      showAlert(t("common.error"), t("ambassadorSignup.emailMismatch"), undefined, "error");
       return;
     }
     if (!agreed) {
-      Alert.alert("Error", "Please accept the terms to continue");
+      showAlert(t("common.error"), t("ambassadorSignup.acceptTerms"), undefined, "error");
       return;
     }
     if (!user) {
-      Alert.alert("Error", "You must be signed in");
+      showAlert(t("common.error"), t("ambassadorSignup.mustSignIn"), undefined, "error");
       return;
     }
 
     setLoading(true);
     try {
       await api.applyAmbassador({ studentEmail, course, motivation: motivation || undefined });
-      Alert.alert("Success", "Your application has been submitted!", [
+      showAlert(t("ambassadorSignup.success"), t("ambassadorSignup.successMessage"), [
         { text: "OK", onPress: () => router.replace("/ambassador/dashboard" as any) },
-      ]);
+      ], "success");
     } catch (err) {
-      Alert.alert("Error", (err as Error).message);
+      showAlert(t("common.error"), (err as Error).message, undefined, "error");
     } finally {
       setLoading(false);
     }
@@ -56,20 +60,12 @@ export default function AmbassadorSignupScreen() {
         className="flex-row items-center px-4 pb-4"
         style={{ backgroundColor: Colors.teal.DEFAULT, paddingTop: insets.top + 12 }}
       >
-        <Pressable
-          onPress={() => router.back()}
-          className="w-10 h-10 items-center justify-center"
-        >
+        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
           <Ionicons name="arrow-back" size={22} color="#fff" />
         </Pressable>
         <Text
           color="inverse"
-          style={{
-            fontFamily: "BricolageGrotesque_700Bold",
-            fontSize: 20,
-            lineHeight: 28,
-            marginLeft: 8,
-          }}
+          style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20, lineHeight: 28, marginLeft: 8 }}
         >
           Ambassador signup
         </Text>
@@ -86,40 +82,27 @@ export default function AmbassadorSignupScreen() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Title section */}
           <View className="items-center px-8 pt-8 pb-6">
             <Text
               className="text-grey-900 text-center"
-              style={{
-                fontFamily: "BricolageGrotesque_700Bold",
-                fontSize: 26,
-                lineHeight: 34,
-                letterSpacing: -0.5,
-              }}
+              style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 26, lineHeight: 34, letterSpacing: -0.5 }}
             >
-              Become a HOMii{"\n"}Ambassador
+              {t("ambassadorSignup.title")}
             </Text>
             <Text variant="body" color="muted" className="text-center mt-2">
-              Share HOMii with your friends and earn{"\n"}commissions.
+              {t("ambassadorSignup.subtitle")}
             </Text>
           </View>
 
-          {/* Form */}
           <View className="px-6 gap-1">
-            <Text
-              className="text-grey-900 mb-4"
-              style={{
-                fontFamily: "BricolageGrotesque_600SemiBold",
-                fontSize: 16,
-              }}
-            >
-              Tell us a bit more
+            <Text className="text-grey-900 mb-4" style={{ fontFamily: "BricolageGrotesque_600SemiBold", fontSize: 16 }}>
+              {t("ambassadorSignup.formTitle")}
             </Text>
 
             <View className="gap-4">
               <Input
-                label="Student Mail"
-                placeholder="your@university.ac.uk"
+                label={t("ambassadorSignup.studentMail")}
+                placeholder={t("ambassadorSignup.studentMailPlaceholder")}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -127,8 +110,8 @@ export default function AmbassadorSignupScreen() {
                 onChangeText={setStudentEmail}
               />
               <Input
-                label="Confirm Email"
-                placeholder="Confirm your email"
+                label={t("ambassadorSignup.confirmEmail")}
+                placeholder={t("ambassadorSignup.confirmEmailPlaceholder")}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -136,18 +119,18 @@ export default function AmbassadorSignupScreen() {
                 onChangeText={setConfirmEmail}
               />
               <Input
-                label="Course"
-                placeholder="e.g. BIT, Computer Science"
+                label={t("ambassadorSignup.course")}
+                placeholder={t("ambassadorSignup.coursePlaceholder")}
                 autoCapitalize="words"
                 value={course}
                 onChangeText={setCourse}
               />
               <View className="gap-1.5">
                 <Text variant="captionMedium" color="secondary">
-                  Why do you want to be the ambassador?
+                  {t("ambassadorSignup.motivation")}
                 </Text>
                 <TextInput
-                  placeholder="Tell us why you'd be great..."
+                  placeholder={t("ambassadorSignup.motivationPlaceholder")}
                   placeholderTextColor="#9CA3AF"
                   multiline
                   textAlignVertical="top"
@@ -155,23 +138,15 @@ export default function AmbassadorSignupScreen() {
                   value={motivation}
                   onChangeText={setMotivation}
                   style={{
-                    borderWidth: 1,
-                    borderColor: "#E5E7EB",
-                    borderRadius: 12,
-                    paddingHorizontal: 16,
-                    paddingTop: 12,
-                    paddingBottom: 12,
-                    minHeight: 110,
-                    fontFamily: "BricolageGrotesque_400Regular",
-                    fontSize: 15,
-                    color: "#111827",
-                    lineHeight: 22,
+                    borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 12,
+                    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12,
+                    minHeight: 110, fontFamily: "BricolageGrotesque_400Regular",
+                    fontSize: 15, color: "#111827", lineHeight: 22,
                   }}
                 />
               </View>
             </View>
 
-            {/* Agreement checkbox */}
             <Pressable
               onPress={() => setAgreed(!agreed)}
               className="flex-row items-start gap-3 mt-6 bg-grey-50 rounded-xl px-4 py-4"
@@ -187,16 +162,15 @@ export default function AmbassadorSignupScreen() {
                 {agreed && <Ionicons name="checkmark" size={16} color="#fff" />}
               </View>
               <Text variant="caption" className="flex-1 text-grey-600" style={{ lineHeight: 18 }}>
-                I understand my application is being reviewed and I'll be notified once approved.
+                {t("ambassadorSignup.agreement")}
               </Text>
             </Pressable>
 
-            {/* Submit button */}
             <View className="mt-6">
               <Button
                 variant="primary"
                 size="lg"
-                label={loading ? "Submitting..." : "SIGN UP"}
+                label={loading ? t("ambassadorSignup.submitting") : t("ambassadorSignup.submit")}
                 fullWidth
                 onPress={handleSubmit}
               />

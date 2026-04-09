@@ -17,7 +17,9 @@
       "Bash(curl -s -X POST \"http://localhost:3000/api/v1/categories/seed-all\")",
       "Bash(curl -s -X POST \"http://localhost:3000/api/v1/categories/seed\")",
       "Bash(grep -l \"SupabaseAuthGuard\" c:/Users/ACER/Desktop/HOMii/backend/src/**/*.controller.ts)",
-      "Bash(git -C \"c:/Users/ACER/Desktop/HOMii/backend\" log --oneline -3)"
+      "Bash(git -C \"c:/Users/ACER/Desktop/HOMii/backend\" log --oneline -3)",
+      "Bash(ls -la \"c:\\\\Users\\\\ACER\\\\Desktop\\\\HOMii\\\\backend\\\\src\\\\categories\\\\\\\\\")",
+      "Bash(find \"/c/Users/ACER/Desktop/HOMii\" -type f \\\\\\( -name \"*.md\" -o -name \"*.txt\" -o -name \"*.json\" \\\\\\) -exec grep -l \"profiles\\\\|language_code\" {} \\\\;)"
     ]
   }
 }

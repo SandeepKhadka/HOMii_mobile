@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { useState, useMemo, useEffect } from "react";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
@@ -7,14 +7,18 @@ import { Colors } from "@/constants/colors";
 import { cn } from "@/lib/utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
-import { api } from "@/lib/api";
+import { useAlert } from "@/contexts/AlertContext";
+import { api, type ApiLanguage } from "@/lib/api";
 import { getLocales } from "expo-localization";
+import { useTranslation } from "react-i18next";
+import { setAppLanguage } from "@/lib/i18n";
+import Constants from "expo-constants";
 
-const LANGUAGES = [
-  { code: "en",      label: "English",             native: "English" },
-  { code: "zh_Hans", label: "Chinese Simplified",  native: "\u7B80\u4F53\u4E2D\u6587" },
-  { code: "zh_Hant", label: "Chinese Traditional", native: "\u7E41\u9AD4\u4E2D\u6587" },
-] as const;
+const FALLBACK_LANGUAGES: ApiLanguage[] = [
+  { id: "en",      code: "en",      name: "English",             nativeName: "English",  flag: "🇬🇧", sortOrder: 0 },
+  { id: "zh_Hans", code: "zh_Hans", name: "Chinese Simplified",  nativeName: "简体中文",  flag: "🇨🇳", sortOrder: 1 },
+  { id: "zh_Hant", code: "zh_Hant", name: "Chinese Traditional", nativeName: "繁體中文",  flag: "🇹🇼", sortOrder: 2 },
+];
 
 const FALLBACK_UNIVERSITIES = [
   { name: "University College London", city: "London" },
@@ -43,11 +47,15 @@ type Section = "language" | "university" | null;
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { profile, updateProfile } = useAuth();
+  const { showAlert } = useAlert();
   const [activeSection, setActiveSection] = useState<Section>(null);
   const [saving, setSaving] = useState(false);
 
   // Language state
+  const [languages, setLanguages] = useState<ApiLanguage[]>(FALLBACK_LANGUAGES);
+  const [loadingLangs, setLoadingLangs] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(
     profile?.language_code ?? profile?.language ?? "en",
   );
@@ -60,6 +68,18 @@ export default function SettingsScreen() {
     profile?.university ?? null,
   );
 
+  // Fetch languages when language section opens
+  useEffect(() => {
+    if (activeSection === "language") {
+      setLoadingLangs(true);
+      api.getLanguages()
+        .then(data => { if (data && data.length > 0) setLanguages(data); })
+        .catch(() => {})
+        .finally(() => setLoadingLangs(false));
+    }
+  }, [activeSection]);
+
+  // Fetch universities when university section opens
   useEffect(() => {
     if (activeSection === "university" && universities === FALLBACK_UNIVERSITIES) {
       setLoadingUnis(true);
@@ -84,10 +104,13 @@ export default function SettingsScreen() {
     [search, universities],
   );
 
+  const currentLang = languages.find(
+    (l) => l.code === (profile?.language_code ?? profile?.language ?? "en")
+  ) ?? languages[0];
+
   const saveLanguage = async () => {
     setSaving(true);
     const deviceLocale = getLocales()[0]?.languageTag ?? "en";
-    // Update language_code and language_selected_at; never touch ref_id
     await updateProfile({
       language_code: selectedLanguage,
       language: selectedLanguage,
@@ -95,18 +118,18 @@ export default function SettingsScreen() {
       language_selected_at: new Date().toISOString(),
     });
     setSaving(false);
+    setAppLanguage(selectedLanguage);
     setActiveSection(null);
-    Alert.alert("Saved", "Language updated successfully.");
+    showAlert(t("settings.saved"), t("settings.languageSaved"), undefined, "success");
   };
 
   const saveUniversity = async () => {
     if (!selectedUniversity) return;
     setSaving(true);
-    // Update university name; never touch ref_id
     await updateProfile({ university: selectedUniversity });
     setSaving(false);
     setActiveSection(null);
-    Alert.alert("Saved", "University updated successfully.");
+    showAlert(t("settings.saved"), t("settings.universitySaved"), undefined, "success");
   };
 
   // ─── Language picker ───────────────────────────────────────────────────────────
@@ -131,46 +154,55 @@ export default function SettingsScreen() {
               className="text-center text-grey-900"
               style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 26, lineHeight: 34 }}
             >
-              Select Language
+              {t("settings.selectLanguage")}
             </Text>
             <Text variant="body" color="muted" className="text-center">
-              Choose your preferred language
+              {t("settings.chooseLanguage")}
             </Text>
           </View>
 
-          <View className="gap-3">
-            {LANGUAGES.map((lang) => (
-              <Pressable
-                key={lang.code}
-                onPress={() => setSelectedLanguage(lang.code)}
-                className={cn(
-                  "flex-row items-center px-5 py-4 rounded-2xl border",
-                  selectedLanguage === lang.code
-                    ? "border-primary-200 bg-primary-50"
-                    : "border-grey-200 bg-white",
-                )}
-              >
-                <View className="flex-1">
-                  <Text variant="bodyMedium" className="text-grey-700">
-                    {lang.label}
-                  </Text>
-                  <Text variant="caption" color="muted">
-                    {lang.native}
-                  </Text>
-                </View>
-                {selectedLanguage === lang.code && (
-                  <Ionicons name="checkmark-circle" size={24} color={Colors.success.DEFAULT} />
-                )}
-              </Pressable>
-            ))}
-          </View>
+          {loadingLangs ? (
+            <View className="items-center py-8">
+              <ActivityIndicator size="small" color={Colors.primary[500]} />
+            </View>
+          ) : (
+            <View className="gap-3">
+              {languages.map((lang) => (
+                <Pressable
+                  key={lang.code}
+                  onPress={() => setSelectedLanguage(lang.code)}
+                  className={cn(
+                    "flex-row items-center px-5 py-4 rounded-2xl border",
+                    selectedLanguage === lang.code
+                      ? "border-primary-200 bg-primary-50"
+                      : "border-grey-200 bg-white",
+                  )}
+                >
+                  {lang.flag ? (
+                    <Text style={{ fontSize: 22, marginRight: 12 }}>{lang.flag}</Text>
+                  ) : null}
+                  <View className="flex-1">
+                    <Text variant="bodyMedium" className="text-grey-700">
+                      {lang.name}
+                    </Text>
+                    <Text variant="caption" color="muted">
+                      {lang.nativeName}
+                    </Text>
+                  </View>
+                  {selectedLanguage === lang.code && (
+                    <Ionicons name="checkmark-circle" size={24} color={Colors.success.DEFAULT} />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          )}
         </View>
 
         <View className="px-6" style={{ paddingBottom: insets.bottom + 16 }}>
           <Button
             variant="primary"
             size="lg"
-            label="Save Language"
+            label={t("settings.saveLanguage")}
             fullWidth
             disabled={saving}
             onPress={saveLanguage}
@@ -202,15 +234,15 @@ export default function SettingsScreen() {
               className="text-center text-grey-900"
               style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 26, lineHeight: 34 }}
             >
-              Change University
+              {t("settings.changeUniversity")}
             </Text>
             <Text variant="body" color="muted" className="text-center">
-              Select your university
+              {t("settings.selectUniversity")}
             </Text>
           </View>
 
           <Input
-            placeholder="Search for your university"
+            placeholder={t("settings.searchUniversity")}
             value={search}
             onChangeText={setSearch}
             leftIcon={<Ionicons name="search-outline" size={18} color={Colors.grey[400]} />}
@@ -252,7 +284,7 @@ export default function SettingsScreen() {
                 ))}
                 {filteredUniversities.length === 0 && (
                   <Text variant="body" color="muted" className="text-center py-8">
-                    No universities found
+                    {t("settings.noUniversities")}
                   </Text>
                 )}
               </View>
@@ -264,7 +296,7 @@ export default function SettingsScreen() {
           <Button
             variant="primary"
             size="lg"
-            label="Save University"
+            label={t("settings.saveUniversity")}
             fullWidth
             disabled={!selectedUniversity || saving}
             onPress={saveUniversity}
@@ -289,13 +321,13 @@ export default function SettingsScreen() {
           style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 18 }}
           className="text-grey-900"
         >
-          Settings
+          {t("settings.title")}
         </Text>
       </View>
 
       <ScrollView className="flex-1 px-6 pt-6" showsVerticalScrollIndicator={false}>
         <Text variant="caption" color="muted" className="tracking-widest mb-3">
-          PREFERENCES
+          {t("settings.preferences").toUpperCase()}
         </Text>
 
         <View className="bg-white rounded-2xl overflow-hidden mb-6">
@@ -308,9 +340,9 @@ export default function SettingsScreen() {
               <Ionicons name="globe-outline" size={18} color={Colors.primary[500]} />
             </View>
             <View className="flex-1">
-              <Text variant="body" className="text-grey-800">Language</Text>
+              <Text variant="body" className="text-grey-800">{t("settings.language")}</Text>
               <Text variant="caption" color="muted">
-                {LANGUAGES.find((l) => l.code === (profile?.language_code ?? profile?.language))?.label ?? "English"}
+                {currentLang ? `${currentLang.flag ?? ""} ${currentLang.name}`.trim() : "English"}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
@@ -325,7 +357,7 @@ export default function SettingsScreen() {
               <Ionicons name="school-outline" size={18} color={Colors.primary[500]} />
             </View>
             <View className="flex-1">
-              <Text variant="body" className="text-grey-800">University</Text>
+              <Text variant="body" className="text-grey-800">{t("settings.university")}</Text>
               <Text variant="caption" color="muted">
                 {profile?.university ?? "Not set"}
               </Text>
@@ -335,7 +367,7 @@ export default function SettingsScreen() {
         </View>
 
         <Text variant="caption" color="muted" className="tracking-widest mb-3">
-          ABOUT
+          {t("settings.about").toUpperCase()}
         </Text>
 
         <View className="bg-white rounded-2xl overflow-hidden">
@@ -343,7 +375,7 @@ export default function SettingsScreen() {
             <View className="w-9 h-9 rounded-xl bg-grey-100 items-center justify-center mr-3">
               <Ionicons name="document-text-outline" size={18} color={Colors.grey[500]} />
             </View>
-            <Text variant="body" className="text-grey-800 flex-1">Terms & Conditions</Text>
+            <Text variant="body" className="text-grey-800 flex-1">{t("settings.termsAndConditions")}</Text>
             {profile?.accepted_terms_version ? (
               <Text variant="caption" color="muted">v{profile.accepted_terms_version}</Text>
             ) : null}
@@ -352,8 +384,8 @@ export default function SettingsScreen() {
             <View className="w-9 h-9 rounded-xl bg-grey-100 items-center justify-center mr-3">
               <Ionicons name="information-circle-outline" size={18} color={Colors.grey[500]} />
             </View>
-            <Text variant="body" className="text-grey-800 flex-1">App Version</Text>
-            <Text variant="caption" color="muted">1.0.0</Text>
+            <Text variant="body" className="text-grey-800 flex-1">{t("settings.appVersion")}</Text>
+            <Text variant="caption" color="muted">{Constants.expoConfig?.version ?? "1.0.0"}</Text>
           </View>
         </View>
       </ScrollView>

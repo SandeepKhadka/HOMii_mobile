@@ -1,27 +1,31 @@
-import { View, Alert, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
 import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { profile, signOut } = useAuth();
+  const { showAlert } = useAlert();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
-    Alert.alert("Log Out", "Are you sure you want to log out?", [
-      { text: "Cancel", style: "cancel" },
+    showAlert(t("profile.logOutTitle"), t("profile.logOutMessage"), [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: "Log Out",
+        text: t("profile.logOut"),
         style: "destructive",
         onPress: async () => {
           await signOut();
         },
       },
-    ]);
+    ], "warning");
   };
 
   return (
@@ -48,21 +52,24 @@ export default function ProfileScreen() {
       <View className="flex-1 px-6 pt-6 justify-between" style={{ paddingBottom: insets.bottom + 16 }}>
         <View className="gap-4">
           <Text variant="caption" color="muted" className="tracking-widest">
-            ACCOUNT
+            {t("profile.account")}
           </Text>
           <View className="bg-white rounded-2xl overflow-hidden">
-            <View className="flex-row items-center px-4 py-4 border-b border-grey-100">
+            <Pressable
+              onPress={() => router.push("/edit-profile" as any)}
+              className="flex-row items-center px-4 py-4 border-b border-grey-100"
+            >
               <Ionicons name="person-outline" size={20} color={Colors.grey[500]} />
-              <Text variant="body" className="text-grey-800 ml-3 flex-1">Edit Profile</Text>
+              <Text variant="body" className="text-grey-800 ml-3 flex-1">{t("profile.editProfile")}</Text>
               <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
-            </View>
+            </Pressable>
             <Pressable
               onPress={() => router.push("/settings" as any)}
               className="flex-row items-center px-4 py-4 border-b border-grey-100"
             >
               <Ionicons name="school-outline" size={20} color={Colors.grey[500]} />
-              <Text variant="body" className="text-grey-800 ml-3 flex-1">University</Text>
-              <Text variant="caption" color="muted">{profile?.university || "Not set"}</Text>
+              <Text variant="body" className="text-grey-800 ml-3 flex-1">{t("profile.university")}</Text>
+              <Text variant="caption" color="muted">{profile?.university || t("profile.notSet")}</Text>
               <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} className="ml-1" />
             </Pressable>
             <Pressable
@@ -70,7 +77,7 @@ export default function ProfileScreen() {
               className="flex-row items-center px-4 py-4"
             >
               <Ionicons name="settings-outline" size={20} color={Colors.grey[500]} />
-              <Text variant="body" className="text-grey-800 ml-3 flex-1">Settings</Text>
+              <Text variant="body" className="text-grey-800 ml-3 flex-1">{t("profile.settings")}</Text>
               <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
             </Pressable>
           </View>
@@ -79,7 +86,7 @@ export default function ProfileScreen() {
         <Button
           variant="ghost"
           size="lg"
-          label="Log Out"
+          label={t("profile.logOut")}
           fullWidth
           leftIcon={<Ionicons name="log-out-outline" size={20} color={Colors.error.DEFAULT} />}
           onPress={handleLogout}

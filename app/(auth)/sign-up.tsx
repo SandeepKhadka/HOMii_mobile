@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { View, Pressable, ImageBackground, ScrollView, Alert, Keyboard } from "react-native";
+import { View, Pressable, ImageBackground, ScrollView, Keyboard } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
+import { useTranslation } from "react-i18next";
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
   const { signUp, signInWithGoogle } = useAuth();
+  const { showAlert } = useAlert();
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,38 +23,37 @@ export default function SignUpScreen() {
   const handleSignUp = async () => {
     Keyboard.dismiss();
     if (!fullName || !email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+      showAlert(t("common.error"), t("common.fillAllFields"), undefined, "error");
       return;
     }
     if (password.length < 8) {
-      Alert.alert("Error", "Password must be at least 8 characters");
+      showAlert(t("common.error"), t("auth.signUp.passwordMin"), undefined, "error");
       return;
     }
     if (!/[A-Z]/.test(password)) {
-      Alert.alert("Error", "Password must contain at least one uppercase letter");
+      showAlert(t("common.error"), t("auth.signUp.passwordUppercase"), undefined, "error");
       return;
     }
     if (!/[a-z]/.test(password)) {
-      Alert.alert("Error", "Password must contain at least one lowercase letter");
+      showAlert(t("common.error"), t("auth.signUp.passwordLowercase"), undefined, "error");
       return;
     }
     if (!/[0-9]/.test(password)) {
-      Alert.alert("Error", "Password must contain at least one number");
+      showAlert(t("common.error"), t("auth.signUp.passwordNumber"), undefined, "error");
       return;
     }
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      Alert.alert("Error", "Password must contain at least one special character");
+    if (!/[!@#$%^&*()_+\-=\[\]\{\};':"\\|,.<>\/?]/.test(password)) {
+      showAlert(t("common.error"), t("auth.signUp.passwordSpecial"), undefined, "error");
       return;
     }
     setLoading(true);
     const { error, needsConfirmation } = await signUp(email, password, fullName);
     setLoading(false);
     if (error) {
-      Alert.alert("Sign Up Failed", error);
+      showAlert(t("auth.signUp.failed"), error, undefined, "error");
     } else if (needsConfirmation) {
       router.push({ pathname: "/(auth)/verify-otp" as any, params: { email } });
     }
-    // If no confirmation needed, auth state change handles navigation automatically
   };
 
   return (
@@ -106,17 +109,17 @@ export default function SignUpScreen() {
               letterSpacing: -0.5,
             }}
           >
-            Create account
+            {t("auth.signUp.title")}
           </Text>
           <Text variant="body" color="muted">
-            Join thousands of international students
+            {t("auth.signUp.subtitle")}
           </Text>
         </View>
 
         <View className="gap-4 mb-6">
           <Input
-            label="Full Name"
-            placeholder="Your full name"
+            label={t("common.fullName")}
+            placeholder={t("auth.signUp.fullNamePlaceholder")}
             autoCapitalize="words"
             autoComplete="name"
             value={fullName}
@@ -124,8 +127,8 @@ export default function SignUpScreen() {
             leftIcon={<Ionicons name="person-outline" size={18} color={Colors.grey[400]} />}
           />
           <Input
-            label="Email"
-            placeholder="your@university.ac.uk"
+            label={t("common.email")}
+            placeholder={t("auth.signUp.emailPlaceholder")}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
@@ -134,8 +137,8 @@ export default function SignUpScreen() {
             leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.grey[400]} />}
           />
           <Input
-            label="Password"
-            placeholder="Create a password"
+            label={t("common.password")}
+            placeholder={t("auth.signUp.passwordPlaceholder")}
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
@@ -154,7 +157,7 @@ export default function SignUpScreen() {
         <Button
           variant="primary"
           size="lg"
-          label={loading ? "Creating account..." : "Create Account"}
+          label={loading ? t("auth.signUp.submitting") : t("auth.signUp.submit")}
           fullWidth
           onPress={handleSignUp}
         />
@@ -162,21 +165,21 @@ export default function SignUpScreen() {
         <Pressable
           onPress={async () => {
             const { error } = await signInWithGoogle();
-            if (error) Alert.alert("Google Sign-In Failed", error);
+            if (error) showAlert(t("common.googleSignInFailed"), error, undefined, "error");
           }}
           className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5 mt-2"
         >
           <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
           <Text variant="bodyMedium" className="text-grey-700 font-semibold">
-            Continue with Google
+            {t("common.continueWithGoogle")}
           </Text>
         </Pressable>
 
         <View className="flex-row justify-center gap-1 mt-4">
-          <Text variant="body" color="muted">Already have an account?</Text>
+          <Text variant="body" color="muted">{t("auth.signUp.hasAccount")}</Text>
           <Pressable onPress={() => router.replace("/(auth)/sign-in")}>
             <Text variant="bodyMedium" color="primary" className="font-semibold">
-              Sign in
+              {t("auth.signUp.signIn")}
             </Text>
           </Pressable>
         </View>
