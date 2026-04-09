@@ -10,11 +10,32 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://ho-mii-backend.vercel.app/api/v1",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bedsgjimcqmerykvddnw.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlZHNnamltY3FtZXJ5a3ZkZG53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NTYzNjUsImV4cCI6MjA5MDUzMjM2NX0.S5pXay4FkW_IL451ob_E3F5avi6rJlExgrnXi7DyX2E",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://06fd9b9d1b995545203733eda4f276d0@o4510072348344320.ingest.de.sentry.io/4511188497268816",
+        "EXPO_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+      },
       "android": {
         "buildType": "apk"
       },
       "ios": {
         "distribution": "internal"
+      }
+    },
+    "simulator": {
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://ho-mii-backend.vercel.app/api/v1",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bedsgjimcqmerykvddnw.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlZHNnamltY3FtZXJ5a3ZkZG53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NTYzNjUsImV4cCI6MjA5MDUzMjM2NX0.S5pXay4FkW_IL451ob_E3F5avi6rJlExgrnXi7DyX2E",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://06fd9b9d1b995545203733eda4f276d0@o4510072348344320.ingest.de.sentry.io/4511188497268816",
+        "EXPO_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
     "production": {
@@ -25,16 +46,6 @@
     }
   },
   "submit": {
-    "production": {
-      "android": {
-        "serviceAccountKeyPath": "./google-service-account.json",
-        "track": "internal"
-      },
-      "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
-      }
-    }
+    "production": {}
   }
 }

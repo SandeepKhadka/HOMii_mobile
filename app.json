@@ -11,7 +11,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.slimsandy.homii",
-      "associatedDomains": ["applinks:homii.link"]
+      "associatedDomains": [
+        "applinks:homii.link"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +36,10 @@
               "pathPrefix": "/r/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -71,6 +76,14 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "expo-navigation-bar": {},
+      "eas": {
+        "projectId": "dcd8857e-d66e-4194-961e-f37d16358c41"
+      }
+    },
+    "owner": "slimsandy"
   }
 }
