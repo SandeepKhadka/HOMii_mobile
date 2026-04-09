@@ -9,7 +9,15 @@
       "Bash(tasklist)",
       "Bash(npx expo:*)",
       "Bash(xargs grep:*)",
-      "Bash(grep -n \"attributeReferral\" \"c:\\\\Users\\\\ACER\\\\Desktop\\\\HOMii\\\\mobile app\\\\HOMii\"/**/*.tsx)"
+      "Bash(grep -n \"attributeReferral\" \"c:\\\\Users\\\\ACER\\\\Desktop\\\\HOMii\\\\mobile app\\\\HOMii\"/**/*.tsx)",
+      "Bash(2>&1)",
+      "Bash(curl -s \"http://localhost:3000/api/v1/categories?page=1&limit=6\")",
+      "Bash(curl -s \"http://localhost:3000/api/v1/categories\")",
+      "Bash(curl -s \"http://localhost:3000/api/v1/phases\")",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/v1/categories/seed-all\")",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/v1/categories/seed\")",
+      "Bash(grep -l \"SupabaseAuthGuard\" c:/Users/ACER/Desktop/HOMii/backend/src/**/*.controller.ts)",
+      "Bash(git -C \"c:/Users/ACER/Desktop/HOMii/backend\" log --oneline -3)"
     ]
   }
 }

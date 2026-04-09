@@ -9,7 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.slimsandy.homii",
+      "associatedDomains": ["applinks:homii.link"]
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +22,21 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.slimsandy.HOMii"
+      "package": "com.slimsandy.HOMii",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerification": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "homii.link",
+              "pathPrefix": "/r/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "output": "static",

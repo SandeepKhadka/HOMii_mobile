@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useCallback } from "react";
 import { View, Pressable, ActivityIndicator, Share } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -26,16 +26,19 @@ export default function AmbassadorsScreen() {
   const [stats, setStats] = useState<AmbassadorStats | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
 
-  useEffect(() => {
-    api.getAmbassadorStats()
-      .then(setStats)
-      .catch(() => setStats(null))
-      .finally(() => setCheckingStatus(false));
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      setCheckingStatus(true);
+      api.getAmbassadorStats()
+        .then(setStats)
+        .catch(() => setStats(null))
+        .finally(() => setCheckingStatus(false));
+    }, [])
+  );
 
   const shareReferralLink = async () => {
     if (!stats?.referralCode) return;
-    const link = `https://homii.app/r/${stats.referralCode}`;
+    const link = `https://homii.link/r/${stats.referralCode}`;
     try {
       const result = await Share.share({
         message: `Join me on HOMii — the essential app for international students in the UK! ${link}`,
@@ -128,11 +131,11 @@ export default function AmbassadorsScreen() {
                   variant="primary"
                   size="lg"
                   label="Dashboard"
-                  fullWidth
+                  className="flex-1"
                   onPress={() => router.push("/ambassador/dashboard" as any)}
                 />
                 <Pressable
-                  className="px-5 items-center justify-center rounded-2xl"
+                  className="w-14 items-center justify-center rounded-2xl"
                   style={{ backgroundColor: Colors.teal.DEFAULT }}
                   onPress={shareReferralLink}
                 >

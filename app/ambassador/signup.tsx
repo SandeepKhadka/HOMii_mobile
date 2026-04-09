@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { View, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, TextInput } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -77,12 +77,13 @@ export default function AmbassadorSignupScreen() {
 
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        keyboardVerticalOffset={Platform.OS === "android" ? 80 : 0}
       >
         <ScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
           keyboardShouldPersistTaps="handled"
         >
           {/* Title section */}
@@ -145,18 +146,28 @@ export default function AmbassadorSignupScreen() {
                 <Text variant="captionMedium" color="secondary">
                   Why do you want to be the ambassador?
                 </Text>
-                <View className="border border-grey-200 rounded-xl px-4 py-3 min-h-[100]">
-                  <Input
-                    placeholder="Tell us why you'd be great..."
-                    multiline
-                    numberOfLines={4}
-                    className="border-0 p-0"
-                    inputClassName="min-h-[80]"
-                    style={{ borderWidth: 0, padding: 0 }}
-                    value={motivation}
-                    onChangeText={setMotivation}
-                  />
-                </View>
+                <TextInput
+                  placeholder="Tell us why you'd be great..."
+                  placeholderTextColor="#9CA3AF"
+                  multiline
+                  textAlignVertical="top"
+                  scrollEnabled={false}
+                  value={motivation}
+                  onChangeText={setMotivation}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "#E5E7EB",
+                    borderRadius: 12,
+                    paddingHorizontal: 16,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    minHeight: 110,
+                    fontFamily: "BricolageGrotesque_400Regular",
+                    fontSize: 15,
+                    color: "#111827",
+                    lineHeight: 22,
+                  }}
+                />
               </View>
             </View>
 

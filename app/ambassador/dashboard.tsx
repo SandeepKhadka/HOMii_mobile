@@ -29,7 +29,7 @@ export default function AmbassadorDashboardScreen() {
     loadData();
   }, [loadData]);
 
-  const referralLink = stats ? `https://homii.com/${stats.referralCode}` : "";
+  const referralLink = stats ? `https://homii.link/r/${stats.referralCode}` : "";
 
   const copyLink = async () => {
     if (!referralLink) return;

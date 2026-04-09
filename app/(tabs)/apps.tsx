@@ -20,15 +20,18 @@ export default function AppsScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
 
   const fetchPage = useCallback(async (pageNum: number, reset = false) => {
     try {
+      setError(false);
       const res = await api.getCategoriesPaginated(pageNum, PAGE_SIZE);
       setCategories((prev) => reset ? res.items : [...prev, ...res.items]);
       setHasMore(res.hasMore);
       setPage(pageNum);
     } catch {
-      // silent fail
+      setError(true);
+      setHasMore(false);
     }
   }, []);
 
@@ -75,6 +78,26 @@ export default function AppsScreen() {
       {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={Colors.primary[500]} />
+        </View>
+      ) : error ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Ionicons name="wifi-outline" size={48} color="#9CA3AF" />
+          <Text variant="bodyMedium" color="muted" className="text-center mt-3">
+            Couldn't load apps. Check your connection.
+          </Text>
+          <Pressable
+            className="mt-4 px-6 py-2.5 rounded-xl bg-primary-500"
+            onPress={() => { setLoading(true); fetchPage(1, true).finally(() => setLoading(false)); }}
+          >
+            <Text variant="bodyMedium" color="inverse">Retry</Text>
+          </Pressable>
+        </View>
+      ) : categories.length === 0 ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Ionicons name="apps-outline" size={48} color="#9CA3AF" />
+          <Text variant="bodyMedium" color="muted" className="text-center mt-3">
+            No apps available yet.
+          </Text>
         </View>
       ) : (
         <ScrollView
