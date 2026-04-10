@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react";
 import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -6,56 +5,14 @@ import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { api, ApiCategory } from "@/lib/api";
 import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
-import { capture } from "@/lib/analytics";
-import { useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
-
-const PAGE_SIZE = 6;
+import { useCategories } from "@/contexts/CategoriesContext";
 
 export default function AppsScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(false);
-
-  const fetchPage = useCallback(async (pageNum: number, reset = false) => {
-    try {
-      setError(false);
-      const res = await api.getCategoriesPaginated(pageNum, PAGE_SIZE);
-      setCategories((prev) => reset ? res.items : [...prev, ...res.items]);
-      setHasMore(res.hasMore);
-      setPage(pageNum);
-    } catch {
-      setError(true);
-      setHasMore(false);
-    }
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      setLoading(true);
-      fetchPage(1, true).finally(() => setLoading(false));
-    }, [fetchPage])
-  );
-
-  const loadMore = async () => {
-    if (loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    await fetchPage(page + 1);
-    setLoadingMore(false);
-  };
-
-  const handleCategoryPress = (cat: ApiCategory) => {
-    // Map slug → id for category detail screen
-    const id = cat.slug === 'sim-cards' ? 'sims' : cat.slug === 'food-delivery' ? 'food' : cat.slug === 'student-discounts' ? 'discounts' : cat.slug;
-    router.push(`/category/${id}` as any);
-  };
+  const { categories, loading } = useCategories();
 
   return (
     <View className="flex-1 bg-background">
@@ -81,19 +38,6 @@ export default function AppsScreen() {
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={Colors.primary[500]} />
         </View>
-      ) : error ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Ionicons name="wifi-outline" size={48} color="#9CA3AF" />
-          <Text variant="bodyMedium" color="muted" className="text-center mt-3">
-            Couldn't load apps. Check your connection.
-          </Text>
-          <Pressable
-            className="mt-4 px-6 py-2.5 rounded-xl bg-primary-500"
-            onPress={() => { setLoading(true); fetchPage(1, true).finally(() => setLoading(false)); }}
-          >
-            <Text variant="bodyMedium" color="inverse">Retry</Text>
-          </Pressable>
-        </View>
       ) : categories.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8">
           <Ionicons name="apps-outline" size={48} color="#9CA3AF" />
@@ -106,7 +50,6 @@ export default function AppsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 24, paddingHorizontal: 24, paddingBottom: insets.bottom + 32 }}
         >
-          {/* 2-column grid — same card style as Essential Apps on home */}
           <View className="flex-row flex-wrap gap-4">
             {categories.map((cat) => {
               const color = cat.color || Colors.primary[500];
@@ -117,7 +60,7 @@ export default function AppsScreen() {
                   key={cat.id}
                   className="bg-white rounded-2xl overflow-hidden"
                   style={{ width: "47%", elevation: 3, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8 }}
-                  onPress={() => handleCategoryPress(cat)}
+                  onPress={() => router.push(`/category/${cat.id}` as any)}
                 >
                   <LinearGradient
                     colors={[color, gradientEnd]}
@@ -131,7 +74,7 @@ export default function AppsScreen() {
                   </LinearGradient>
 
                   <View className="p-3">
-                    <Text variant="bodyMedium" className="text-grey-800">{cat.name}</Text>
+                    <Text variant="bodyMedium" className="text-grey-800">{cat.title}</Text>
                     {cat.apps.length > 0 && (
                       <Text variant="caption" color="muted">
                         {cat.apps.length} app{cat.apps.length !== 1 ? "s" : ""}
@@ -143,22 +86,7 @@ export default function AppsScreen() {
             })}
           </View>
 
-          {/* Load More */}
-          {hasMore && (
-            <Pressable
-              onPress={loadMore}
-              disabled={loadingMore}
-              className="mt-6 py-3.5 rounded-2xl items-center justify-center border border-grey-200 bg-white"
-            >
-              {loadingMore ? (
-                <ActivityIndicator size="small" color={Colors.primary[500]} />
-              ) : (
-                <Text variant="bodyMedium" style={{ color: Colors.primary[500] }}>{t("apps.loadMore")}</Text>
-              )}
-            </Pressable>
-          )}
-
-          {!hasMore && categories.length > 0 && (
+          {categories.length > 0 && (
             <Text variant="caption" color="muted" className="text-center mt-6">
               All {categories.length} categories loaded
             </Text>

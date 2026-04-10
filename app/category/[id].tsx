@@ -5,6 +5,7 @@ import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAlert } from "@/contexts/AlertContext";
 import { api } from "@/lib/api";
 import { capture } from "@/lib/analytics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,6 +16,7 @@ export default function CategoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { categories } = useCategories();
   const { profile } = useAuth();
+  const { showAlert } = useAlert();
   const { t } = useTranslation();
   const category = categories.find((c) => c.id === id);
   const insets = useSafeAreaInsets();
@@ -46,9 +48,11 @@ export default function CategoryDetailScreen() {
       });
       if (redirectUrl) {
         await Linking.openURL(redirectUrl);
+      } else {
+        showAlert("Not available", "This app doesn't have a download link yet. Check back soon.", undefined, "info");
       }
     } catch {
-      // silent fail — click tracking should not block UX
+      showAlert("Couldn't open app", "Unable to reach the server. Please check your connection and try again.", undefined, "error");
     } finally {
       setDownloadingId(null);
     }

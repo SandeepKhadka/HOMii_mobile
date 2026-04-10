@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from "react";
 import {
-  Modal, View, Pressable, Animated, StyleSheet,
+  Modal, View, Pressable, Animated, StyleSheet, ScrollView, Dimensions,
 } from "react-native";
+
+const SCREEN_H = Dimensions.get("window").height;
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui";
 import { Colors } from "@/constants/colors";
@@ -155,43 +157,50 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
               },
             ]}
           >
-            {/* Icon */}
-            <View
-              style={[styles.iconWrap, { backgroundColor: typeConfig.bg }]}
+            {/* Scrollable content — icon + title + message */}
+            <ScrollView
+              bounces={false}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ alignItems: "center", paddingBottom: 4 }}
             >
-              <Ionicons
-                name={typeConfig.icon}
-                size={34}
-                color={typeConfig.color}
-              />
-            </View>
-
-            {/* Title */}
-            <Text
-              style={{
-                fontFamily: "BricolageGrotesque_700Bold",
-                fontSize: 18,
-                lineHeight: 26,
-                color: Colors.grey[900],
-                textAlign: "center",
-                marginBottom: config?.message ? 6 : 0,
-              }}
-            >
-              {config?.title}
-            </Text>
-
-            {/* Message */}
-            {config?.message ? (
-              <Text
-                variant="body"
-                color="muted"
-                style={{ textAlign: "center", lineHeight: 22 }}
+              {/* Icon */}
+              <View
+                style={[styles.iconWrap, { backgroundColor: typeConfig.bg }]}
               >
-                {config.message}
-              </Text>
-            ) : null}
+                <Ionicons
+                  name={typeConfig.icon}
+                  size={34}
+                  color={typeConfig.color}
+                />
+              </View>
 
-            {/* Buttons */}
+              {/* Title */}
+              <Text
+                style={{
+                  fontFamily: "BricolageGrotesque_700Bold",
+                  fontSize: 18,
+                  lineHeight: 26,
+                  color: Colors.grey[900],
+                  textAlign: "center",
+                  marginBottom: config?.message ? 6 : 0,
+                }}
+              >
+                {config?.title}
+              </Text>
+
+              {/* Message */}
+              {config?.message ? (
+                <Text
+                  variant="body"
+                  color="muted"
+                  style={{ textAlign: "center", lineHeight: 22 }}
+                >
+                  {config.message}
+                </Text>
+              ) : null}
+            </ScrollView>
+
+            {/* Buttons — always pinned at bottom */}
             <View
               style={[
                 styles.buttonRow,
@@ -256,12 +265,12 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
+    maxHeight: SCREEN_H * 0.8,
     backgroundColor: "#fff",
     borderRadius: 24,
     paddingHorizontal: 24,
     paddingTop: 28,
     paddingBottom: 24,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.12,
