@@ -186,7 +186,9 @@
     "recommended": "推荐",
     "comingSoon": "即将推出",
     "notFound": "未找到分类",
-    "disclosure": "部分链接可能为 HOMii 赚取佣金，对您无额外费用。"
+    "disclosure": "部分链接可能为 HOMii 赚取佣金，对您无额外费用。",
+    "connectionRequired": "需要网络连接",
+    "connectionRequiredMessage": "请连接互联网以下载应用。"
   },
   "ambassadors": {
     "title": "大使",

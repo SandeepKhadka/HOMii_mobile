@@ -186,7 +186,9 @@
     "recommended": "RECOMMENDED",
     "comingSoon": "Coming soon",
     "notFound": "Category not found",
-    "disclosure": "Some links may earn HOMii a commission at no extra cost to you."
+    "disclosure": "Some links may earn HOMii a commission at no extra cost to you.",
+    "connectionRequired": "Connection needed",
+    "connectionRequiredMessage": "Please connect to the internet to download apps."
   },
   "ambassadors": {
     "title": "Ambassador",

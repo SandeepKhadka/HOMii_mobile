@@ -37,7 +37,11 @@ export default function CategoryDetailScreen() {
   }
 
   const handleDownload = async (appId?: string, appName?: string) => {
-    if (!appId || downloadingId) return;
+    if (downloadingId) return;
+    if (!appId) {
+      showAlert(t("category.connectionRequired"), t("category.connectionRequiredMessage"), undefined, "info");
+      return;
+    }
     setDownloadingId(appId);
     capture('partner_download_clicked', { app_id: appId, app_name: appName, category_id: id });
     try {

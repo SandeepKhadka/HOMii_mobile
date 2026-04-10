@@ -22,7 +22,8 @@ import {
 } from "@expo-google-fonts/bricolage-grotesque";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { View, ActivityIndicator, StyleSheet, Platform } from "react-native";
+import * as Notifications from "expo-notifications";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CategoriesProvider } from "@/contexts/CategoriesContext";
 import { AlertProvider } from "@/contexts/AlertContext";
@@ -81,6 +82,23 @@ function RouteGuard() {
       setAppLanguage(profile.language_code);
     }
   }, [profile?.language_code]);
+
+  // Request notification permissions after login
+  useEffect(() => {
+    if (!session) return;
+    (async () => {
+      const { status: existing } = await Notifications.getPermissionsAsync();
+      if (existing !== "granted") {
+        await Notifications.requestPermissionsAsync();
+      }
+      if (Platform.OS === "android") {
+        Notifications.setNotificationChannelAsync("default", {
+          name: "Default",
+          importance: Notifications.AndroidImportance.DEFAULT,
+        });
+      }
+    })();
+  }, [session?.user?.id]);
 
   // Identify / reset analytics user on auth state change
   useEffect(() => {
