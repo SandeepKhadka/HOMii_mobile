@@ -19,6 +19,13 @@ export interface Database {
           accepted_terms_version: string | null;
           accepted_terms_locale: string | null;
           onboarding_completed: boolean;
+          avatar_url: string | null;
+          phone_number: string | null;
+          date_of_birth: string | null;
+          nationality: string | null;
+          current_address: string | null;
+          course: string | null;
+          year_of_study: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -37,6 +44,13 @@ export interface Database {
           accepted_terms_version?: string | null;
           accepted_terms_locale?: string | null;
           onboarding_completed?: boolean;
+          avatar_url?: string | null;
+          phone_number?: string | null;
+          date_of_birth?: string | null;
+          nationality?: string | null;
+          current_address?: string | null;
+          course?: string | null;
+          year_of_study?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -53,6 +67,13 @@ export interface Database {
           accepted_terms_version?: string | null;
           accepted_terms_locale?: string | null;
           onboarding_completed?: boolean;
+          avatar_url?: string | null;
+          phone_number?: string | null;
+          date_of_birth?: string | null;
+          nationality?: string | null;
+          current_address?: string | null;
+          course?: string | null;
+          year_of_study?: string | null;
         };
       };
       onboarding_progress: {

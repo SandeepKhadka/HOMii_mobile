@@ -2,7 +2,7 @@ import { View, ScrollView, Pressable } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
-import { CATEGORIES } from "@/constants/categories";
+import { useCategories } from "@/contexts/CategoriesContext";
 import { useOnboardingProgress } from "@/contexts/OnboardingProgressContext";
 import { capture } from "@/lib/analytics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,8 @@ import { Colors } from "@/constants/colors";
 export default function CategoryChecklistScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const category = CATEGORIES.find((c) => c.id === id);
+  const { categories } = useCategories();
+  const category = categories.find((c) => c.id === id);
   const { isItemCompleted, toggleItem } = useOnboardingProgress();
 
   if (!category) {

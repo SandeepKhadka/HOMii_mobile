@@ -50,8 +50,8 @@ export default function PhaseChecklist({
         const iconColor = cat.color || "#6B7280";
         const iconBg = cat.color ? cat.color + "20" : "#F3F4F6";
         const iconName = (cat.icon || "ellipse-outline") as React.ComponentProps<typeof Ionicons>["name"];
-        const isDone = isCategoryCompleted(cat.id);
-        const done = completedCount(cat.id);
+        const isDone = isCategoryCompleted(cat.id, cat.checklistItems);
+        const done = completedCount(cat.id, cat.checklistItems);
         const total = cat.checklistItems.length;
 
         return (

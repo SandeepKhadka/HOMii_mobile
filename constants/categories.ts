@@ -1,11 +1,13 @@
 import { Colors } from "./colors";
 
 export interface CategoryApp {
-  id?:         string;  // API app ID for click tracking
-  name:        string;
-  description: string;
-  icon:        string;
-  recommended?: boolean;
+  id?:              string;
+  name:             string;
+  description:      string;
+  icon:             string;
+  recommended?:     boolean;
+  deepLinkScheme?:  string | null; // e.g. "revolut://" — used to detect installation
+  androidPackage?:  string | null; // e.g. "com.revolut.revolut"
 }
 
 export interface Category {

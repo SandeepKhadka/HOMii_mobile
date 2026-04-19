@@ -14,7 +14,7 @@ export default function SetupScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { categories, phases } = useCategories();
-  const [progress, setProgress] = useState<Record<string, number>>({});
+  const [progress, setProgress] = useState<Record<string, string[]>>({});
 
   useFocusEffect(
     useCallback(() => {
@@ -25,9 +25,9 @@ export default function SetupScreen() {
           .select("category_id, completed_items")
           .eq("user_id", user.id);
         if (data) {
-          const map: Record<string, number> = {};
+          const map: Record<string, string[]> = {};
           data.forEach((row: any) => {
-            map[row.category_id] = row.completed_items?.length || 0;
+            map[row.category_id] = row.completed_items || [];
           });
           setProgress(map);
         }
@@ -36,20 +36,29 @@ export default function SetupScreen() {
     }, [user])
   );
 
+  const getCompletedItems = (catId: string): string[] => {
+    const items = progress[catId];
+    return Array.isArray(items) ? items : [];
+  };
+
   const getPhaseProgress = (phaseCategories: string[]) => {
     let done = 0;
     let total = 0;
     phaseCategories.forEach((catId) => {
       const cat = categories.find((c) => c.id === catId);
       if (cat) {
+        const completedItems = getCompletedItems(catId);
         total += cat.checklistItems.length;
-        done += progress[catId] || 0;
+        done += cat.checklistItems.filter((item) => completedItems.includes(item)).length;
       }
     });
     return { done, total };
   };
 
-  const totalDone = Object.values(progress).reduce((s, v) => s + v, 0);
+  const totalDone = categories.reduce((s, cat) => {
+    const completedItems = getCompletedItems(cat.id);
+    return s + cat.checklistItems.filter((item) => completedItems.includes(item)).length;
+  }, 0);
   const totalItems = categories.reduce((s, c) => s + c.checklistItems.length, 0);
   const allComplete = totalDone >= totalItems && totalItems > 0;
 

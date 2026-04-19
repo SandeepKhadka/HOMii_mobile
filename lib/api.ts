@@ -60,6 +60,10 @@ export interface ApiApp {
   icon: string | null;
   sortOrder: number;
   supportedUniversities: string[]; // empty = visible to all
+  deepLinkScheme: string | null;   // e.g. "revolut://" — used to detect if app is installed
+  androidPackageName: string | null; // e.g. "com.revolut.revolut"
+  iosStoreId: string | null;
+  recommended: boolean;
 }
 
 export interface ApiChecklistItem {

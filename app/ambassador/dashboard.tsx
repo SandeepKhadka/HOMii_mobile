@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { View, Pressable, ScrollView, ActivityIndicator, Share } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -18,25 +18,24 @@ export default function AmbassadorDashboardScreen() {
   const [stats, setStats] = useState<AmbassadorStats | null>(null);
   const [referrals, setReferrals] = useState<AmbassadorReferral[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
-  const loadData = useCallback(async () => {
-    try {
-      const [statsData, referralsData] = await Promise.all([
-        api.getAmbassadorStats(),
-        api.getAmbassadorReferrals(),
-      ]);
-      setStats(statsData);
-      setReferrals(referralsData ?? []);
-    } catch {
-      setStats(null);
-    } finally {
-      setLoading(false);
-    }
+  const loadData = useCallback(() => {
+    let cancelled = false;
+    setLoading(true);
+    setHasError(false);
+    Promise.all([api.getAmbassadorStats(), api.getAmbassadorReferrals()])
+      .then(([statsData, referralsData]) => {
+        if (cancelled) return;
+        setStats(statsData);
+        setReferrals(referralsData ?? []);
+      })
+      .catch(() => { if (!cancelled) setHasError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useFocusEffect(loadData);
 
   const referralLink = stats ? `https://homii.link/r/${stats.referralCode}` : "";
 
@@ -67,23 +66,29 @@ export default function AmbassadorDashboardScreen() {
     );
   }
 
-  if (!stats) {
+  if (hasError || !stats) {
     return (
       <View className="flex-1 bg-white items-center justify-center px-8">
-        <Ionicons name="alert-circle-outline" size={48} color={Colors.grey[400]} />
+        <Ionicons
+          name={hasError ? "cloud-offline-outline" : "alert-circle-outline"}
+          size={48}
+          color={Colors.grey[400]}
+        />
         <Text variant="h3" className="text-grey-700 text-center mt-4">
-          {t("ambassadorDashboard.noData")}
+          {hasError ? "Couldn't load data" : t("ambassadorDashboard.noData")}
         </Text>
         <Text variant="body" color="muted" className="text-center mt-2">
-          {t("ambassadorDashboard.noDataMessage")}
+          {hasError
+            ? "Check your connection and try again"
+            : t("ambassadorDashboard.noDataMessage")}
         </Text>
         <Pressable
           className="mt-6 px-6 py-3 rounded-2xl"
           style={{ backgroundColor: Colors.teal.DEFAULT }}
-          onPress={() => router.replace("/ambassador/signup" as any)}
+          onPress={hasError ? loadData : () => router.replace("/ambassador/signup" as any)}
         >
           <Text color="inverse" style={{ fontFamily: "BricolageGrotesque_600SemiBold", fontSize: 15 }}>
-            {t("ambassadorDashboard.applyNow")}
+            {hasError ? "Retry" : t("ambassadorDashboard.applyNow")}
           </Text>
         </Pressable>
       </View>

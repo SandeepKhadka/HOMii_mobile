@@ -1,13 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
-import { CATEGORIES } from "@/constants/categories";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthContext";
 
 interface OnboardingProgressContextType {
   isItemCompleted: (categoryId: string, item: string) => boolean;
   toggleItem: (categoryId: string, item: string) => void;
-  isCategoryCompleted: (categoryId: string) => boolean;
-  completedCount: (categoryId: string) => number;
+  // checklistItems must come from the API (useCategories), not a static constant
+  isCategoryCompleted: (categoryId: string, checklistItems: string[]) => boolean;
+  completedCount: (categoryId: string, checklistItems: string[]) => number;
 }
 
 const OnboardingProgressContext = createContext<OnboardingProgressContextType | null>(null);
@@ -80,18 +80,21 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
   );
 
   const isCategoryCompleted = useCallback(
-    (categoryId: string) => {
-      const category = CATEGORIES.find((c) => c.id === categoryId);
-      if (!category) return false;
+    (categoryId: string, checklistItems: string[]) => {
+      if (!checklistItems.length) return false;
       const done = progress[categoryId];
       if (!done) return false;
-      return category.checklistItems.every((item) => done.has(item));
+      return checklistItems.every((item) => done.has(item));
     },
     [progress]
   );
 
   const completedCount = useCallback(
-    (categoryId: string) => progress[categoryId]?.size ?? 0,
+    (categoryId: string, checklistItems: string[]) => {
+      const done = progress[categoryId];
+      if (!done) return 0;
+      return checklistItems.filter((item) => done.has(item)).length;
+    },
     [progress]
   );
 

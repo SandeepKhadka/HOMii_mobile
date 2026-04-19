@@ -55,6 +55,9 @@ function mapApiToCategory(apiCat: ApiCategory, universityName?: string | null): 
       name: app.name,
       description: app.description || "",
       icon: app.icon || "",
+      recommended: app.recommended ?? false,
+      deepLinkScheme: app.deepLinkScheme ?? null,
+      androidPackage: app.androidPackageName ?? null,
     })),
     checklistItems: apiCat.checklistItems.map((item) => item.title),
   };

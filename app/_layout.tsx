@@ -30,6 +30,7 @@ import { AlertProvider } from "@/contexts/AlertContext";
 import { Colors } from "@/constants/colors";
 import { identify, reset } from "@/lib/analytics";
 import { setAppLanguage } from "@/lib/i18n";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -157,6 +158,7 @@ function RootLayout() {
             <Stack.Screen name="edit-profile" options={{ animation: "slide_from_right" }} />
           </Stack>
           <RouteGuard />
+          <OfflineBanner />
           </CategoriesProvider>
           </AlertProvider>
         </AuthProvider>

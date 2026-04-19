@@ -62,6 +62,13 @@
           }
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "HOMii needs access to your photos to set a profile picture.",
+          "cameraPermission": "HOMii needs camera access to take a profile photo."
+        }
+      ],
       "expo-navigation-bar",
       "expo-localization",
       "expo-web-browser",

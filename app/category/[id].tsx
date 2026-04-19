@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, ScrollView, Pressable, Linking, Platform, ActivityIndicator } from "react-native";
+import { View, ScrollView, Pressable, Linking, Platform, ActivityIndicator, TextInput } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,19 +14,52 @@ import { useTranslation } from "react-i18next";
 
 export default function CategoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { categories } = useCategories();
+  const { categories, refetch } = useCategories();
   const { profile } = useAuth();
   const { showAlert } = useAlert();
   const { t } = useTranslation();
   const category = categories.find((c) => c.id === id);
   const insets = useSafeAreaInsets();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  // installedIds: apps where Linking.canOpenURL(deepLinkScheme) returned true
+  const [installedIds, setInstalledIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredApps = searchQuery.trim()
+    ? (category?.apps ?? []).filter(
+        (a) =>
+          a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (a.description ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : (category?.apps ?? []);
 
   useEffect(() => {
     if (category) {
       capture('category_apps_viewed', { category_id: id, category_name: category.title });
     }
   }, [id]);
+
+  // Check which apps are actually installed via their deep link scheme
+  useEffect(() => {
+    if (!category) return;
+    const appsWithScheme = category.apps.filter(
+      (a) => a.deepLinkScheme && !a.deepLinkScheme.startsWith("http")
+    );
+    if (!appsWithScheme.length) return;
+    Promise.all(
+      appsWithScheme.map(async (a) => {
+        try {
+          const canOpen = await Linking.canOpenURL(a.deepLinkScheme!);
+          return canOpen ? a.id : null;
+        } catch {
+          return null;
+        }
+      })
+    ).then((results) => {
+      const installed = new Set(results.filter(Boolean) as string[]);
+      setInstalledIds(installed);
+    });
+  }, [category?.id]);
 
   if (!category) {
     return (
@@ -36,10 +69,28 @@ export default function CategoryDetailScreen() {
     );
   }
 
+  const handleOpen = async (appId: string, deepLinkScheme: string) => {
+    capture('partner_app_opened', { app_id: appId, category_id: id });
+    try {
+      await Linking.openURL(deepLinkScheme);
+    } catch {
+      // Deep link failed — fall back to download flow
+      handleDownload(appId);
+    }
+  };
+
   const handleDownload = async (appId?: string, appName?: string) => {
     if (downloadingId) return;
     if (!appId) {
-      showAlert(t("category.connectionRequired"), t("category.connectionRequiredMessage"), undefined, "info");
+      setDownloadingId(appName ?? "loading");
+      try {
+        await refetch();
+        showAlert(t("category.dataRefreshed"), t("category.dataRefreshedMessage"), undefined, "success");
+      } catch {
+        showAlert(t("category.connectionRequired"), t("category.connectionRequiredMessage"), undefined, "error");
+      } finally {
+        setDownloadingId(null);
+      }
       return;
     }
     setDownloadingId(appId);
@@ -53,10 +104,10 @@ export default function CategoryDetailScreen() {
       if (redirectUrl) {
         await Linking.openURL(redirectUrl);
       } else {
-        showAlert("Not available", "This app doesn't have a download link yet. Check back soon.", undefined, "info");
+        showAlert(t("category.notAvailable"), t("category.notAvailableMessage"), undefined, "info");
       }
     } catch {
-      showAlert("Couldn't open app", "Unable to reach the server. Please check your connection and try again.", undefined, "error");
+      showAlert(t("category.connectionRequired"), t("category.connectionRequiredMessage"), undefined, "error");
     } finally {
       setDownloadingId(null);
     }
@@ -92,10 +143,39 @@ export default function CategoryDetailScreen() {
         ) : null}
       </GradientHeader>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-6 pt-4">
-        {category.apps.length > 0 ? (
+      <View className="px-6 pt-4 pb-2">
+        <View className="flex-row items-center bg-white border border-grey-200 rounded-xl h-11 px-4 gap-2">
+          <Ionicons name="search-outline" size={16} color="#9CA3AF" />
+          <TextInput
+            placeholder={t("category.searchApps") || "Search apps..."}
+            placeholderTextColor="#9CA3AF"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            className="flex-1 text-grey-900 text-sm"
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery("")}>
+              <Ionicons name="close-circle" size={16} color="#9CA3AF" />
+            </Pressable>
+          )}
+        </View>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-6 pt-2">
+        {category.apps.length === 0 ? (
+          <View className="items-center py-16">
+            <Text variant="body" color="muted">{t("category.comingSoon")}</Text>
+          </View>
+        ) : filteredApps.length === 0 ? (
+          <View className="items-center py-12">
+            <Ionicons name="search-outline" size={36} color="#9CA3AF" />
+            <Text variant="body" color="muted" className="mt-2">{t("category.noResults") || "No apps found"}</Text>
+          </View>
+        ) : (
           <View className="gap-3">
-            {category.apps.map((app) => (
+            {filteredApps.map((app) => (
               <View
                 key={app.id || app.name}
                 className={`flex-row items-center p-4 rounded-2xl bg-white ${app.recommended ? "border-2" : ""}`}
@@ -120,23 +200,41 @@ export default function CategoryDetailScreen() {
                   <Text variant="caption" color="muted">{app.description}</Text>
                 </View>
 
-                <Pressable
-                  className="bg-grey-900 px-4 py-2 rounded-full min-w-[72px] items-center justify-center"
-                  onPress={() => handleDownload(app.id, app.name)}
-                  disabled={downloadingId === app.id}
-                  style={{ opacity: downloadingId === app.id ? 0.6 : 1 }}
-                >
-                  {downloadingId === app.id
-                    ? <ActivityIndicator size="small" color="#fff" />
-                    : <Text variant="captionMedium" color="inverse">{t("category.download")}</Text>
-                  }
-                </Pressable>
+                {(() => {
+                  const appId = app.id ?? "";
+                  const isInstalled = installedIds.has(appId);
+                  const isLoading = downloadingId === app.id;
+                  return (
+                    <Pressable
+                      className="px-4 py-2 rounded-full min-w-[72px] items-center justify-center"
+                      style={{
+                        backgroundColor: isInstalled ? category.color + "20" : "#111827",
+                        borderWidth: isInstalled ? 1.5 : 0,
+                        borderColor: isInstalled ? category.color : undefined,
+                        opacity: isLoading ? 0.6 : 1,
+                      }}
+                      onPress={() =>
+                        isInstalled && app.deepLinkScheme
+                          ? handleOpen(appId, app.deepLinkScheme)
+                          : handleDownload(app.id, app.name)
+                      }
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <ActivityIndicator size="small" color={isInstalled ? category.color : "#fff"} />
+                      ) : (
+                        <Text
+                          variant="captionMedium"
+                          style={{ color: isInstalled ? category.color : "#fff" }}
+                        >
+                          {isInstalled ? (t("category.open") || "Open") : t("category.get") || t("category.download")}
+                        </Text>
+                      )}
+                    </Pressable>
+                  );
+                })()}
               </View>
             ))}
-          </View>
-        ) : (
-          <View className="items-center py-16">
-            <Text variant="body" color="muted">{t("category.comingSoon")}</Text>
           </View>
         )}
 
