@@ -27,20 +27,12 @@ export default function AmbassadorsScreen() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<AmbassadorStats | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
-  const [hasError, setHasError] = useState(false);
 
   const loadStats = useCallback(() => {
     setCheckingStatus(true);
-    setHasError(false);
     api.getAmbassadorStats()
-      .then((data) => {
-        setStats(data);
-        setHasError(false);
-      })
-      .catch(() => {
-        setHasError(true);
-        // Don't clear existing stats — stale data is better than sign-up screen
-      })
+      .then((data) => setStats(data))
+      .catch(() => setStats(null))
       .finally(() => setCheckingStatus(false));
   }, []);
 
@@ -78,25 +70,6 @@ export default function AmbassadorsScreen() {
       {checkingStatus ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={Colors.navy.DEFAULT} />
-        </View>
-      ) : hasError && !isAmbassador ? (
-        <View className="flex-1 items-center justify-center px-8 gap-4">
-          <Ionicons name="cloud-offline-outline" size={48} color={Colors.grey[300]} />
-          <Text variant="bodyMedium" className="text-grey-700 text-center">
-            Couldn't load your ambassador status
-          </Text>
-          <Text variant="caption" color="muted" className="text-center">
-            Check your connection and try again
-          </Text>
-          <Pressable
-            className="px-8 py-3 rounded-2xl"
-            style={{ backgroundColor: Colors.navy.DEFAULT }}
-            onPress={loadStats}
-          >
-            <Text color="inverse" style={{ fontFamily: "BricolageGrotesque_600SemiBold", fontSize: 15 }}>
-              Retry
-            </Text>
-          </Pressable>
         </View>
       ) : isAmbassador ? (
         <View className="flex-1 px-6 pt-8 gap-6">

@@ -27,7 +27,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     throw new Error(`API ${res.status}: ${body}`);
   }
 
-  return res.json();
+  // Handle empty or "null" bodies safely — NestJS controllers that return null
+  // serialize as the JSON literal `null`, but some serverless adapters strip it
+  // to an empty body which would otherwise crash res.json() with a parse error.
+  const text = await res.text();
+  if (!text || text === 'null') return null as T;
+  return JSON.parse(text);
 }
 
 // ─── Public endpoints (no auth) ────────────────────────────
