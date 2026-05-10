@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { View, Pressable, ActivityIndicator, Share } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { Text, Button } from "@/components/ui";
@@ -27,13 +27,20 @@ export default function AmbassadorsScreen() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<AmbassadorStats | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const isFirstLoad = useRef(true);
 
   const loadStats = useCallback(() => {
-    setCheckingStatus(true);
     api.getAmbassadorStats()
       .then((data) => setStats(data))
-      .catch(() => setStats(null))
-      .finally(() => setCheckingStatus(false));
+      .catch(() => {
+        // Only fall back to apply screen on the first load. On subsequent
+        // refreshes, keep showing whatever data we already had.
+        if (isFirstLoad.current) setStats(null);
+      })
+      .finally(() => {
+        isFirstLoad.current = false;
+        setCheckingStatus(false);
+      });
   }, []);
 
   useFocusEffect(loadStats);
