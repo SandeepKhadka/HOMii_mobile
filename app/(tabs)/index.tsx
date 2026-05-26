@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator, FlatList, Linking } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, FlatList, Linking, Share, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { Text } from "@/components/ui";
@@ -12,6 +12,8 @@ import { supabase } from "@/lib/supabase";
 import { api, ApiUniversity } from "@/lib/api";
 import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
 import { useTranslation } from "react-i18next";
+import { LINKS } from "@/constants/links";
+import { capture } from "@/lib/analytics";
 
 
 export default function HomeScreen() {
@@ -33,21 +35,29 @@ export default function HomeScreen() {
     }).catch(() => {});
   }, [profile?.university]);
 
-  const TOTAL_ITEMS = categories.reduce((sum, cat) => sum + cat.checklistItems.length, 0);
+  // Counted in CATEGORIES, not individual checklist items. A category is
+  // "done" only when every one of its checklist items is present in the
+  // completed_items array (matches the green-circle toggle behavior).
+  const TOTAL_CATEGORIES = categories.length;
 
   const fetchProgress = useCallback(async () => {
     if (!user) return;
     const { data } = await supabase
       .from("onboarding_progress")
-      .select("completed_items")
+      .select("category_id, completed_items")
       .eq("user_id", user.id);
-    if (data) {
-      const total = data.reduce((sum: number, row: any) => {
-        return sum + (row.completed_items?.length || 0);
-      }, 0);
-      setCompletedTotal(total);
+    if (!data) return;
+    const progressByCat: Record<string, string[]> = {};
+    for (const row of data as { category_id: string; completed_items: string[] | null }[]) {
+      progressByCat[row.category_id] = row.completed_items ?? [];
     }
-  }, [user]);
+    const done = categories.reduce((sum, cat) => {
+      const items = progressByCat[cat.id] ?? [];
+      const isDone = cat.checklistItems.length > 0 && cat.checklistItems.every((i) => items.includes(i));
+      return sum + (isDone ? 1 : 0);
+    }, 0);
+    setCompletedTotal(done);
+  }, [user, categories]);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,7 +65,7 @@ export default function HomeScreen() {
     }, [fetchProgress])
   );
 
-  const progressPercent = TOTAL_ITEMS > 0 ? Math.round((completedTotal / TOTAL_ITEMS) * 100) : 0;
+  const progressPercent = TOTAL_CATEGORIES > 0 ? Math.round((completedTotal / TOTAL_CATEGORIES) * 100) : 0;
   const firstName = profile?.full_name?.split(" ")[0] || "Student";
 
   // Filter categories by selected phase; if no phase selected, show all
@@ -68,10 +78,35 @@ export default function HomeScreen() {
     <View className="flex-1 bg-background">
       {/* Hero header */}
       <GradientHeader colors={HEADER_GRADIENTS.home} style={{ paddingTop: insets.top + 12, paddingBottom: 32, paddingHorizontal: 24, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
-        <View>
-          <Text variant="h3" color="inverse" className="font-heading">
-            HOMii
-          </Text>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1 flex-row items-center" style={{ marginLeft: -4 }}>
+            <Image
+              source={require("@/assets/images/logo.png")}
+              style={{ width: 56, height: 56, tintColor: "#fff", marginRight: -4 }}
+              resizeMode="contain"
+            />
+            <Text variant="h3" color="inverse" className="font-heading">
+              HOMii
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push("/(tabs)/profile" as any)}
+            className="w-10 h-10 rounded-full overflow-hidden bg-white/20 items-center justify-center"
+          >
+            {profile?.avatar_url ? (
+              <Image
+                source={{ uri: profile.avatar_url }}
+                style={{ width: 40, height: 40, borderRadius: 20 }}
+              />
+            ) : (
+              <Text
+                color="inverse"
+                style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 16 }}
+              >
+                {firstName.charAt(0).toUpperCase()}
+              </Text>
+            )}
+          </Pressable>
         </View>
         <Text variant="subtitle" color="inverse" className="mt-1 opacity-90">
           {t("home.hello", { name: firstName })}
@@ -145,7 +180,7 @@ export default function HomeScreen() {
             className="mt-2"
             style={{ color: progressPercent === 100 ? Colors.success.DEFAULT : "rgba(255,255,255,0.8)" }}
           >
-            {completedTotal}/{TOTAL_ITEMS} tasks completed
+            {t("home.categoriesDone", { done: completedTotal, total: TOTAL_CATEGORIES })}
           </Text>
         </Pressable>
 
@@ -203,6 +238,7 @@ export default function HomeScreen() {
             <View className="flex-row flex-wrap gap-4 px-6">
               {visibleCategories.slice(0, 6).map((cat) => {
                 const gradientEnd = lightenHex(cat.color, 0.6);
+                const hasRecommended = cat.apps.some((a) => a.recommended);
                 return (
                   <Pressable
                     key={cat.id}
@@ -218,11 +254,32 @@ export default function HomeScreen() {
                       <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: "rgba(255,255,255,0.85)", alignItems: "center", justifyContent: "center" }}>
                         <Ionicons name={(cat.icon || "apps-outline") as any} size={26} color={cat.color} />
                       </View>
+                      {hasRecommended && (
+                        <View
+                          style={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            backgroundColor: "rgba(255,255,255,0.95)",
+                            paddingHorizontal: 7,
+                            paddingVertical: 3,
+                            borderRadius: 10,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 3,
+                          }}
+                        >
+                          <Ionicons name="star" size={10} color={cat.color} />
+                          <Text variant="caption" style={{ color: cat.color, fontSize: 10, fontFamily: "BricolageGrotesque_600SemiBold" }}>
+                            {t("home.homiiPick")}
+                          </Text>
+                        </View>
+                      )}
                     </LinearGradient>
                     <View className="p-3">
                       <Text variant="bodyMedium" className="text-grey-800">{cat.title}</Text>
                       {cat.apps.length > 0 && (
-                        <Text variant="caption" color="muted">{cat.apps.length} app{cat.apps.length !== 1 ? "s" : ""}</Text>
+                        <Text variant="caption" color="muted">{t("apps.appsCount", { count: cat.apps.length })}</Text>
                       )}
                     </View>
                   </Pressable>
@@ -269,14 +326,28 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Refer a Friend CTA */}
+        {/* Refer a Friend CTA — plain share link, no referral attribution.
+            For tracked ambassador referrals users go to the Ambassadors tab. */}
         <Pressable
           className="mx-6 mt-6 mb-8 rounded-2xl p-6 flex-row items-center gap-4"
           style={{ backgroundColor: Colors.navy.DEFAULT }}
-          onPress={() => router.push("/(tabs)/ambassadors" as any)}
+          onPress={async () => {
+            try {
+              const result = await Share.share({
+                message: t("home.referFriends.shareMessage", { url: LINKS.appShare }),
+                url: LINKS.appShare,
+                title: "HOMii",
+              });
+              if (result.action === Share.sharedAction) {
+                capture('home_share_link_shared');
+              }
+            } catch {
+              // user dismissed the share sheet
+            }
+          }}
         >
           <View className="w-12 h-12 rounded-xl bg-white/15 items-center justify-center">
-            <Ionicons name="gift-outline" size={24} color="#fff" />
+            <Ionicons name="share-social-outline" size={24} color="#fff" />
           </View>
           <View className="flex-1">
             <Text

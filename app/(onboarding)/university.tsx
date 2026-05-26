@@ -84,7 +84,7 @@ export default function UniversityScreen() {
             className="text-center text-grey-900"
             style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 26, lineHeight: 34 }}
           >
-            {t("settings.changeUniversity")}
+            {t("onboarding.university.title")}
           </Text>
           <Text variant="body" color="muted" className="text-center">
             {t("onboarding.university.subtitle")}

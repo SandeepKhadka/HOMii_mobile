@@ -1,4 +1,4 @@
-import { View, Pressable, ActivityIndicator } from "react-native";
+import { View, Pressable, ActivityIndicator, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
@@ -17,6 +17,11 @@ const FALLBACK_LANGUAGES: ApiLanguage[] = [
   { id: "en",      code: "en",      name: "English",             nativeName: "English",  flag: "🇬🇧", sortOrder: 0 },
   { id: "zh_Hans", code: "zh_Hans", name: "Chinese Simplified",  nativeName: "简体中文",  flag: "🇨🇳", sortOrder: 1 },
   { id: "zh_Hant", code: "zh_Hant", name: "Chinese Traditional", nativeName: "繁體中文",  flag: "🇹🇼", sortOrder: 2 },
+  { id: "hi",      code: "hi",      name: "Hindi",               nativeName: "हिन्दी",     flag: "🇮🇳", sortOrder: 3 },
+  { id: "bn",      code: "bn",      name: "Bengali",             nativeName: "বাংলা",     flag: "🇧🇩", sortOrder: 4 },
+  { id: "ne",      code: "ne",      name: "Nepali",              nativeName: "नेपाली",    flag: "🇳🇵", sortOrder: 5 },
+  { id: "ar",      code: "ar",      name: "Arabic",              nativeName: "العربية",   flag: "🇸🇦", sortOrder: 6 },
+  { id: "ur",      code: "ur",      name: "Urdu",                nativeName: "اردو",      flag: "🇵🇰", sortOrder: 7 },
 ];
 
 function detectClosestCode(langs: ApiLanguage[]): string {
@@ -83,7 +88,11 @@ export default function LanguageScreen() {
         </Pressable>
       </View>
 
-      <View className="flex-1 px-6 pt-4 gap-6">
+      <ScrollView
+        className="flex-1 px-6"
+        contentContainerStyle={{ paddingTop: 16, paddingBottom: 24, gap: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View className="items-center">
           <Ionicons name="globe-outline" size={48} color={Colors.primary[500]} />
         </View>
@@ -131,7 +140,7 @@ export default function LanguageScreen() {
             ))}
           </View>
         )}
-      </View>
+      </ScrollView>
 
       <View className="px-6" style={{ paddingBottom: insets.bottom + 16 }}>
         <Button

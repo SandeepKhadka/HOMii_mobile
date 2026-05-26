@@ -10,21 +10,11 @@ import { capture } from "@/lib/analytics";
 import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 import { useTranslation } from "react-i18next";
 
-const WHAT_YOU_DO = [
-  "Share HOMii with students at your university",
-  "Help new students discover essential services",
-  "Promote useful tools like SIM, banking and more",
-];
-
-const WHAT_YOU_GET = [
-  "Earn real money from referrals",
-  "Track your performance in your dashboard",
-  "Build experience for your CV",
-];
-
 export default function AmbassadorsScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const whatYouDo = t("ambassadors.whatYouDoItems", { returnObjects: true }) as string[];
+  const whatYouGet = t("ambassadors.whatYouGetItems", { returnObjects: true }) as string[];
   const [stats, setStats] = useState<AmbassadorStats | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const isFirstLoad = useRef(true);
@@ -150,7 +140,7 @@ export default function AmbassadorsScreen() {
               <Text className="text-grey-900" style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 18, textAlign: "center" }}>
                 {t("ambassadors.whatYouDo")}
               </Text>
-              {WHAT_YOU_DO.map((item) => (
+              {whatYouDo.map((item) => (
                 <View key={item} className="flex-row items-start gap-3 px-2">
                   <Ionicons name="checkmark-circle" size={20} color={Colors.teal.DEFAULT} style={{ marginTop: 2 }} />
                   <Text variant="body" className="flex-1 text-grey-700">{item}</Text>
@@ -162,7 +152,7 @@ export default function AmbassadorsScreen() {
               <Text className="text-grey-900" style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 18, textAlign: "center" }}>
                 {t("ambassadors.whatYouGet")}
               </Text>
-              {WHAT_YOU_GET.map((item) => (
+              {whatYouGet.map((item) => (
                 <View key={item} className="flex-row items-start gap-3 px-2">
                   <Ionicons name="checkmark-circle" size={20} color={Colors.primary[500]} style={{ marginTop: 2 }} />
                   <Text variant="body" className="flex-1 text-grey-700">{item}</Text>

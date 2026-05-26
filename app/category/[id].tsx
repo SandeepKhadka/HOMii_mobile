@@ -169,9 +169,29 @@ export default function CategoryDetailScreen() {
             <Text variant="body" color="muted">{t("category.comingSoon")}</Text>
           </View>
         ) : filteredApps.length === 0 ? (
-          <View className="items-center py-12">
+          <View className="items-center py-12 px-4">
             <Ionicons name="search-outline" size={36} color="#9CA3AF" />
-            <Text variant="body" color="muted" className="mt-2">{t("category.noResults") || "No apps found"}</Text>
+            <Text variant="body" color="muted" className="mt-2">{t("category.noResults")}</Text>
+            <Text variant="caption" color="muted" className="text-center mt-2" style={{ lineHeight: 18 }}>
+              {t("apps.recommendPrompt")}
+            </Text>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/contact",
+                  params: {
+                    subject: t("apps.recommendSubject", { query: searchQuery.trim() }),
+                    message: t("apps.recommendMessage", { query: searchQuery.trim() }),
+                  },
+                } as any)
+              }
+              className="mt-4 px-5 py-2.5 rounded-full"
+              style={{ backgroundColor: category.color + "20" }}
+            >
+              <Text variant="captionMedium" style={{ color: category.color }}>
+                {t("apps.recommendCta")}
+              </Text>
+            </Pressable>
           </View>
         ) : (
           <View className="gap-3">

@@ -55,6 +55,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="connect"
+        options={{
+          title: "Connect",
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon name={focused ? "people-circle" : "people-circle-outline"} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="ambassadors"
         options={{
           title: "Ambassadors",
@@ -72,10 +81,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon name={focused ? "person" : "person-outline"} color={color} />
-          ),
+          href: null, // hidden from tab bar — accessed via the avatar in the home header
         }}
       />
     </Tabs>

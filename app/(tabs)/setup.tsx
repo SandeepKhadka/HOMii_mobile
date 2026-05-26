@@ -9,9 +9,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { supabase } from "@/lib/supabase";
 import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
+import { useTranslation } from "react-i18next";
 
 export default function SetupScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { categories, phases } = useCategories();
   const [progress, setProgress] = useState<Record<string, string[]>>({});
@@ -41,25 +43,31 @@ export default function SetupScreen() {
     return Array.isArray(items) ? items : [];
   };
 
+  // Progress is counted by CATEGORY, not by individual checklist item.
+  // The only completion mechanism is the green circle which marks a whole
+  // category complete in one tap — individual items can't be toggled anymore.
+  const isCategoryDone = (catId: string): boolean => {
+    const cat = categories.find((c) => c.id === catId);
+    if (!cat || cat.checklistItems.length === 0) return false;
+    const completedItems = getCompletedItems(catId);
+    return cat.checklistItems.every((item) => completedItems.includes(item));
+  };
+
   const getPhaseProgress = (phaseCategories: string[]) => {
     let done = 0;
     let total = 0;
     phaseCategories.forEach((catId) => {
       const cat = categories.find((c) => c.id === catId);
       if (cat) {
-        const completedItems = getCompletedItems(catId);
-        total += cat.checklistItems.length;
-        done += cat.checklistItems.filter((item) => completedItems.includes(item)).length;
+        total += 1;
+        if (isCategoryDone(catId)) done += 1;
       }
     });
     return { done, total };
   };
 
-  const totalDone = categories.reduce((s, cat) => {
-    const completedItems = getCompletedItems(cat.id);
-    return s + cat.checklistItems.filter((item) => completedItems.includes(item)).length;
-  }, 0);
-  const totalItems = categories.reduce((s, c) => s + c.checklistItems.length, 0);
+  const totalDone = categories.filter((c) => isCategoryDone(c.id)).length;
+  const totalItems = categories.length;
   const allComplete = totalDone >= totalItems && totalItems > 0;
 
   return (
@@ -75,13 +83,13 @@ export default function SetupScreen() {
             className="flex-1 ml-2"
             style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20, lineHeight: 28 }}
           >
-            Setup Progress
+            {t("setup.title")}
           </Text>
         </View>
         <View className="mt-4">
           <View className="flex-row justify-between mb-2">
             <Text variant="caption" color="inverse" className="opacity-80">
-              {totalDone}/{totalItems} tasks
+              {t("setup.categoriesDone", { done: totalDone, total: totalItems })}
             </Text>
             <Text variant="caption" color="inverse" className="opacity-80">
               {totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0}%
@@ -109,10 +117,10 @@ export default function SetupScreen() {
               className="text-grey-900 text-center"
               style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 24, lineHeight: 32 }}
             >
-              You're all set!
+              {t("setup.allDoneTitle")}
             </Text>
             <Text variant="body" color="muted" className="text-center mt-2">
-              You've completed all setup tasks.{"\n"}Welcome to the UK!
+              {t("setup.allDoneMessage")}
             </Text>
           </View>
         ) : (
@@ -121,7 +129,7 @@ export default function SetupScreen() {
               className="text-grey-900"
               style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20 }}
             >
-              Your setup journey
+              {t("setup.journey")}
             </Text>
 
             {phases.map((phase) => {
@@ -155,7 +163,7 @@ export default function SetupScreen() {
                         {phase.title}
                       </Text>
                       <Text variant="caption" color="muted">
-                        {done}/{total} completed
+                        {t("setup.categoriesDone", { done, total })}
                       </Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />

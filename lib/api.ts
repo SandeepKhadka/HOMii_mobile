@@ -65,6 +65,7 @@ export interface ApiApp {
   icon: string | null;
   sortOrder: number;
   supportedUniversities: string[]; // empty = visible to all
+  supportedCities: string[];       // empty = visible to all; matched against the user's university city
   deepLinkScheme: string | null;   // e.g. "revolut://" — used to detect if app is installed
   androidPackageName: string | null; // e.g. "com.revolut.revolut"
   iosStoreId: string | null;
@@ -126,6 +127,10 @@ export const api = {
       body: JSON.stringify({ appId, ...options }),
     }),
 
+  // Latest 50 clicks for the current user, with the App record included.
+  // Used by the "Your Apps" tab to derive which apps the user has selected.
+  getMyClicks: () => request<UserClick[]>('/clicks'),
+
   // Referrals (authenticated)
   attributeReferral: (referralCode: string) =>
     request('/referrals/attribute', {
@@ -139,6 +144,16 @@ export const api = {
     request(`/users/progress/${categoryId}`, {
       method: 'PUT',
       body: JSON.stringify({ completedItems }),
+    }),
+
+  // Account deletion — anonymizes clicks/referrals, then removes the Supabase user
+  deleteAccount: () => request<null>('/users/me', { method: 'DELETE' }),
+
+  // Support tickets — student submits from Settings → Contact HOMii
+  createSupportTicket: (subject: string, message: string) =>
+    request<{ id: string; status: string; createdAt: string }>('/support/tickets', {
+      method: 'POST',
+      body: JSON.stringify({ subject, message }),
     }),
 
   // Ambassadors (authenticated)
@@ -155,6 +170,20 @@ export const api = {
 export interface ClickResponse {
   clickId: string;
   redirectUrl: string | null;
+}
+
+export interface UserClick {
+  id: string;
+  appId: string;
+  platform: string | null;
+  createdAt: string;
+  app: {
+    id: string;
+    name: string;
+    description: string | null;
+    icon: string | null;
+    categoryId: string;
+  };
 }
 
 export interface AmbassadorApplication {

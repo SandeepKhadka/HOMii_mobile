@@ -1,5 +1,16 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+// Social handles + optional custom link for the Connect feature.
+// All fields optional; empty object is the default for un-opted-in users.
+export interface ConnectSocials {
+  instagram?: string;
+  facebook?: string;
+  twitter?: string;
+  linkedin?: string;
+  custom_label?: string;
+  custom_url?: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -26,6 +37,8 @@ export interface Database {
           current_address: string | null;
           course: string | null;
           year_of_study: string | null;
+          connect_enabled: boolean;
+          socials: ConnectSocials;
           created_at: string;
           updated_at: string;
         };
@@ -51,6 +64,8 @@ export interface Database {
           current_address?: string | null;
           course?: string | null;
           year_of_study?: string | null;
+          connect_enabled?: boolean;
+          socials?: ConnectSocials;
           created_at?: string;
           updated_at?: string;
         };
@@ -74,6 +89,8 @@ export interface Database {
           current_address?: string | null;
           course?: string | null;
           year_of_study?: string | null;
+          connect_enabled?: boolean;
+          socials?: ConnectSocials;
         };
       };
       onboarding_progress: {

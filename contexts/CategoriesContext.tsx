@@ -32,15 +32,30 @@ const SLUG_TO_ID: Record<string, string> = {
 };
 
 // Map API response to the existing Category interface used by all screens.
-// universityName: if provided, filters out apps that have a restricted supportedUniversities
-// list that doesn't include this university.
-function mapApiToCategory(apiCat: ApiCategory, universityName?: string | null): Category {
+// Filters apps by the user's university AND city — an app is visible when:
+//   - both restriction lists are empty (default; available to everyone), OR
+//   - supportedUniversities matches the user's selected university, OR
+//   - supportedCities matches the city of the user's university.
+// If a restriction is set but the user has no university yet, the app is
+// hidden to avoid showing irrelevant recommendations mid-onboarding.
+function mapApiToCategory(
+  apiCat: ApiCategory,
+  universityName?: string | null,
+  cityName?: string | null,
+): Category {
   const visibleApps = apiCat.apps.filter((app) => {
-    if (!app.supportedUniversities || app.supportedUniversities.length === 0) return true;
-    if (!universityName) return false; // university-restricted app, user has no university set
-    return app.supportedUniversities.some(
-      (u) => u.toLowerCase() === universityName.toLowerCase(),
-    );
+    const restrictedByUni = (app.supportedUniversities ?? []).length > 0;
+    const restrictedByCity = (app.supportedCities ?? []).length > 0;
+    if (!restrictedByUni && !restrictedByCity) return true;
+
+    const uniMatch = restrictedByUni && universityName
+      ? app.supportedUniversities.some((u) => u.toLowerCase() === universityName.toLowerCase())
+      : false;
+    const cityMatch = restrictedByCity && cityName
+      ? app.supportedCities.some((c) => c.toLowerCase() === cityName.toLowerCase())
+      : false;
+
+    return uniMatch || cityMatch;
   });
 
   return {
@@ -100,13 +115,23 @@ export function CategoriesProvider({ children }: PropsWithChildren) {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const [cats, apiPhases] = await Promise.all([api.getCategories(), api.getPhases()]);
+      // Universities fetched alongside categories so we can resolve the user's
+      // city from their saved university name and pass it to the per-app filter.
+      const [cats, apiPhases, unis] = await Promise.all([
+        api.getCategories(),
+        api.getPhases(),
+        api.getUniversities().catch(() => []),
+      ]);
+      const userCity = profile?.university
+        ? unis.find((u) => u.name.toLowerCase() === profile.university!.toLowerCase())?.city ?? null
+        : null;
+
       if (cats && cats.length > 0) {
-        setCategories(cats.map((cat) => mapApiToCategory(cat, profile?.university)));
+        setCategories(cats.map((cat) => mapApiToCategory(cat, profile?.university, userCity)));
         if (apiPhases && apiPhases.length > 0) {
           setPhases(buildDynamicPhases(cats, apiPhases));
         }
-        console.log("[Categories] Loaded from API:", cats.length, "cats,", apiPhases?.length ?? 0, "phases");
+        console.log("[Categories] Loaded from API:", cats.length, "cats,", apiPhases?.length ?? 0, "phases, city:", userCity ?? "n/a");
       }
     } catch (e) {
       console.log("[Categories] API fetch failed, using fallback:", (e as Error).message);

@@ -50,12 +50,18 @@ function RouteGuard() {
     const inAuthGroup = currentSegment === "(auth)";
     const inOnboarding = currentSegment === "(onboarding)";
     const inTabs = currentSegment === "(tabs)";
-    const inAllowedDeepRoute =
-      currentSegment === "category" ||
-      currentSegment === "ambassador" ||
-      currentSegment === "r" ||
-      currentSegment === "settings" ||
-      currentSegment === "edit-profile";
+    const inAllowedDeepRoute = [
+      "category",
+      "ambassador",
+      "r",
+      "settings",
+      "edit-profile",
+      "terms",
+      "privacy",
+      "browse",
+      "contact",
+      "connect-profile",
+    ].includes(currentSegment as string);
 
     console.log("[RouteGuard] session:", !!session, "profile:", !!profile, "onboarded:", profile?.onboarding_completed, "segment:", currentSegment);
 
@@ -156,6 +162,11 @@ function RootLayout() {
             <Stack.Screen name="ambassador" options={{ animation: "slide_from_right" }} />
             <Stack.Screen name="settings" options={{ animation: "slide_from_right" }} />
             <Stack.Screen name="edit-profile" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="terms" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="privacy" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="browse" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="contact" options={{ animation: "slide_from_right" }} />
+            <Stack.Screen name="connect-profile" options={{ animation: "slide_from_right" }} />
           </Stack>
           <RouteGuard />
           <OfflineBanner />

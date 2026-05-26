@@ -13,7 +13,13 @@
     "didntReceiveCode": "没有收到验证码？",
     "resend": "重新发送",
     "verifying": "验证中...",
-    "sending": "发送中..."
+    "sending": "发送中...",
+    "ok": "确定",
+    "continue": "继续",
+    "continueToHome": "返回首页",
+    "retry": "重试",
+    "cameraPermission": "需要相机权限才能拍照。",
+    "libraryPermission": "需要相册权限。"
   },
   "auth": {
     "welcome": {
@@ -26,7 +32,7 @@
     "signIn": {
       "title": "欢迎回来",
       "subtitle": "登录以继续您的旅程",
-      "emailPlaceholder": "your@university.ac.uk",
+      "emailPlaceholder": "请输入您的邮箱",
       "passwordPlaceholder": "输入您的密码",
       "forgotPassword": "忘记密码？",
       "submit": "登录",
@@ -39,7 +45,7 @@
       "title": "创建账号",
       "subtitle": "加入数千名国际学生",
       "fullNamePlaceholder": "您的全名",
-      "emailPlaceholder": "your@university.ac.uk",
+      "emailPlaceholder": "请输入您的邮箱",
       "passwordPlaceholder": "创建密码",
       "submit": "创建账号",
       "submitting": "创建中...",
@@ -55,7 +61,7 @@
     "forgotPassword": {
       "title": "忘记密码？",
       "subtitle": "输入您的邮箱，我们将发送\n验证码以重置您的密码",
-      "emailPlaceholder": "your@university.ac.uk",
+      "emailPlaceholder": "请输入您的邮箱",
       "googleHint": "通过 Google 注册？请在登录页面使用「使用 Google 继续」。",
       "submit": "发送重置验证码",
       "submitting": "发送中...",
@@ -114,7 +120,20 @@
       "subtitle": "您可以随时在设置中更改。",
       "continue": "继续"
     },
+    "checklistIntro": {
+      "title": "开始为您设置"
+    },
+    "phase": {
+      "notFound": "未找到阶段"
+    },
+    "checklistIntro": {
+      "title": "开始为您设置"
+    },
+    "phase": {
+      "notFound": "未找到阶段"
+    },
     "university": {
+      "title": "选择您的大学",
       "subtitle": "我们将为您个性化设置和资源"
     },
     "complete": {
@@ -129,15 +148,99 @@
     "starterPack": "{{university}}学生入门包",
     "essentialApps": "必备应用",
     "viewAll": "查看全部",
+    "homiiPick": "HOMii 推荐",
+    "categoriesDone": "{{total}} 个分类中完成 {{done}}",
     "referFriends": {
       "title": "推荐朋友",
-      "subtitle": "通过帮助其他学生赚取收益"
+      "subtitle": "把 HOMii 分享给朋友",
+      "shareMessage": "加入我的 HOMii — 国际学生在英国的必备应用！{{url}}"
     }
+  },
+  "yourApps": {
+    "title": "我的应用",
+    "subtitle": "您目前选择的应用",
+    "emptyTitle": "暂无应用",
+    "emptyMessage": "浏览分类，发现帮助您融入英国生活的应用。",
+    "browse": "浏览应用",
+    "findMore": "发现更多应用"
   },
   "apps": {
     "title": "全部应用",
+    "subtitle": "探索您英国生活所需的所有工具",
+    "searchPlaceholder": "搜索分类...",
     "loadMore": "加载更多",
-    "empty": "暂无应用"
+    "empty": "暂无应用",
+    "noResults": "未找到分类",
+    "allCategoriesLoaded": "已加载全部 {{count}} 个分类",
+    "recommendPrompt": "没找到您想要的应用？",
+    "recommendCta": "向 HOMii 推荐",
+    "recommendSubject": "应用推荐：{{query}}",
+    "recommendMessage": "我搜索了\"{{query}}\"但在 HOMii 上没找到，能否添加？",
+    "appsCount_one": "{{count}} 个应用",
+    "appsCount_other": "{{count}} 个应用"
+  },
+  "setup": {
+    "title": "设置进度",
+    "tasks": "{{done}}/{{total}} 项任务",
+    "completed": "已完成 {{done}} / 共 {{total}}",
+    "categoriesDone": "{{total}} 中完成 {{done}}",
+    "statusDone": "已完成",
+    "statusNotStarted": "未开始",
+    "allDoneTitle": "全部完成！",
+    "allDoneMessage": "您已完成所有设置任务。\n欢迎来到英国！",
+    "journey": "您的设置之旅"
+  },
+  "legal": {
+    "termsTitle": "条款与条件",
+    "privacyTitle": "隐私政策"
+  },
+  "connect": {
+    "title": "互联",
+    "subtitle": "找到您所在大学的其他学生",
+    "optInBanner": "让自己可被发现",
+    "optInBannerSubtitle": "添加社交账号让其他人找到您",
+    "filterAll": "全部",
+    "filterMyUni": "我的大学",
+    "courseSearchPlaceholder": "按专业筛选...",
+    "loadError": "无法加载学生。下拉重试。",
+    "emptyTitle": "未找到学生",
+    "emptyMessage": "尝试调整筛选条件，或稍后查看新加入的学生。"
+  },
+  "connectProfile": {
+    "title": "互联资料",
+    "toggleLabel": "可被发现",
+    "toggleSubtitle": "其他学生可以找到您并访问您的社交账号",
+    "privacyNote": "仅显示您的姓名、照片、大学、专业、国籍、年级以及您添加的社交链接。您的邮箱、电话和地址永不分享。",
+    "socialsSection": "社交链接",
+    "instagramPlaceholder": "您的账号",
+    "facebookPlaceholder": "您的账号",
+    "twitterPlaceholder": "您的账号",
+    "linkedinPlaceholder": "您的账号",
+    "customSection": "自定义链接",
+    "customLabelField": "标签",
+    "customLabelPlaceholder": "例如：作品集",
+    "customUrlField": "链接",
+    "save": "保存",
+    "saving": "保存中...",
+    "savedTitle": "已保存",
+    "savedEnabled": "您现在可被发现。其他学生可以在互联标签中找到您。",
+    "savedDisabled": "您不再可被发现。您的资料已从互联中隐藏。"
+  },
+  "contact": {
+    "title": "联系 HOMii",
+    "heading": "我们能帮您什么？",
+    "subheading": "给我们留言，我们会尽快回复您。",
+    "fromLabel": "来自",
+    "subjectLabel": "主题",
+    "subjectPlaceholder": "请简述您的问题",
+    "messageLabel": "信息",
+    "messagePlaceholder": "请告诉我们详细情况...",
+    "send": "发送消息",
+    "sending": "发送中...",
+    "sentTitle": "已发送",
+    "sentMessage": "感谢您的反馈！我们会尽快审核并回复您。",
+    "failedTitle": "发送失败",
+    "failedMessage": "出现问题，请重试。"
   },
   "profile": {
     "account": "账户",
@@ -196,6 +299,7 @@
     "language": "语言",
     "university": "大学",
     "termsAndConditions": "条款与条件",
+    "privacyPolicy": "隐私政策",
     "appVersion": "应用版本",
     "selectLanguage": "选择语言",
     "chooseLanguage": "选择您偏好的语言",
@@ -207,7 +311,24 @@
     "noUniversities": "未找到大学",
     "saved": "已保存",
     "languageSaved": "语言更新成功。",
-    "universitySaved": "大学更新成功。"
+    "universitySaved": "大学更新成功。",
+    "support": "支持",
+    "connectProfile": "互联资料",
+    "connectProfileSubtitle": "让其他学生发现您",
+    "contactHomii": "联系 HOMii",
+    "contactHomiiSubtitle": "获取帮助或反馈问题",
+    "account": "账户",
+    "deleteAccount": "删除账户",
+    "deleteAccountSubtitle": "永久删除您的账户和数据",
+    "deleteAccountConfirmTitle": "删除您的账户？",
+    "deleteAccountConfirmMessage": "这将永久删除您的个人资料、入门进度和推荐记录，操作无法撤销。",
+    "deleteAccountConfirmButton": "继续",
+    "deleteAccountFinalTitle": "确定要删除吗？",
+    "deleteAccountFinalMessage": "您的账户将立即被删除并退出登录，无法恢复。",
+    "deleteAccountFinalButton": "永久删除",
+    "deleteFailedTitle": "删除失败",
+    "deleteFailedMessage": "出现问题，请重试或联系客服。",
+    "deleteAmbassadorBlocked": "大使账户无法在应用内删除，请联系客服关闭您的大使账户。"
   },
   "category": {
     "download": "下载",
@@ -240,7 +361,17 @@
     "referralCode": "推荐码：{{code}}",
     "totalReferrals": "总推荐数",
     "totalEarned": "总收益",
-    "dashboard": "仪表盘"
+    "dashboard": "仪表盘",
+    "whatYouDoItems": [
+      "在您的大学向学生分享 HOMii",
+      "帮助新生发现必备的服务",
+      "推广 SIM 卡、银行等实用工具"
+    ],
+    "whatYouGetItems": [
+      "通过推荐赚取真实收入",
+      "在仪表板查看您的表现",
+      "为简历积累经验"
+    ]
   },
   "ambassadorDashboard": {
     "title": "仪表盘",
@@ -266,7 +397,9 @@
     "referralStatusPending": "待处理",
     "referralStatusConfirmed": "已确认",
     "referralStatusPaid": "已支付",
-    "referralDate": "加入于{{date}}"
+    "referralDate": "加入于{{date}}",
+    "cantLoadTitle": "无法加载数据",
+    "cantLoadMessage": "请检查您的网络连接并重试"
   },
   "ambassadorSignup": {
     "title": "成为 HOMii\n大使",

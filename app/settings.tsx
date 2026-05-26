@@ -18,6 +18,11 @@ const FALLBACK_LANGUAGES: ApiLanguage[] = [
   { id: "en",      code: "en",      name: "English",             nativeName: "English",  flag: "🇬🇧", sortOrder: 0 },
   { id: "zh_Hans", code: "zh_Hans", name: "Chinese Simplified",  nativeName: "简体中文",  flag: "🇨🇳", sortOrder: 1 },
   { id: "zh_Hant", code: "zh_Hant", name: "Chinese Traditional", nativeName: "繁體中文",  flag: "🇹🇼", sortOrder: 2 },
+  { id: "hi",      code: "hi",      name: "Hindi",               nativeName: "हिन्दी",     flag: "🇮🇳", sortOrder: 3 },
+  { id: "bn",      code: "bn",      name: "Bengali",             nativeName: "বাংলা",     flag: "🇧🇩", sortOrder: 4 },
+  { id: "ne",      code: "ne",      name: "Nepali",              nativeName: "नेपाली",    flag: "🇳🇵", sortOrder: 5 },
+  { id: "ar",      code: "ar",      name: "Arabic",              nativeName: "العربية",   flag: "🇸🇦", sortOrder: 6 },
+  { id: "ur",      code: "ur",      name: "Urdu",                nativeName: "اردو",      flag: "🇵🇰", sortOrder: 7 },
 ];
 
 const FALLBACK_UNIVERSITIES = [
@@ -48,10 +53,11 @@ type Section = "language" | "university" | null;
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { profile, updateProfile } = useAuth();
+  const { profile, updateProfile, signOut } = useAuth();
   const { showAlert } = useAlert();
   const [activeSection, setActiveSection] = useState<Section>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Language state
   const [languages, setLanguages] = useState<ApiLanguage[]>(FALLBACK_LANGUAGES);
@@ -132,6 +138,54 @@ export default function SettingsScreen() {
     showAlert(t("settings.saved"), t("settings.universitySaved"), undefined, "success");
   };
 
+  const performDelete = async () => {
+    setDeleting(true);
+    try {
+      await api.deleteAccount();
+      await signOut();
+    } catch (e) {
+      setDeleting(false);
+      const msg = (e as Error).message;
+      const isAmbassador = msg.includes("Ambassador accounts");
+      showAlert(
+        t("settings.deleteFailedTitle"),
+        isAmbassador ? t("settings.deleteAmbassadorBlocked") : t("settings.deleteFailedMessage"),
+        undefined,
+        "error",
+      );
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    showAlert(
+      t("settings.deleteAccountConfirmTitle"),
+      t("settings.deleteAccountConfirmMessage"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("settings.deleteAccountConfirmButton"),
+          style: "destructive",
+          onPress: () => {
+            showAlert(
+              t("settings.deleteAccountFinalTitle"),
+              t("settings.deleteAccountFinalMessage"),
+              [
+                { text: t("common.cancel"), style: "cancel" },
+                {
+                  text: t("settings.deleteAccountFinalButton"),
+                  style: "destructive",
+                  onPress: performDelete,
+                },
+              ],
+              "error",
+            );
+          },
+        },
+      ],
+      "warning",
+    );
+  };
+
   // ─── Language picker ───────────────────────────────────────────────────────────
   if (activeSection === "language") {
     return (
@@ -145,7 +199,11 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        <View className="flex-1 px-6 pt-4 gap-6">
+        <ScrollView
+          className="flex-1 px-6"
+          contentContainerStyle={{ paddingTop: 16, paddingBottom: 24, gap: 24 }}
+          showsVerticalScrollIndicator={false}
+        >
           <View className="items-center">
             <Ionicons name="globe-outline" size={48} color={Colors.primary[500]} />
           </View>
@@ -196,7 +254,7 @@ export default function SettingsScreen() {
               ))}
             </View>
           )}
-        </View>
+        </ScrollView>
 
         <View className="px-6" style={{ paddingBottom: insets.bottom + 16 }}>
           <Button
@@ -371,15 +429,29 @@ export default function SettingsScreen() {
         </Text>
 
         <View className="bg-white rounded-2xl overflow-hidden">
-          <View className="flex-row items-center px-4 py-4 border-b border-grey-100">
+          <Pressable
+            onPress={() => router.push("/terms" as any)}
+            className="flex-row items-center px-4 py-4 border-b border-grey-100"
+          >
             <View className="w-9 h-9 rounded-xl bg-grey-100 items-center justify-center mr-3">
               <Ionicons name="document-text-outline" size={18} color={Colors.grey[500]} />
             </View>
             <Text variant="body" className="text-grey-800 flex-1">{t("settings.termsAndConditions")}</Text>
             {profile?.accepted_terms_version ? (
-              <Text variant="caption" color="muted">v{profile.accepted_terms_version}</Text>
+              <Text variant="caption" color="muted" className="mr-2">v{profile.accepted_terms_version}</Text>
             ) : null}
-          </View>
+            <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
+          </Pressable>
+          <Pressable
+            onPress={() => router.push("/privacy" as any)}
+            className="flex-row items-center px-4 py-4 border-b border-grey-100"
+          >
+            <View className="w-9 h-9 rounded-xl bg-grey-100 items-center justify-center mr-3">
+              <Ionicons name="shield-checkmark-outline" size={18} color={Colors.grey[500]} />
+            </View>
+            <Text variant="body" className="text-grey-800 flex-1">{t("settings.privacyPolicy")}</Text>
+            <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
+          </Pressable>
           <View className="flex-row items-center px-4 py-4">
             <View className="w-9 h-9 rounded-xl bg-grey-100 items-center justify-center mr-3">
               <Ionicons name="information-circle-outline" size={18} color={Colors.grey[500]} />
@@ -387,6 +459,66 @@ export default function SettingsScreen() {
             <Text variant="body" className="text-grey-800 flex-1">{t("settings.appVersion")}</Text>
             <Text variant="caption" color="muted">{Constants.expoConfig?.version ?? "1.0.0"}</Text>
           </View>
+        </View>
+
+        <Text variant="caption" color="muted" className="tracking-widest mt-6 mb-3">
+          {t("settings.support").toUpperCase()}
+        </Text>
+
+        <View className="bg-white rounded-2xl overflow-hidden mb-6">
+          <Pressable
+            onPress={() => router.push("/connect-profile" as any)}
+            className="flex-row items-center px-4 py-4 border-b border-grey-100"
+          >
+            <View className="w-9 h-9 rounded-xl bg-primary-50 items-center justify-center mr-3">
+              <Ionicons name="people-outline" size={18} color={Colors.primary[500]} />
+            </View>
+            <View className="flex-1">
+              <Text variant="body" className="text-grey-800">{t("settings.connectProfile")}</Text>
+              <Text variant="caption" color="muted">{t("settings.connectProfileSubtitle")}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
+          </Pressable>
+          <Pressable
+            onPress={() => router.push("/contact" as any)}
+            className="flex-row items-center px-4 py-4"
+          >
+            <View className="w-9 h-9 rounded-xl bg-primary-50 items-center justify-center mr-3">
+              <Ionicons name="chatbubbles-outline" size={18} color={Colors.primary[500]} />
+            </View>
+            <View className="flex-1">
+              <Text variant="body" className="text-grey-800">{t("settings.contactHomii")}</Text>
+              <Text variant="caption" color="muted">{t("settings.contactHomiiSubtitle")}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
+          </Pressable>
+        </View>
+
+        <Text variant="caption" color="muted" className="tracking-widest mb-3">
+          {t("settings.account").toUpperCase()}
+        </Text>
+
+        <View className="bg-white rounded-2xl overflow-hidden mb-6">
+          <Pressable
+            onPress={handleDeleteAccount}
+            disabled={deleting}
+            className="flex-row items-center px-4 py-4"
+          >
+            <View className="w-9 h-9 rounded-xl bg-error/10 items-center justify-center mr-3">
+              {deleting ? (
+                <ActivityIndicator size="small" color={Colors.error.DEFAULT} />
+              ) : (
+                <Ionicons name="trash-outline" size={18} color={Colors.error.DEFAULT} />
+              )}
+            </View>
+            <View className="flex-1">
+              <Text variant="body" style={{ color: Colors.error.DEFAULT }}>
+                {t("settings.deleteAccount")}
+              </Text>
+              <Text variant="caption" color="muted">{t("settings.deleteAccountSubtitle")}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
+          </Pressable>
         </View>
       </ScrollView>
     </View>

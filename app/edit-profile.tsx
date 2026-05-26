@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAlert } from "@/contexts/AlertContext";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { uploadAvatarToSupabase } from "@/lib/avatar-upload";
 
 const YEAR_OPTIONS = [
   { key: "foundation", labelKey: "yearFoundation" },
@@ -61,7 +61,7 @@ function FieldLabel({ label, required }: { label: string; required?: boolean }) 
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { profile, updateProfile } = useAuth();
+  const { profile, updateProfile, user } = useAuth();
   const { showAlert } = useAlert();
   const { t } = useTranslation();
 
@@ -76,7 +76,6 @@ export default function EditProfileScreen() {
   const [nationality, setNationality] = useState(profile?.nationality ?? "");
   const [course,      setCourse]      = useState(profile?.course ?? "");
   const [yearStudy,   setYearStudy]   = useState(profile?.year_of_study ?? "");
-  const [address,     setAddress]     = useState(profile?.current_address ?? "");
   const [avatarUri,   setAvatarUri]   = useState<string | null>(profile?.avatar_url ?? null);
   const [saving,      setSaving]      = useState(false);
   const [uploading,   setUploading]   = useState(false);
@@ -102,7 +101,6 @@ export default function EditProfileScreen() {
     nationality.trim() !== (profile?.nationality ?? "").trim() ||
     course.trim()      !== (profile?.course ?? "").trim() ||
     yearStudy          !== (profile?.year_of_study ?? "") ||
-    address.trim()     !== (profile?.current_address ?? "").trim() ||
     avatarUri          !== (profile?.avatar_url ?? null);
 
   const pickImage = useCallback(async (source: "camera" | "library") => {
@@ -115,8 +113,8 @@ export default function EditProfileScreen() {
       showAlert(
         t("common.error"),
         source === "camera"
-          ? "Camera permission is required to take a photo."
-          : "Photo library permission is required.",
+          ? t("common.cameraPermission")
+          : t("common.libraryPermission"),
         undefined,
         "error"
       );
@@ -157,13 +155,14 @@ export default function EditProfileScreen() {
     let finalAvatarUrl = profile?.avatar_url ?? null;
 
     // Upload new photo if user picked a local image
-    if (avatarUri && avatarUri !== profile?.avatar_url) {
+    if (avatarUri && avatarUri !== profile?.avatar_url && user?.id) {
       setUploading(true);
       try {
-        finalAvatarUrl = await uploadImageToCloudinary(avatarUri);
-      } catch {
+        finalAvatarUrl = await uploadAvatarToSupabase(user.id, avatarUri);
+      } catch (e) {
         setUploading(false);
         setSaving(false);
+        console.log("[EditProfile] Avatar upload failed:", (e as Error).message);
         showAlert(t("editProfile.uploadFailed"), t("editProfile.uploadFailedMessage"), undefined, "error");
         return;
       }
@@ -177,13 +176,12 @@ export default function EditProfileScreen() {
       nationality:     nationality.trim() || null,
       course:          course.trim() || null,
       year_of_study:   yearStudy || null,
-      current_address: address.trim() || null,
       avatar_url:      finalAvatarUrl,
     });
 
     setSaving(false);
     showAlert(t("editProfile.savedTitle"), t("editProfile.savedMessage"), [
-      { text: "OK", onPress: () => router.back() },
+      { text: t("common.ok"), onPress: () => router.back() },
     ], "success");
   };
 
@@ -397,26 +395,6 @@ export default function EditProfileScreen() {
                 })}
               </View>
             </ScrollView>
-          </View>
-        </View>
-
-        {/* ── Address ───────────────────────────────── */}
-        <SectionHeader label={t("editProfile.sectionAddress")} />
-
-        <View>
-          <FieldLabel label={t("editProfile.addressLabel")} />
-          <View className="border border-grey-200 rounded-xl px-4 pt-3 pb-3 bg-white">
-            <TextInput
-              value={address}
-              onChangeText={setAddress}
-              placeholder={t("editProfile.addressPlaceholder")}
-              placeholderTextColor={Colors.grey[400]}
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-              autoCapitalize="words"
-              style={{ color: Colors.grey[900], fontSize: 15, minHeight: 72 }}
-            />
           </View>
         </View>
 

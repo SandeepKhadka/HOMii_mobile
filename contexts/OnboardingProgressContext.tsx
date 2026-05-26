@@ -5,6 +5,9 @@ import { useAuth } from "./AuthContext";
 interface OnboardingProgressContextType {
   isItemCompleted: (categoryId: string, item: string) => boolean;
   toggleItem: (categoryId: string, item: string) => void;
+  // Toggle the whole category: if every item is already complete, clear it;
+  // otherwise mark every item complete. Used by the single-tap category circle.
+  toggleCategoryComplete: (categoryId: string, checklistItems: string[]) => void;
   // checklistItems must come from the API (useCategories), not a static constant
   isCategoryCompleted: (categoryId: string, checklistItems: string[]) => boolean;
   completedCount: (categoryId: string, checklistItems: string[]) => number;
@@ -89,6 +92,21 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
     [progress]
   );
 
+  const toggleCategoryComplete = useCallback(
+    (categoryId: string, checklistItems: string[]) => {
+      if (checklistItems.length === 0) return;
+      setProgress((prev) => {
+        const current = prev[categoryId] ?? new Set<string>();
+        const allDone = checklistItems.every((i) => current.has(i));
+        const next = new Set<string>(allDone ? [] : checklistItems);
+        const updated = { ...prev, [categoryId]: next };
+        syncCategory(categoryId, next);
+        return updated;
+      });
+    },
+    [syncCategory]
+  );
+
   const completedCount = useCallback(
     (categoryId: string, checklistItems: string[]) => {
       const done = progress[categoryId];
@@ -100,7 +118,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
 
   return (
     <OnboardingProgressContext.Provider
-      value={{ isItemCompleted, toggleItem, isCategoryCompleted, completedCount }}
+      value={{ isItemCompleted, toggleItem, toggleCategoryComplete, isCategoryCompleted, completedCount }}
     >
       {children}
     </OnboardingProgressContext.Provider>

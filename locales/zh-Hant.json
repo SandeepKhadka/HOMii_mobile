@@ -13,7 +13,13 @@
     "didntReceiveCode": "沒有收到驗證碼？",
     "resend": "重新發送",
     "verifying": "驗證中...",
-    "sending": "發送中..."
+    "sending": "發送中...",
+    "ok": "確定",
+    "continue": "繼續",
+    "continueToHome": "返回首頁",
+    "retry": "重試",
+    "cameraPermission": "需要相機權限才能拍照。",
+    "libraryPermission": "需要相簿權限。"
   },
   "auth": {
     "welcome": {
@@ -26,7 +32,7 @@
     "signIn": {
       "title": "歡迎回來",
       "subtitle": "登入以繼續您的旅程",
-      "emailPlaceholder": "your@university.ac.uk",
+      "emailPlaceholder": "請輸入您的郵箱",
       "passwordPlaceholder": "輸入您的密碼",
       "forgotPassword": "忘記密碼？",
       "submit": "登入",
@@ -39,7 +45,7 @@
       "title": "建立帳號",
       "subtitle": "加入數千名國際學生",
       "fullNamePlaceholder": "您的全名",
-      "emailPlaceholder": "your@university.ac.uk",
+      "emailPlaceholder": "請輸入您的郵箱",
       "passwordPlaceholder": "建立密碼",
       "submit": "建立帳號",
       "submitting": "建立中...",
@@ -55,7 +61,7 @@
     "forgotPassword": {
       "title": "忘記密碼？",
       "subtitle": "輸入您的郵箱，我們將發送\n驗證碼以重設您的密碼",
-      "emailPlaceholder": "your@university.ac.uk",
+      "emailPlaceholder": "請輸入您的郵箱",
       "googleHint": "透過 Google 註冊？請在登入頁面使用「使用 Google 繼續」。",
       "submit": "發送重設驗證碼",
       "submitting": "發送中...",
@@ -114,7 +120,14 @@
       "subtitle": "您可以隨時在設定中更改。",
       "continue": "繼續"
     },
+    "checklistIntro": {
+      "title": "開始為您設定"
+    },
+    "phase": {
+      "notFound": "未找到階段"
+    },
     "university": {
+      "title": "選擇您的大學",
       "subtitle": "我們將為您個人化設定和資源"
     },
     "complete": {
@@ -129,15 +142,99 @@
     "starterPack": "{{university}}學生入門包",
     "essentialApps": "必備應用",
     "viewAll": "查看全部",
+    "homiiPick": "HOMii 推薦",
+    "categoriesDone": "{{total}} 個分類中完成 {{done}}",
     "referFriends": {
       "title": "推薦朋友",
-      "subtitle": "透過幫助其他學生賺取收益"
+      "subtitle": "把 HOMii 分享給朋友",
+      "shareMessage": "加入我的 HOMii — 國際學生在英國的必備應用！{{url}}"
     }
+  },
+  "yourApps": {
+    "title": "我的應用",
+    "subtitle": "您目前選擇的應用",
+    "emptyTitle": "暫無應用",
+    "emptyMessage": "瀏覽分類，發現幫助您融入英國生活的應用。",
+    "browse": "瀏覽應用",
+    "findMore": "發現更多應用"
   },
   "apps": {
     "title": "全部應用",
+    "subtitle": "探索您英國生活所需的所有工具",
+    "searchPlaceholder": "搜尋分類...",
     "loadMore": "載入更多",
-    "empty": "暫無應用"
+    "empty": "暫無應用",
+    "noResults": "未找到分類",
+    "allCategoriesLoaded": "已載入全部 {{count}} 個分類",
+    "recommendPrompt": "沒找到您想要的應用？",
+    "recommendCta": "向 HOMii 推薦",
+    "recommendSubject": "應用推薦：{{query}}",
+    "recommendMessage": "我搜尋了\"{{query}}\"但在 HOMii 上沒找到，能否新增？",
+    "appsCount_one": "{{count}} 個應用",
+    "appsCount_other": "{{count}} 個應用"
+  },
+  "setup": {
+    "title": "設定進度",
+    "tasks": "{{done}}/{{total}} 項任務",
+    "completed": "已完成 {{done}} / 共 {{total}}",
+    "categoriesDone": "{{total}} 中完成 {{done}}",
+    "statusDone": "已完成",
+    "statusNotStarted": "未開始",
+    "allDoneTitle": "全部完成！",
+    "allDoneMessage": "您已完成所有設定任務。\n歡迎來到英國！",
+    "journey": "您的設定之旅"
+  },
+  "legal": {
+    "termsTitle": "條款與條件",
+    "privacyTitle": "隱私政策"
+  },
+  "connect": {
+    "title": "互聯",
+    "subtitle": "找到您所在大學的其他學生",
+    "optInBanner": "讓自己可被發現",
+    "optInBannerSubtitle": "新增社交帳號讓其他人找到您",
+    "filterAll": "全部",
+    "filterMyUni": "我的大學",
+    "courseSearchPlaceholder": "按課程篩選...",
+    "loadError": "無法載入學生。下拉重試。",
+    "emptyTitle": "未找到學生",
+    "emptyMessage": "嘗試調整篩選條件，或稍後查看新加入的學生。"
+  },
+  "connectProfile": {
+    "title": "互聯資料",
+    "toggleLabel": "可被發現",
+    "toggleSubtitle": "其他學生可以找到您並造訪您的社交帳號",
+    "privacyNote": "僅顯示您的姓名、相片、大學、課程、國籍、年級以及您新增的社交連結。您的郵箱、電話和地址永不分享。",
+    "socialsSection": "社交連結",
+    "instagramPlaceholder": "您的帳號",
+    "facebookPlaceholder": "您的帳號",
+    "twitterPlaceholder": "您的帳號",
+    "linkedinPlaceholder": "您的帳號",
+    "customSection": "自訂連結",
+    "customLabelField": "標籤",
+    "customLabelPlaceholder": "例如：作品集",
+    "customUrlField": "連結",
+    "save": "儲存",
+    "saving": "儲存中...",
+    "savedTitle": "已儲存",
+    "savedEnabled": "您現在可被發現。其他學生可以在互聯標籤中找到您。",
+    "savedDisabled": "您不再可被發現。您的資料已從互聯中隱藏。"
+  },
+  "contact": {
+    "title": "聯絡 HOMii",
+    "heading": "我們能幫您什麼？",
+    "subheading": "給我們留言，我們會盡快回覆您。",
+    "fromLabel": "來自",
+    "subjectLabel": "主題",
+    "subjectPlaceholder": "請簡述您的問題",
+    "messageLabel": "訊息",
+    "messagePlaceholder": "請告訴我們詳細情況...",
+    "send": "傳送訊息",
+    "sending": "傳送中...",
+    "sentTitle": "已傳送",
+    "sentMessage": "感謝您的回饋！我們會盡快審核並回覆您。",
+    "failedTitle": "傳送失敗",
+    "failedMessage": "出現問題，請重試。"
   },
   "profile": {
     "account": "帳戶",
@@ -196,6 +293,7 @@
     "language": "語言",
     "university": "大學",
     "termsAndConditions": "條款與條件",
+    "privacyPolicy": "隱私政策",
     "appVersion": "應用版本",
     "selectLanguage": "選擇語言",
     "chooseLanguage": "選擇您偏好的語言",
@@ -207,7 +305,24 @@
     "noUniversities": "未找到大學",
     "saved": "已儲存",
     "languageSaved": "語言更新成功。",
-    "universitySaved": "大學更新成功。"
+    "universitySaved": "大學更新成功。",
+    "support": "支援",
+    "connectProfile": "互聯資料",
+    "connectProfileSubtitle": "讓其他學生發現您",
+    "contactHomii": "聯絡 HOMii",
+    "contactHomiiSubtitle": "獲取協助或回報問題",
+    "account": "帳戶",
+    "deleteAccount": "刪除帳戶",
+    "deleteAccountSubtitle": "永久刪除您的帳戶和資料",
+    "deleteAccountConfirmTitle": "刪除您的帳戶？",
+    "deleteAccountConfirmMessage": "這將永久刪除您的個人資料、入門進度和推薦記錄，操作無法撤銷。",
+    "deleteAccountConfirmButton": "繼續",
+    "deleteAccountFinalTitle": "確定要刪除嗎？",
+    "deleteAccountFinalMessage": "您的帳戶將立即被刪除並登出，無法恢復。",
+    "deleteAccountFinalButton": "永久刪除",
+    "deleteFailedTitle": "刪除失敗",
+    "deleteFailedMessage": "出現問題，請重試或聯絡客服。",
+    "deleteAmbassadorBlocked": "大使帳戶無法在應用內刪除，請聯絡客服關閉您的大使帳戶。"
   },
   "category": {
     "download": "下載",
@@ -240,7 +355,17 @@
     "referralCode": "推薦碼：{{code}}",
     "totalReferrals": "總推薦數",
     "totalEarned": "總收益",
-    "dashboard": "儀表板"
+    "dashboard": "儀表板",
+    "whatYouDoItems": [
+      "在您的大學向學生分享 HOMii",
+      "幫助新生發現必備的服務",
+      "推廣 SIM 卡、銀行等實用工具"
+    ],
+    "whatYouGetItems": [
+      "透過推薦賺取真實收入",
+      "在儀表板查看您的表現",
+      "為履歷積累經驗"
+    ]
   },
   "ambassadorDashboard": {
     "title": "儀表板",
@@ -266,7 +391,9 @@
     "referralStatusPending": "待處理",
     "referralStatusConfirmed": "已確認",
     "referralStatusPaid": "已支付",
-    "referralDate": "加入於{{date}}"
+    "referralDate": "加入於{{date}}",
+    "cantLoadTitle": "無法載入資料",
+    "cantLoadMessage": "請檢查您的網路連線並重試"
   },
   "ambassadorSignup": {
     "title": "成為 HOMii\n大使",

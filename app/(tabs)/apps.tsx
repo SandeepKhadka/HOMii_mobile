@@ -1,20 +1,78 @@
-import { useState } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator, TextInput } from "react-native";
-import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { Text } from "@/components/ui";
+import { useState, useCallback, useEffect } from "react";
+import { View, ScrollView, Pressable, ActivityIndicator, Linking } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import GradientHeader, { HEADER_GRADIENTS, lightenHex } from "@/components/GradientHeader";
+import GradientHeader, { HEADER_GRADIENTS } from "@/components/GradientHeader";
 import { useTranslation } from "react-i18next";
 import { useCategories } from "@/contexts/CategoriesContext";
 
-export default function AppsScreen() {
+// "Your Apps" — apps the user actually has installed on the device. We probe
+// each partner app's deepLinkScheme via Linking.canOpenURL; apps without a
+// configured scheme are unreachable from here (admin needs to set deepLinkScheme
+// on the App record). Tap on a row opens the parent category for context.
+export default function YourAppsScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { categories, loading } = useCategories();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { categories, loading: categoriesLoading } = useCategories();
+  const [installedIds, setInstalledIds] = useState<Set<string>>(new Set());
+  const [probing, setProbing] = useState(true);
+
+  // Re-probe on every tab focus so the list updates after the user installs
+  // an app from a category page.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      setProbing(true);
+      const probeAll = async () => {
+        const probes: Promise<string | null>[] = [];
+        for (const cat of categories) {
+          for (const app of cat.apps) {
+            const scheme = app.deepLinkScheme;
+            if (!scheme || scheme.startsWith("http")) continue;
+            probes.push(
+              Linking.canOpenURL(scheme)
+                .then((ok) => (ok ? app.id : null))
+                .catch(() => null),
+            );
+          }
+        }
+        const results = await Promise.all(probes);
+        if (!cancelled) {
+          setInstalledIds(new Set(results.filter((id): id is string => !!id)));
+          setProbing(false);
+        }
+      };
+      probeAll();
+      return () => { cancelled = true; };
+    }, [categories]),
+  );
+
+  // Group installed apps by category, preserving category sort order.
+  type Row = {
+    categoryId: string;
+    categoryTitle: string;
+    categoryIcon: string | null;
+    categoryColor: string;
+    apps: typeof categories[number]["apps"];
+  };
+  const sections: Row[] = [];
+  for (const cat of categories) {
+    const installed = cat.apps.filter((a) => a.id && installedIds.has(a.id));
+    if (installed.length === 0) continue;
+    sections.push({
+      categoryId: cat.id,
+      categoryTitle: cat.title,
+      categoryIcon: cat.icon,
+      categoryColor: cat.color,
+      apps: installed,
+    });
+  }
+
+  const loading = probing || categoriesLoading;
+  const hasApps = sections.length > 0;
 
   return (
     <View className="flex-1 bg-background">
@@ -22,116 +80,123 @@ export default function AppsScreen() {
         colors={HEADER_GRADIENTS.apps}
         style={{
           paddingTop: insets.top + 12,
-          paddingBottom: 20,
+          paddingBottom: 24,
           paddingHorizontal: 24,
           borderBottomLeftRadius: 28,
           borderBottomRightRadius: 28,
         }}
       >
         <Text color="inverse" style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 22, lineHeight: 28 }}>
-          {t("apps.title")}
+          {t("yourApps.title")}
         </Text>
         <Text variant="body" color="inverse" className="opacity-80 mt-0.5">
-          Explore all essential tools for your UK journey
+          {t("yourApps.subtitle")}
         </Text>
-        <View className="flex-row items-center bg-white/20 rounded-xl h-10 px-3 mt-3 gap-2">
-          <Ionicons name="search-outline" size={16} color="rgba(255,255,255,0.8)" />
-          <TextInput
-            placeholder={t("apps.search") || "Search categories..."}
-            placeholderTextColor="rgba(255,255,255,0.6)"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={{ flex: 1, color: "#fff", fontSize: 14 }}
-            returnKeyType="search"
-          />
-          {searchQuery.length > 0 && (
-            <Pressable onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={16} color="rgba(255,255,255,0.8)" />
-            </Pressable>
-          )}
-        </View>
       </GradientHeader>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={Colors.primary[500]} />
         </View>
-      ) : categories.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Ionicons name="apps-outline" size={48} color="#9CA3AF" />
-          <Text variant="bodyMedium" color="muted" className="text-center mt-3">
-            {t("apps.empty")}
+      ) : !hasApps ? (
+        <View className="flex-1 items-center justify-center px-8 gap-4">
+          <View className="w-20 h-20 rounded-full bg-primary-50 items-center justify-center">
+            <Ionicons name="apps-outline" size={36} color={Colors.primary[500]} />
+          </View>
+          <Text
+            className="text-center text-grey-900"
+            style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20 }}
+          >
+            {t("yourApps.emptyTitle")}
           </Text>
+          <Text variant="body" color="muted" className="text-center" style={{ lineHeight: 22 }}>
+            {t("yourApps.emptyMessage")}
+          </Text>
+          <View className="w-full mt-2">
+            <Button
+              variant="primary"
+              size="lg"
+              label={t("yourApps.browse")}
+              fullWidth
+              onPress={() => router.push("/browse" as any)}
+            />
+          </View>
         </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 24, paddingHorizontal: 24, paddingBottom: insets.bottom + 32 }}
         >
-          {(() => {
-            const filtered = searchQuery.trim()
-              ? categories.filter((c) =>
-                  c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  (c.apps ?? []).some((a) => a.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                )
-              : categories;
-
-            if (filtered.length === 0) {
-              return (
-                <View className="items-center py-16">
-                  <Ionicons name="search-outline" size={44} color="#9CA3AF" />
-                  <Text variant="bodyMedium" color="muted" className="text-center mt-3">
-                    {t("apps.noResults") || "No categories found"}
+          <View className="gap-6">
+            {sections.map((section) => (
+              <View key={section.categoryId} className="gap-3">
+                <View className="flex-row items-center gap-2">
+                  <View
+                    className="w-7 h-7 rounded-lg items-center justify-center"
+                    style={{ backgroundColor: section.categoryColor + "20" }}
+                  >
+                    <Ionicons
+                      name={(section.categoryIcon || "apps-outline") as any}
+                      size={15}
+                      color={section.categoryColor}
+                    />
+                  </View>
+                  <Text
+                    className="text-grey-900"
+                    style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 16 }}
+                  >
+                    {section.categoryTitle}
                   </Text>
                 </View>
-              );
-            }
-
-            return (
-              <>
-                <View className="flex-row flex-wrap gap-4">
-                  {filtered.map((cat) => {
-                    const color = cat.color || Colors.primary[500];
-                    const gradientEnd = lightenHex(color, 0.6);
-
-                    return (
-                      <Pressable
-                        key={cat.id}
-                        className="bg-white rounded-2xl overflow-hidden"
-                        style={{ width: "47%", elevation: 3, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8 }}
-                        onPress={() => router.push(`/category/${cat.id}` as any)}
+                <View className="bg-white rounded-2xl overflow-hidden" style={{ elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6 }}>
+                  {section.apps.map((app, idx) => (
+                    <Pressable
+                      key={app.id}
+                      onPress={() => {
+                        if (app.deepLinkScheme) {
+                          Linking.openURL(app.deepLinkScheme).catch(() =>
+                            router.push(`/category/${section.categoryId}` as any),
+                          );
+                        } else {
+                          router.push(`/category/${section.categoryId}` as any);
+                        }
+                      }}
+                      className="flex-row items-center px-4 py-3.5"
+                      style={idx < section.apps.length - 1 ? { borderBottomWidth: 1, borderBottomColor: Colors.grey[100] } : {}}
+                    >
+                      <View
+                        className="w-9 h-9 rounded-lg items-center justify-center mr-3"
+                        style={{ backgroundColor: section.categoryColor + "20" }}
                       >
-                        <LinearGradient
-                          colors={[color, gradientEnd]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                          style={{ height: 96, alignItems: "center", justifyContent: "center" }}
-                        >
-                          <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: "rgba(255,255,255,0.85)", alignItems: "center", justifyContent: "center" }}>
-                            <Ionicons name={(cat.icon || "apps-outline") as any} size={26} color={color} />
-                          </View>
-                        </LinearGradient>
-
-                        <View className="p-3">
-                          <Text variant="bodyMedium" className="text-grey-800">{cat.title}</Text>
-                          {cat.apps.length > 0 && (
-                            <Text variant="caption" color="muted">
-                              {cat.apps.length} app{cat.apps.length !== 1 ? "s" : ""}
-                            </Text>
-                          )}
-                        </View>
-                      </Pressable>
-                    );
-                  })}
+                        <Ionicons name={(section.categoryIcon || "apps-outline") as any} size={18} color={section.categoryColor} />
+                      </View>
+                      <View className="flex-1">
+                        <Text variant="bodyMedium" className="text-grey-900">{app.name}</Text>
+                        {app.description ? (
+                          <Text variant="caption" color="muted" numberOfLines={1}>{app.description}</Text>
+                        ) : null}
+                      </View>
+                      <Text variant="caption" style={{ color: section.categoryColor, fontFamily: "BricolageGrotesque_600SemiBold" }}>
+                        {t("category.open")}
+                      </Text>
+                    </Pressable>
+                  ))}
                 </View>
-                {!searchQuery && (
-                  <Text variant="caption" color="muted" className="text-center mt-6">
-                    All {categories.length} categories loaded
-                  </Text>
-                )}
-              </>
-            );
-          })()}
+              </View>
+            ))}
+          </View>
+
+          <View className="mt-8">
+            <Button
+              variant="ghost"
+              size="lg"
+              label={t("yourApps.findMore")}
+              fullWidth
+              leftIcon={<Ionicons name="add-circle-outline" size={20} color={Colors.primary[600]} />}
+              onPress={() => router.push("/browse" as any)}
+              className="border border-primary-200 rounded-2xl"
+            />
+          </View>
         </ScrollView>
       )}
     </View>

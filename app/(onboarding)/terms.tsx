@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, Linking } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
@@ -9,36 +9,7 @@ import { getLocales } from "expo-localization";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAlert } from "@/contexts/AlertContext";
 import { useTranslation } from "react-i18next";
-import { LINKS } from "@/constants/links";
-
-const TERMS_VERSION = "1.0";
-
-const SECTIONS = [
-  {
-    title: "1. Acceptance of Terms",
-    body: "Welcome to HOMii. By accessing or using our application, you agree to be bound by these Terms and Conditions. Our service provides a platform to help international students set up essential services in the UK. If you disagree with any part of these terms, you may not access the service.",
-  },
-  {
-    title: "2. User Responsibilities",
-    body: "As a member of the HOMii community, you are responsible for maintaining the confidentiality of your account information. You agree to provide accurate, current, and complete information during the registration process.",
-  },
-  {
-    title: "3. Privacy Policy",
-    body: "Your privacy is important to us. Our Privacy Policy explains how we collect, use, and share your personal information. By using HOMii, you consent to our collection and use of personal data as outlined in the Privacy Policy.",
-  },
-  {
-    title: "4. Affiliate Disclosure",
-    body: "Some links within HOMii may earn HOMii a commission at no extra cost to you. When you download or sign up for a partner service through HOMii, the affiliate network may pay HOMii a commission.",
-  },
-  {
-    title: "5. Termination",
-    body: "We may terminate or suspend your account and bar access to the service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever, including without limitation if you breach the Terms.",
-  },
-  {
-    title: "6. Modifications",
-    body: "We reserve the right to modify or replace these terms at any time. If a revision is material, we will provide at least 30 days notice prior to any new terms taking effect. Continued use of the service after modifications constitutes acceptance.",
-  },
-];
+import { TERMS_SECTIONS, TERMS_VERSION } from "@/constants/legal";
 
 export default function TermsScreen() {
   const insets = useSafeAreaInsets();
@@ -101,12 +72,12 @@ export default function TermsScreen() {
       >
         {/* Links to full documents */}
         <View className="flex-row justify-center gap-6 my-4">
-          <Pressable onPress={() => Linking.openURL(LINKS.termsOfService)}>
+          <Pressable onPress={() => router.push("/terms" as any)}>
             <Text variant="bodyMedium" color="primary" className="font-semibold underline">
               {t("onboarding.terms.termsOfService")}
             </Text>
           </Pressable>
-          <Pressable onPress={() => Linking.openURL(LINKS.privacyPolicy)}>
+          <Pressable onPress={() => router.push("/privacy" as any)}>
             <Text variant="bodyMedium" color="primary" className="font-semibold underline">
               {t("onboarding.terms.privacyPolicy")}
             </Text>
@@ -115,7 +86,7 @@ export default function TermsScreen() {
 
         {/* Terms card */}
         <View className="border border-grey-200 rounded-2xl p-5 gap-5">
-          {SECTIONS.map((s) => (
+          {TERMS_SECTIONS.map((s) => (
             <View key={s.title} className="gap-2">
               <Text variant="bodyMedium" className="font-semibold text-grey-900">
                 {s.title}

@@ -5,10 +5,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCategories } from "@/contexts/CategoriesContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function ChecklistIntroScreen() {
   const insets = useSafeAreaInsets();
   const { phases } = useCategories();
+  const { profile } = useAuth();
+  const { t } = useTranslation();
 
   const firstPhase = phases[0];
 
@@ -25,16 +29,18 @@ export default function ChecklistIntroScreen() {
             <Ionicons name="arrow-back" size={22} color={Colors.grey[900]} />
           </Pressable>
           <View className="flex-1 items-center">
-            <View className="bg-white/80 px-5 py-2 rounded-full">
-              <Text variant="captionMedium" className="text-grey-700">UWE, Bristol</Text>
-            </View>
+            {profile?.university ? (
+              <View className="bg-white/80 px-5 py-2 rounded-full">
+                <Text variant="captionMedium" className="text-grey-700">{profile.university}</Text>
+              </View>
+            ) : null}
           </View>
           <View className="w-10" />
         </View>
 
         <View className="flex-1 px-6 pt-6 gap-6">
           <Text variant="h2" className="font-heading text-grey-900">
-            Lets get you set up
+            {t("onboarding.checklistIntro.title")}
           </Text>
 
           {/* Phase cards — dynamic from context */}
@@ -78,7 +84,7 @@ export default function ChecklistIntroScreen() {
           <Button
             variant="primary"
             size="lg"
-            label="Continue"
+            label={t("common.continue")}
             fullWidth
             onPress={() => {
               if (firstPhase) {

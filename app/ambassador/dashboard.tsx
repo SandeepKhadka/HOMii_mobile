@@ -75,11 +75,11 @@ export default function AmbassadorDashboardScreen() {
           color={Colors.grey[400]}
         />
         <Text variant="h3" className="text-grey-700 text-center mt-4">
-          {hasError ? "Couldn't load data" : t("ambassadorDashboard.noData")}
+          {hasError ? t("ambassadorDashboard.cantLoadTitle") : t("ambassadorDashboard.noData")}
         </Text>
         <Text variant="body" color="muted" className="text-center mt-2">
           {hasError
-            ? "Check your connection and try again"
+            ? t("ambassadorDashboard.cantLoadMessage")
             : t("ambassadorDashboard.noDataMessage")}
         </Text>
         <Pressable
@@ -88,7 +88,7 @@ export default function AmbassadorDashboardScreen() {
           onPress={hasError ? loadData : () => router.replace("/ambassador/signup" as any)}
         >
           <Text color="inverse" style={{ fontFamily: "BricolageGrotesque_600SemiBold", fontSize: 15 }}>
-            {hasError ? "Retry" : t("ambassadorDashboard.applyNow")}
+            {hasError ? t("common.retry") : t("ambassadorDashboard.applyNow")}
           </Text>
         </Pressable>
       </View>

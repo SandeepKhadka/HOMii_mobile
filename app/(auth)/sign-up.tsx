@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Pressable, ImageBackground, ScrollView, Keyboard } from "react-native";
+import { View, Pressable, ImageBackground, ScrollView, Keyboard, Image, KeyboardAvoidingView, Platform } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -57,6 +57,10 @@ export default function SignUpScreen() {
   };
 
   return (
+    <KeyboardAvoidingView
+      className="flex-1 bg-white"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
     <ScrollView
       className="flex-1 bg-white"
       bounces={false}
@@ -78,15 +82,23 @@ export default function SignUpScreen() {
           </Pressable>
         </View>
 
-        <View className="flex-1 items-center justify-center">
+        {/* Logo group sits at top of hero — smaller logo + tighter spacing
+            so the shorter hero gives the form card more room. */}
+        <View className="items-center" style={{ marginTop: 4 }}>
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={{ width: 72, height: 72, tintColor: "#fff" }}
+            resizeMode="contain"
+          />
           <Text
             color="inverse"
             style={{
               fontFamily: "BricolageGrotesque_800ExtraBold",
-              fontSize: 40,
-              lineHeight: 56,
+              fontSize: 26,
+              lineHeight: 32,
               letterSpacing: -0.4,
               textAlign: "center",
+              marginTop: -6,
             }}
           >
             HOMii
@@ -185,5 +197,6 @@ export default function SignUpScreen() {
         </View>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

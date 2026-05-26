@@ -4,8 +4,10 @@ import PhaseChecklist from "@/components/PhaseChecklist";
 import { Text } from "@/components/ui";
 import { useCategories } from "@/contexts/CategoriesContext";
 import { capture } from "@/lib/analytics";
+import { useTranslation } from "react-i18next";
 
 export default function PhaseScreen() {
+  const { t } = useTranslation();
   const { phaseId, onboarding } = useLocalSearchParams<{ phaseId: string; onboarding?: string }>();
   const { phases } = useCategories();
   const isOnboarding = onboarding === "true";
@@ -16,7 +18,7 @@ export default function PhaseScreen() {
   if (!phase) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <Text variant="body" color="muted">Phase not found</Text>
+        <Text variant="body" color="muted">{t("onboarding.phase.notFound")}</Text>
       </View>
     );
   }
@@ -43,7 +45,7 @@ export default function PhaseScreen() {
       categoryIds={phase.categories}
       isOnboarding={isOnboarding}
       onContinue={handleContinue}
-      continueLabel={isLastPhase ? "Continue to Home" : "Continue"}
+      continueLabel={isLastPhase ? t("common.continueToHome") : t("common.continue")}
     />
   );
 }
