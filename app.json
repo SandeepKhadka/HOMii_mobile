@@ -13,11 +13,17 @@
       "bundleIdentifier": "com.slimsandy.homii",
       "associatedDomains": [
         "applinks:homii.link"
-      ]
+      ],
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "monzo", "starling", "revolut", "trainline", "citymapper",
+          "uber", "deliveroo", "ubereats"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#6366F1",
+        "backgroundColor": "#7C3AED",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -55,10 +61,10 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#6366F1",
+          "backgroundColor": "#7C3AED",
           "dark": {
-            "image": "./assets/images/icon.png",
-            "backgroundColor": "#4F46E5"
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#7C3AED"
           }
         }
       ],

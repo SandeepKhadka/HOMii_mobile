@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { View, ScrollView, Pressable, Linking, Platform, ActivityIndicator, TextInput } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Text } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@/contexts/CategoriesContext";
@@ -39,27 +39,28 @@ export default function CategoryDetailScreen() {
     }
   }, [id]);
 
-  // Check which apps are actually installed via their deep link scheme
-  useEffect(() => {
-    if (!category) return;
-    const appsWithScheme = category.apps.filter(
-      (a) => a.deepLinkScheme && !a.deepLinkScheme.startsWith("http")
-    );
-    if (!appsWithScheme.length) return;
-    Promise.all(
-      appsWithScheme.map(async (a) => {
-        try {
-          const canOpen = await Linking.canOpenURL(a.deepLinkScheme!);
-          return canOpen ? a.id : null;
-        } catch {
-          return null;
-        }
-      })
-    ).then((results) => {
-      const installed = new Set(results.filter(Boolean) as string[]);
-      setInstalledIds(installed);
-    });
-  }, [category?.id]);
+  // Re-check installed apps every time this screen is focused — covers the case
+  // where user taps "Get", installs from Play Store, and returns to this screen.
+  useFocusEffect(
+    useCallback(() => {
+      if (!category) return;
+      Promise.all(
+        category.apps.map(async (a) => {
+          try {
+            if (a.deepLinkScheme && !a.deepLinkScheme.startsWith("http")) {
+              const canOpen = await Linking.canOpenURL(a.deepLinkScheme);
+              if (canOpen) return a.id;
+            }
+            return null;
+          } catch {
+            return null;
+          }
+        })
+      ).then((results) => {
+        setInstalledIds(new Set(results.filter(Boolean) as string[]));
+      });
+    }, [category?.id])
+  );
 
   if (!category) {
     return (
@@ -69,12 +70,22 @@ export default function CategoryDetailScreen() {
     );
   }
 
-  const handleOpen = async (appId: string, deepLinkScheme: string) => {
+  const handleOpen = async (appId: string, androidPackageName: string | null, deepLinkScheme: string | null) => {
     capture('partner_app_opened', { app_id: appId, category_id: id });
     try {
-      await Linking.openURL(deepLinkScheme);
+      if (Platform.OS === "android" && androidPackageName) {
+        // Launcher intent bypasses deep link sender-security restrictions (e.g. Revolut)
+        await Linking.openURL(
+          `intent:#Intent;package=${androidPackageName};action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end`
+        );
+        return;
+      }
+      if (deepLinkScheme && !deepLinkScheme.startsWith("http")) {
+        await Linking.openURL(deepLinkScheme);
+        return;
+      }
+      handleDownload(appId);
     } catch {
-      // Deep link failed — fall back to download flow
       handleDownload(appId);
     }
   };
@@ -169,9 +180,29 @@ export default function CategoryDetailScreen() {
             <Text variant="body" color="muted">{t("category.comingSoon")}</Text>
           </View>
         ) : filteredApps.length === 0 ? (
-          <View className="items-center py-12">
+          <View className="items-center py-12 px-4">
             <Ionicons name="search-outline" size={36} color="#9CA3AF" />
-            <Text variant="body" color="muted" className="mt-2">{t("category.noResults") || "No apps found"}</Text>
+            <Text variant="body" color="muted" className="mt-2">{t("category.noResults")}</Text>
+            <Text variant="caption" color="muted" className="text-center mt-2" style={{ lineHeight: 18 }}>
+              {t("apps.recommendPrompt")}
+            </Text>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/contact",
+                  params: {
+                    subject: t("apps.recommendSubject", { query: searchQuery.trim() }),
+                    message: t("apps.recommendMessage", { query: searchQuery.trim() }),
+                  },
+                } as any)
+              }
+              className="mt-4 px-5 py-2.5 rounded-full"
+              style={{ backgroundColor: category.color + "20" }}
+            >
+              <Text variant="captionMedium" style={{ color: category.color }}>
+                {t("apps.recommendCta")}
+              </Text>
+            </Pressable>
           </View>
         ) : (
           <View className="gap-3">
@@ -208,24 +239,22 @@ export default function CategoryDetailScreen() {
                     <Pressable
                       className="px-4 py-2 rounded-full min-w-[72px] items-center justify-center"
                       style={{
-                        backgroundColor: isInstalled ? category.color + "20" : "#111827",
-                        borderWidth: isInstalled ? 1.5 : 0,
-                        borderColor: isInstalled ? category.color : undefined,
+                        backgroundColor: isInstalled ? category.color : "#111827",
                         opacity: isLoading ? 0.6 : 1,
                       }}
                       onPress={() =>
-                        isInstalled && app.deepLinkScheme
-                          ? handleOpen(appId, app.deepLinkScheme)
+                        isInstalled
+                          ? handleOpen(appId, app.androidPackageName, app.deepLinkScheme)
                           : handleDownload(app.id, app.name)
                       }
                       disabled={isLoading}
                     >
                       {isLoading ? (
-                        <ActivityIndicator size="small" color={isInstalled ? category.color : "#fff"} />
+                        <ActivityIndicator size="small" color="#fff" />
                       ) : (
                         <Text
                           variant="captionMedium"
-                          style={{ color: isInstalled ? category.color : "#fff" }}
+                          style={{ color: "#fff" }}
                         >
                           {isInstalled ? (t("category.open") || "Open") : t("category.get") || t("category.download")}
                         </Text>
