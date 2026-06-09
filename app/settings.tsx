@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, Image } from "react-native";
 import { useState, useMemo, useEffect } from "react";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
@@ -13,6 +13,7 @@ import { getLocales } from "expo-localization";
 import { useTranslation } from "react-i18next";
 import { setAppLanguage } from "@/lib/i18n";
 import Constants from "expo-constants";
+import { getUniversityLogo } from "@/constants/universityLogos";
 
 const FALLBACK_LANGUAGES: ApiLanguage[] = [
   { id: "en",      code: "en",      name: "English",             nativeName: "English",  flag: "🇬🇧", sortOrder: 0 },
@@ -201,7 +202,7 @@ export default function SettingsScreen() {
 
         <ScrollView
           className="flex-1 px-6"
-          contentContainerStyle={{ paddingTop: 16, paddingBottom: 24, gap: 24 }}
+          contentContainerStyle={{ paddingTop: 16, paddingBottom: insets.bottom + 32, gap: 24 }}
           showsVerticalScrollIndicator={false}
         >
           <View className="items-center">
@@ -326,6 +327,16 @@ export default function SettingsScreen() {
                     )}
                   >
                     <View className="flex-row items-center">
+                      {(() => {
+                        const logo = getUniversityLogo(uni.name);
+                        return logo ? (
+                          <Image source={logo} style={{ width: 36, height: 36, marginRight: 12 }} resizeMode="contain" />
+                        ) : (
+                          <View className="w-9 h-9 rounded-lg bg-primary-100 items-center justify-center mr-3">
+                            <Ionicons name="school" size={20} color={Colors.primary[600]} />
+                          </View>
+                        );
+                      })()}
                       <View className="flex-1">
                         <Text variant="bodyMedium" className="text-grey-900">
                           {uni.name}

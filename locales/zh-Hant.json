@@ -19,7 +19,62 @@
     "continueToHome": "返回首頁",
     "retry": "重試",
     "cameraPermission": "需要相機權限才能拍照。",
-    "libraryPermission": "需要相簿權限。"
+    "libraryPermission": "需要相簿權限。",
+    "all": "全部",
+    "done": "完成"
+  },
+  "tabs": {
+    "home": "首頁",
+    "apps": "應用",
+    "connect": "互聯",
+    "ambassadors": "大使",
+    "profile": "我的"
+  },
+  "phaseNames": {
+    "before-fly": "出發前",
+    "before-you-fly": "出發前",
+    "upon-arrival": "抵達後",
+    "first-48-hours": "抵達後",
+    "settling-in": "安頓生活",
+    "first-week": "安頓生活"
+  },
+  "phaseSubtitles": {
+    "before-fly": "出發前準備好一切",
+    "before-you-fly": "出發前準備好一切",
+    "upon-arrival": "抵達後順利安頓",
+    "first-48-hours": "抵達後順利安頓",
+    "settling-in": "舒適安頓，開啟新生活",
+    "first-week": "舒適安頓，開啟新生活"
+  },
+  "categoryDescriptions": {
+    "accommodation": "在英國找到你的家",
+    "holidays": "規劃旅行與假期",
+    "sim-cards": "辦一張英國 SIM 卡",
+    "sims": "辦一張英國 SIM 卡",
+    "banking": "開設你的英國銀行帳戶",
+    "transport": "暢遊你的新城市",
+    "travel-transport": "在英國出行與旅行",
+    "food-delivery": "點餐送到家門口",
+    "food": "點餐送到家門口",
+    "student-discounts": "用學生身份省錢",
+    "discounts": "用學生身份省錢",
+    "groceries": "採購生活必需品",
+    "events": "發現身邊的活動"
+  },
+  "categoryNames": {
+    "accommodation": "住宿",
+    "holidays": "假期出遊",
+    "sim-cards": "SIM 卡",
+    "sims": "SIM 卡",
+    "banking": "銀行",
+    "transport": "交通",
+    "travel-transport": "出行與交通",
+    "food-delivery": "外送",
+    "food": "外送",
+    "student-discounts": "學生折扣",
+    "discounts": "學生折扣",
+    "groceries": "日用百貨",
+    "events": "活動"
   },
   "auth": {
     "welcome": {
@@ -121,7 +176,9 @@
       "continue": "繼續"
     },
     "checklistIntro": {
-      "title": "開始為您設定"
+      "title": "開始為您設定",
+      "subtitle": "按自己的節奏逐項完成 — 也可以先跳過，稍後再回來。",
+      "skip": "暫時跳過"
     },
     "phase": {
       "notFound": "未找到階段"
@@ -135,6 +192,15 @@
       "personalizing": "我們正在為您個人化體驗...",
       "done": "一切就緒！",
       "welcome": "歡迎來到 HOMii"
+    },
+    "connectIntro": {
+      "title": "結識和您一樣的同學",
+      "subtitle": "Connect 幫助您找到您大學的國際學生 — 分享社交帳號、交流經驗、在抵達之前建立您的圈子。",
+      "bullet1": "找到您所在大學的學生",
+      "bullet2": "按課程、年級或國家篩選",
+      "bullet3": "分享您的社交帳號 — 無需聊天，只需互聯",
+      "setUp": "設定我的 Connect 個人檔案",
+      "skip": "暫時跳過"
     }
   },
   "home": {
@@ -148,7 +214,12 @@
       "title": "推薦朋友",
       "subtitle": "把 HOMii 分享給朋友",
       "shareMessage": "加入我的 HOMii — 國際學生在英國的必備應用！{{url}}"
-    }
+    },
+    "welcomeSubtitle": "歡迎開啟您的留學之旅",
+    "continueSetup": "繼續設定",
+    "allSet": "全部完成！",
+    "completeProfileForRecommendations": "完善您的資料以解鎖個人化推薦",
+    "continue": "繼續"
   },
   "yourApps": {
     "title": "我的應用",
@@ -182,6 +253,8 @@
     "statusNotStarted": "未開始",
     "allDoneTitle": "全部完成！",
     "allDoneMessage": "您已完成所有設定任務。\n歡迎來到英國！",
+    "reviewAnytime": "您可以隨時返回任何階段。",
+    "reviewSetup": "查看設定",
     "journey": "您的設定之旅"
   },
   "legal": {
@@ -193,6 +266,8 @@
     "subtitle": "找到您所在大學的其他學生",
     "optInBanner": "讓自己可被發現",
     "optInBannerSubtitle": "新增社交帳號讓其他人找到您",
+    "previewLabel": "其他人如何看到您",
+    "editProfile": "編輯個人資料",
     "filterAll": "全部",
     "filterMyUni": "我的大學",
     "courseSearchPlaceholder": "按課程篩選...",
@@ -331,7 +406,7 @@
     "noResults": "未找到應用",
     "notAvailable": "暫未上線",
     "notAvailableMessage": "此應用暫無下載連結，請稍後再試。",
-    "recommended": "推薦",
+    "recommended": "HOMii 推薦",
     "comingSoon": "即將推出",
     "notFound": "未找到分類",
     "disclosure": "部分連結可能為 HOMii 賺取佣金，對您無額外費用。",

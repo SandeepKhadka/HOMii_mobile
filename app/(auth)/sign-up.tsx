@@ -17,13 +17,21 @@ export default function SignUpScreen() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
 
   const handleSignUp = async () => {
     Keyboard.dismiss();
-    if (!fullName || !email || !password) {
+    if (!fullName || !email || !password || !confirmPassword) {
       showAlert(t("common.error"), t("common.fillAllFields"), undefined, "error");
+      return;
+    }
+    if (password !== confirmPassword) {
+      showAlert(t("common.error"), t("auth.signUp.passwordsMismatch"), undefined, "error");
       return;
     }
     if (password.length < 8) {
@@ -58,145 +66,158 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
+      style={{ flex: 1, backgroundColor: "#fff" }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "android" ? 0 : 0}
     >
-    <ScrollView
-      className="flex-1 bg-white"
-      bounces={false}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ flexGrow: 1 }}
-    >
-      {/* Top hero */}
-      <ImageBackground
-        source={require("@/assets/images/onboarding.png")}
-        style={{ height: 200 }}
-        resizeMode="cover"
+      <ScrollView
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
       >
-        <View className="px-4" style={{ paddingTop: insets.top + 8 }}>
-          <Pressable
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
-          >
-            <Ionicons name="arrow-back" size={22} color="#fff" />
-          </Pressable>
-        </View>
-
-        {/* Logo group sits at top of hero — smaller logo + tighter spacing
-            so the shorter hero gives the form card more room. */}
-        <View className="items-center" style={{ marginTop: 4 }}>
-          <Image
-            source={require("@/assets/images/logo.png")}
-            style={{ width: 72, height: 72, tintColor: "#fff" }}
-            resizeMode="contain"
-          />
-          <Text
-            color="inverse"
-            style={{
-              fontFamily: "BricolageGrotesque_800ExtraBold",
-              fontSize: 26,
-              lineHeight: 32,
-              letterSpacing: -0.4,
-              textAlign: "center",
-              marginTop: -6,
-            }}
-          >
-            HOMii
-          </Text>
-        </View>
-      </ImageBackground>
-
-      {/* Bottom card */}
-      <View
-        className="flex-1 bg-white rounded-t-3xl -mt-8 px-8 pt-8"
-        style={{ paddingBottom: insets.bottom + 24 }}
-      >
-        <View className="gap-1 mb-6">
-          <Text
-            className="text-grey-900"
-            style={{
-              fontFamily: "BricolageGrotesque_700Bold",
-              fontSize: 28,
-              lineHeight: 36,
-              letterSpacing: -0.5,
-            }}
-          >
-            {t("auth.signUp.title")}
-          </Text>
-          <Text variant="body" color="muted">
-            {t("auth.signUp.subtitle")}
-          </Text>
-        </View>
-
-        <View className="gap-4 mb-6">
-          <Input
-            label={t("common.fullName")}
-            placeholder={t("auth.signUp.fullNamePlaceholder")}
-            autoCapitalize="words"
-            autoComplete="name"
-            value={fullName}
-            onChangeText={setFullName}
-            leftIcon={<Ionicons name="person-outline" size={18} color={Colors.grey[400]} />}
-          />
-          <Input
-            label={t("common.email")}
-            placeholder={t("auth.signUp.emailPlaceholder")}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            value={email}
-            onChangeText={setEmail}
-            leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.grey[400]} />}
-          />
-          <Input
-            label={t("common.password")}
-            placeholder={t("auth.signUp.passwordPlaceholder")}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
-            leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.grey[400]} />}
-            rightIcon={
-              <Ionicons
-                name={showPassword ? "eye-off-outline" : "eye-outline"}
-                size={20}
-                color={Colors.grey[400]}
-              />
-            }
-            onRightIconPress={() => setShowPassword(!showPassword)}
-          />
-        </View>
-
-        <Button
-          variant="primary"
-          size="lg"
-          label={loading ? t("auth.signUp.submitting") : t("auth.signUp.submit")}
-          fullWidth
-          onPress={handleSignUp}
-        />
-
-        <Pressable
-          onPress={async () => {
-            const { error } = await signInWithGoogle();
-            if (error) showAlert(t("common.googleSignInFailed"), error, undefined, "error");
-          }}
-          className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5 mt-2"
+        {/* Top hero */}
+        <ImageBackground
+          source={require("@/assets/images/onboarding.png")}
+          style={{ height: 200 }}
+          resizeMode="cover"
         >
-          <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
-          <Text variant="bodyMedium" className="text-grey-700 font-semibold">
-            {t("common.continueWithGoogle")}
-          </Text>
-        </Pressable>
+          <View className="px-4" style={{ paddingTop: insets.top + 8 }}>
+            <Pressable
+              onPress={() => router.back()}
+              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+            >
+              <Ionicons name="arrow-back" size={22} color="#fff" />
+            </Pressable>
+          </View>
 
-        <View className="flex-row justify-center gap-1 mt-4">
-          <Text variant="body" color="muted">{t("auth.signUp.hasAccount")}</Text>
-          <Pressable onPress={() => router.replace("/(auth)/sign-in")}>
-            <Text variant="bodyMedium" color="primary" className="font-semibold">
-              {t("auth.signUp.signIn")}
+          <View className="items-center" style={{ marginTop: 8 }}>
+            <Image
+              source={require("@/assets/images/logo.png")}
+              style={{ width: 120, height: 48 }}
+              resizeMode="contain"
+            />
+          </View>
+        </ImageBackground>
+
+        {/* Bottom card */}
+        <View className="bg-white rounded-t-3xl -mt-8 px-8 pt-8 pb-4">
+          <View className="gap-1 mb-6">
+            <Text
+              className="text-grey-900"
+              style={{
+                fontFamily: "BricolageGrotesque_700Bold",
+                fontSize: 28,
+                lineHeight: 36,
+                letterSpacing: -0.5,
+              }}
+            >
+              {t("auth.signUp.title")}
+            </Text>
+            <Text variant="body" color="muted">
+              {t("auth.signUp.subtitle")}
+            </Text>
+          </View>
+
+          <View className="gap-4 mb-6">
+            <Input
+              label={t("common.fullName")}
+              placeholder={t("auth.signUp.fullNamePlaceholder")}
+              autoCapitalize="words"
+              autoComplete="name"
+              value={fullName}
+              onChangeText={setFullName}
+              leftIcon={<Ionicons name="person-outline" size={18} color={Colors.grey[400]} />}
+            />
+            <Input
+              label={t("common.email")}
+              placeholder={t("auth.signUp.emailPlaceholder")}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              value={email}
+              onChangeText={setEmail}
+              leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.grey[400]} />}
+            />
+
+            <View className="gap-1">
+              <Input
+                label={t("common.password")}
+                placeholder={t("auth.signUp.passwordPlaceholder")}
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.grey[400]} />}
+                rightIcon={
+                  <Ionicons
+                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                    size={20}
+                    color={Colors.grey[400]}
+                  />
+                }
+                onRightIconPress={() => setShowPassword(!showPassword)}
+              />
+              <Text variant="caption" color="muted" style={{ fontSize: 11, paddingHorizontal: 4 }}>
+                {t("auth.signUp.passwordHint")}
+              </Text>
+            </View>
+
+            <View className="gap-1">
+              <Input
+                label={t("auth.signUp.confirmPasswordLabel")}
+                placeholder={t("auth.signUp.confirmPasswordPlaceholder")}
+                secureTextEntry={!showConfirmPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.grey[400]} />}
+                rightIcon={
+                  <Ionicons
+                    name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                    size={20}
+                    color={Colors.grey[400]}
+                  />
+                }
+                onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              />
+              {passwordMismatch && (
+                <Text variant="caption" style={{ fontSize: 12, paddingHorizontal: 4, color: Colors.error?.DEFAULT ?? "#EF4444" }}>
+                  {t("auth.signUp.passwordsMismatch")}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          <Button
+            variant="primary"
+            size="lg"
+            label={loading ? t("auth.signUp.submitting") : t("auth.signUp.submit")}
+            fullWidth
+            onPress={handleSignUp}
+          />
+
+          <Pressable
+            onPress={async () => {
+              const { error } = await signInWithGoogle();
+              if (error) showAlert(t("common.googleSignInFailed"), error, undefined, "error");
+            }}
+            className="flex-row items-center justify-center gap-3 border border-grey-200 rounded-2xl py-3.5 mt-2"
+          >
+            <Ionicons name="logo-google" size={20} color={Colors.grey[700]} />
+            <Text variant="bodyMedium" className="text-grey-700 font-semibold">
+              {t("common.continueWithGoogle")}
             </Text>
           </Pressable>
+
+          <View className="flex-row justify-center gap-1 mt-4">
+            <Text variant="body" color="muted">{t("auth.signUp.hasAccount")}</Text>
+            <Pressable onPress={() => router.replace("/(auth)/sign-in")}>
+              <Text variant="bodyMedium" color="primary" className="font-semibold">
+                {t("auth.signUp.signIn")}
+              </Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

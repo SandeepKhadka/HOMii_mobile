@@ -19,7 +19,62 @@
     "verifying": "Verifying...",
     "sending": "Sending...",
     "cameraPermission": "Camera permission is required to take a photo.",
-    "libraryPermission": "Photo library permission is required."
+    "libraryPermission": "Photo library permission is required.",
+    "all": "All",
+    "done": "Done"
+  },
+  "tabs": {
+    "home": "Home",
+    "apps": "Apps",
+    "connect": "Connect",
+    "ambassadors": "Ambassadors",
+    "profile": "Profile"
+  },
+  "phaseNames": {
+    "before-fly": "Before You Fly",
+    "before-you-fly": "Before You Fly",
+    "upon-arrival": "Upon Arrival",
+    "first-48-hours": "Upon Arrival",
+    "settling-in": "Settling In",
+    "first-week": "Settling In"
+  },
+  "phaseSubtitles": {
+    "before-fly": "Get everything ready before arrival",
+    "before-you-fly": "Get everything ready before arrival",
+    "upon-arrival": "Settle in smooth when you arrive",
+    "first-48-hours": "Settle in smooth when you arrive",
+    "settling-in": "Get comfortable and start your new life",
+    "first-week": "Get comfortable and start your new life"
+  },
+  "categoryDescriptions": {
+    "accommodation": "Find your home in the UK",
+    "holidays": "Plan your travel and breaks",
+    "sim-cards": "Get a UK SIM card",
+    "sims": "Get a UK SIM card",
+    "banking": "Set up your UK bank account",
+    "transport": "Get around your new city",
+    "travel-transport": "Travel and get around the UK",
+    "food-delivery": "Order food to your door",
+    "food": "Order food to your door",
+    "student-discounts": "Save money as a student",
+    "discounts": "Save money as a student",
+    "groceries": "Stock up on essentials",
+    "events": "Discover events near you"
+  },
+  "categoryNames": {
+    "accommodation": "Accommodation",
+    "holidays": "Holidays",
+    "sim-cards": "SIM Cards",
+    "sims": "SIM Cards",
+    "banking": "Banking",
+    "transport": "Transport",
+    "travel-transport": "Travel & Transport",
+    "food-delivery": "Food Delivery",
+    "food": "Food Delivery",
+    "student-discounts": "Student Discounts",
+    "discounts": "Student Discounts",
+    "groceries": "Groceries",
+    "events": "Events"
   },
   "auth": {
     "welcome": {
@@ -52,6 +107,10 @@
       "failed": "Sign Up Failed",
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "passwordsMismatch": "Passwords do not match",
+      "passwordHint": "Min. 8 chars • Uppercase • Lowercase • Number • Special character",
       "passwordMin": "Password must be at least 8 characters",
       "passwordUppercase": "Password must contain at least one uppercase letter",
       "passwordLowercase": "Password must contain at least one lowercase letter",
@@ -121,7 +180,9 @@
       "continue": "Continue"
     },
     "checklistIntro": {
-      "title": "Let's Get You Set Up"
+      "title": "Let's get you set up",
+      "subtitle": "Tick things off at your own pace — or skip and come back later.",
+      "skip": "Skip for now"
     },
     "phase": {
       "notFound": "Phase not found"
@@ -135,19 +196,33 @@
       "personalizing": "We're personalising your experience...",
       "done": "You're all set!",
       "welcome": "Welcome to HOMii"
+    },
+    "connectIntro": {
+      "title": "Meet other students like you",
+      "subtitle": "Connect helps you find international students at your university — share socials, swap tips, build your circle before you arrive.",
+      "bullet1": "Find students from your university",
+      "bullet2": "Filter by course, year, or country",
+      "bullet3": "Share your socials — no chat, just connect",
+      "setUp": "Set up my Connect profile",
+      "skip": "Skip for now"
     }
   },
   "home": {
     "hello": "Hello, {{name}}",
+    "welcomeSubtitle": "Welcome to your student journey",
     "starterPack": "Starter Pack for {{university}} Students",
     "essentialApps": "Essential Apps",
     "viewAll": "View all",
     "homiiPick": "HOMii pick",
     "categoriesDone": "{{done}} of {{total}} categories complete",
+    "continueSetup": "Continue Setup",
+    "allSet": "All set up!",
+    "completeProfileForRecommendations": "Complete your profile to unlock personalised recommendations",
+    "continue": "Continue",
     "referFriends": {
       "title": "Refer Friends",
       "subtitle": "Share HOMii with your friends",
-      "shareMessage": "Join me on HOMii — the essential app for international students in the UK! {{url}}"
+      "shareMessage": "Join Me on Homii — Everything international students need for the UK. {{url}}"
     }
   },
   "yourApps": {
@@ -182,6 +257,8 @@
     "statusNotStarted": "Not started",
     "allDoneTitle": "You're all set!",
     "allDoneMessage": "You've completed all setup tasks.\nWelcome to the UK!",
+    "reviewAnytime": "You can revisit any phase any time.",
+    "reviewSetup": "Review setup",
     "journey": "Your setup journey"
   },
   "legal": {
@@ -193,6 +270,8 @@
     "subtitle": "Find other students at your university",
     "optInBanner": "Make yourself discoverable",
     "optInBannerSubtitle": "Add your socials so others can find you",
+    "previewLabel": "HOW OTHERS SEE YOU",
+    "editProfile": "Edit your profile",
     "filterAll": "All",
     "filterMyUni": "My uni",
     "courseSearchPlaceholder": "Filter by course...",
@@ -331,7 +410,7 @@
     "noResults": "No apps found",
     "notAvailable": "Not available yet",
     "notAvailableMessage": "This app doesn't have a download link yet. Check back soon.",
-    "recommended": "RECOMMENDED",
+    "recommended": "HOMii's Pick",
     "comingSoon": "Coming soon",
     "notFound": "Category not found",
     "disclosure": "Some links may earn HOMii a commission at no extra cost to you.",

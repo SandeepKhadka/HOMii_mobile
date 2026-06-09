@@ -19,7 +19,62 @@
     "continueToHome": "返回首页",
     "retry": "重试",
     "cameraPermission": "需要相机权限才能拍照。",
-    "libraryPermission": "需要相册权限。"
+    "libraryPermission": "需要相册权限。",
+    "all": "全部",
+    "done": "完成"
+  },
+  "tabs": {
+    "home": "首页",
+    "apps": "应用",
+    "connect": "互联",
+    "ambassadors": "大使",
+    "profile": "我的"
+  },
+  "phaseNames": {
+    "before-fly": "出发前",
+    "before-you-fly": "出发前",
+    "upon-arrival": "抵达后",
+    "first-48-hours": "抵达后",
+    "settling-in": "安顿生活",
+    "first-week": "安顿生活"
+  },
+  "phaseSubtitles": {
+    "before-fly": "出发前准备好一切",
+    "before-you-fly": "出发前准备好一切",
+    "upon-arrival": "抵达后顺利安顿",
+    "first-48-hours": "抵达后顺利安顿",
+    "settling-in": "舒适安顿，开启新生活",
+    "first-week": "舒适安顿，开启新生活"
+  },
+  "categoryDescriptions": {
+    "accommodation": "在英国找到你的家",
+    "holidays": "规划旅行与假期",
+    "sim-cards": "办一张英国 SIM 卡",
+    "sims": "办一张英国 SIM 卡",
+    "banking": "开设你的英国银行账户",
+    "transport": "畅游你的新城市",
+    "travel-transport": "在英国出行与旅行",
+    "food-delivery": "点餐送到家门口",
+    "food": "点餐送到家门口",
+    "student-discounts": "用学生身份省钱",
+    "discounts": "用学生身份省钱",
+    "groceries": "采购生活必需品",
+    "events": "发现身边的活动"
+  },
+  "categoryNames": {
+    "accommodation": "住宿",
+    "holidays": "假期出游",
+    "sim-cards": "SIM 卡",
+    "sims": "SIM 卡",
+    "banking": "银行",
+    "transport": "交通",
+    "travel-transport": "出行与交通",
+    "food-delivery": "外卖",
+    "food": "外卖",
+    "student-discounts": "学生折扣",
+    "discounts": "学生折扣",
+    "groceries": "日用百货",
+    "events": "活动"
   },
   "auth": {
     "welcome": {
@@ -121,13 +176,9 @@
       "continue": "继续"
     },
     "checklistIntro": {
-      "title": "开始为您设置"
-    },
-    "phase": {
-      "notFound": "未找到阶段"
-    },
-    "checklistIntro": {
-      "title": "开始为您设置"
+      "title": "开始为您设置",
+      "subtitle": "按自己的节奏逐项完成 — 也可以先跳过，稍后再回来。",
+      "skip": "暂时跳过"
     },
     "phase": {
       "notFound": "未找到阶段"
@@ -141,6 +192,15 @@
       "personalizing": "我们正在为您个性化体验...",
       "done": "一切就绪！",
       "welcome": "欢迎来到 HOMii"
+    },
+    "connectIntro": {
+      "title": "结识和您一样的同学",
+      "subtitle": "Connect 帮助您找到您大学的国际学生 — 分享社交账号、交流经验、在抵达之前建立您的圈子。",
+      "bullet1": "找到您所在大学的学生",
+      "bullet2": "按专业、年级或国家筛选",
+      "bullet3": "分享您的社交账号 — 无需聊天，只需互联",
+      "setUp": "设置我的 Connect 资料",
+      "skip": "暂时跳过"
     }
   },
   "home": {
@@ -154,7 +214,12 @@
       "title": "推荐朋友",
       "subtitle": "把 HOMii 分享给朋友",
       "shareMessage": "加入我的 HOMii — 国际学生在英国的必备应用！{{url}}"
-    }
+    },
+    "welcomeSubtitle": "欢迎开启您的留学之旅",
+    "continueSetup": "继续设置",
+    "allSet": "全部完成！",
+    "completeProfileForRecommendations": "完善您的资料以解锁个性化推荐",
+    "continue": "继续"
   },
   "yourApps": {
     "title": "我的应用",
@@ -188,6 +253,8 @@
     "statusNotStarted": "未开始",
     "allDoneTitle": "全部完成！",
     "allDoneMessage": "您已完成所有设置任务。\n欢迎来到英国！",
+    "reviewAnytime": "您可以随时返回任何阶段。",
+    "reviewSetup": "查看设置",
     "journey": "您的设置之旅"
   },
   "legal": {
@@ -199,6 +266,8 @@
     "subtitle": "找到您所在大学的其他学生",
     "optInBanner": "让自己可被发现",
     "optInBannerSubtitle": "添加社交账号让其他人找到您",
+    "previewLabel": "其他人如何看到您",
+    "editProfile": "编辑个人资料",
     "filterAll": "全部",
     "filterMyUni": "我的大学",
     "courseSearchPlaceholder": "按专业筛选...",
@@ -337,7 +406,7 @@
     "noResults": "未找到应用",
     "notAvailable": "暂未上线",
     "notAvailableMessage": "此应用暂无下载链接，请稍后再试。",
-    "recommended": "推荐",
+    "recommended": "HOMii 推荐",
     "comingSoon": "即将推出",
     "notFound": "未找到分类",
     "disclosure": "部分链接可能为 HOMii 赚取佣金，对您无额外费用。",

@@ -66,7 +66,6 @@ export default function EditProfileScreen() {
   const { t } = useTranslation();
 
   const [fullName,    setFullName]    = useState(profile?.full_name ?? "");
-  const [phone,       setPhone]       = useState(profile?.phone_number ?? "");
   const [dob,         setDob]         = useState(profile?.date_of_birth
     ? (() => {
         const [y, m, d] = (profile.date_of_birth ?? "").split("-");
@@ -96,7 +95,6 @@ export default function EditProfileScreen() {
 
   const hasChanges =
     fullName.trim()    !== (profile?.full_name ?? "").trim() ||
-    phone.trim()       !== (profile?.phone_number ?? "").trim() ||
     dob.trim()         !== originalDob.trim() ||
     nationality.trim() !== (profile?.nationality ?? "").trim() ||
     course.trim()      !== (profile?.course ?? "").trim() ||
@@ -121,17 +119,17 @@ export default function EditProfileScreen() {
       return;
     }
 
+    // No allowsEditing/cropping step — the native Android crop UI has a
+    // greyed-out Crop button users miss. The avatar is rendered with a
+    // square crop via borderRadius, so the picked image looks right
+    // regardless of original aspect. Users can re-pick if they don't like it.
     const result = source === "camera"
       ? await ImagePicker.launchCameraAsync({
           mediaTypes: "images",
-          allowsEditing: true,
-          aspect: [1, 1],
           quality: 0.75,
         })
       : await ImagePicker.launchImageLibraryAsync({
           mediaTypes: "images",
-          allowsEditing: true,
-          aspect: [1, 1],
           quality: 0.75,
         });
 
@@ -171,7 +169,6 @@ export default function EditProfileScreen() {
 
     await updateProfile({
       full_name:       fullName.trim() || null,
-      phone_number:    phone.trim() || null,
       date_of_birth:   toDbDob(dob),
       nationality:     nationality.trim() || null,
       course:          course.trim() || null,
@@ -281,23 +278,6 @@ export default function EditProfileScreen() {
                 placeholderTextColor={Colors.grey[400]}
                 autoCapitalize="words"
                 autoComplete="name"
-                style={{ flex: 1, color: Colors.grey[900], fontSize: 15 }}
-              />
-            </View>
-          </View>
-
-          {/* Phone */}
-          <View>
-            <FieldLabel label={t("editProfile.phoneLabel")} />
-            <View className="flex-row items-center border border-grey-200 rounded-xl px-4 h-12 bg-white gap-3">
-              <Ionicons name="call-outline" size={18} color={Colors.grey[400]} />
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                placeholder={t("editProfile.phonePlaceholder")}
-                placeholderTextColor={Colors.grey[400]}
-                keyboardType="phone-pad"
-                autoComplete="tel"
                 style={{ flex: 1, color: Colors.grey[900], fontSize: 15 }}
               />
             </View>
@@ -414,18 +394,24 @@ export default function EditProfileScreen() {
           </Text>
         </View>
 
-        {/* Save button */}
-        <View className="mt-8">
-          <Button
-            variant="primary"
-            size="lg"
-            label={saving ? t("editProfile.saving") : t("editProfile.save")}
-            fullWidth
-            disabled={saving || !hasChanges}
-            onPress={handleSave}
-          />
-        </View>
+        <View className="mt-8" />
       </ScrollView>
+
+      {/* Save button — fixed at the bottom so it's always reachable while
+          editing. Only enabled when there are unsaved changes. */}
+      <View
+        className="px-6 pt-3 bg-white border-t border-grey-100"
+        style={{ paddingBottom: insets.bottom + 12 }}
+      >
+        <Button
+          variant="primary"
+          size="lg"
+          label={saving ? t("editProfile.saving") : t("editProfile.save")}
+          fullWidth
+          disabled={saving || !hasChanges}
+          onPress={handleSave}
+        />
+      </View>
 
       {/* Photo source modal */}
       <Modal

@@ -106,31 +106,46 @@ export default function SetupScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {allComplete ? (
-          <View className="items-center justify-center py-16 px-8">
+          // Show celebration banner AT TOP, but keep phase list below so user
+          // can revisit any phase / re-tick categories any time.
+          <View className="px-6 pt-6">
             <View
-              className="w-28 h-28 rounded-full items-center justify-center mb-6"
+              className="rounded-2xl p-5 flex-row items-center gap-4 mb-6"
               style={{ backgroundColor: Colors.success.light }}
             >
-              <Ionicons name="checkmark-circle" size={56} color={Colors.success.DEFAULT} />
+              <View className="w-14 h-14 rounded-full items-center justify-center" style={{ backgroundColor: "#fff" }}>
+                <Ionicons name="checkmark-circle" size={32} color={Colors.success.DEFAULT} />
+              </View>
+              <View className="flex-1">
+                <Text
+                  style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 18, color: Colors.grey[900] }}
+                >
+                  {t("setup.allDoneTitle")}
+                </Text>
+                <Text variant="caption" color="muted" style={{ marginTop: 2 }}>
+                  {t("setup.reviewAnytime")}
+                </Text>
+              </View>
             </View>
             <Text
-              className="text-grey-900 text-center"
-              style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 24, lineHeight: 32 }}
+              className="text-grey-900 mb-4"
+              style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 18 }}
             >
-              {t("setup.allDoneTitle")}
-            </Text>
-            <Text variant="body" color="muted" className="text-center mt-2">
-              {t("setup.allDoneMessage")}
+              {t("setup.reviewSetup")}
             </Text>
           </View>
-        ) : (
-          <View className="px-6 pt-6 gap-4">
+        ) : null}
+        {/* Phase list is ALWAYS visible — even after completion so the
+            user can revisit any phase / re-tick categories any time. */}
+        <View className="px-6 pt-6 gap-4" style={{ paddingTop: allComplete ? 0 : 24 }}>
+          {!allComplete && (
             <Text
               className="text-grey-900"
               style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 20 }}
             >
               {t("setup.journey")}
             </Text>
+          )}
 
             {phases.map((phase) => {
               const { done, total } = getPhaseProgress(phase.categories as string[]);
@@ -181,7 +196,6 @@ export default function SetupScreen() {
               );
             })}
           </View>
-        )}
       </ScrollView>
     </View>
   );

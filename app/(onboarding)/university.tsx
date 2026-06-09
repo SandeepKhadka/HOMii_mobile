@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, Image } from "react-native";
 import { useState, useMemo, useEffect } from "react";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { useTranslation } from "react-i18next";
+import { getUniversityLogo } from "@/constants/universityLogos";
 
 // Fallback list in case API is unavailable
 const FALLBACK_UNIVERSITIES = [
@@ -120,6 +121,16 @@ export default function UniversityScreen() {
                   )}
                 >
                   <View className="flex-row items-center">
+                    {(() => {
+                      const logo = getUniversityLogo(uni.name);
+                      return logo ? (
+                        <Image source={logo} style={{ width: 36, height: 36, marginRight: 12 }} resizeMode="contain" />
+                      ) : (
+                        <View className="w-9 h-9 rounded-lg bg-primary-100 items-center justify-center mr-3">
+                          <Ionicons name="school" size={20} color={Colors.primary[600]} />
+                        </View>
+                      );
+                    })()}
                     <View className="flex-1">
                       <Text variant="bodyMedium" className="text-grey-900">
                         {uni.name}

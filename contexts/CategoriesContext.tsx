@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, PropsWithChildren } fro
 import { api, ApiCategory, ApiPhase } from "@/lib/api";
 import { CATEGORIES, PHASES, Category } from "@/constants/categories";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
+import { localizeCategoryName, localizePhaseName, localizePhaseSubtitle, localizeCategoryDescription } from "@/lib/backendNames";
 
 export interface PhaseData {
   id: string;
@@ -60,8 +62,8 @@ function mapApiToCategory(
 
   return {
     id: SLUG_TO_ID[apiCat.slug] || apiCat.slug,
-    title: apiCat.name,
-    subtitle: apiCat.description || "",
+    title: localizeCategoryName(apiCat.slug, apiCat.name),
+    subtitle: localizeCategoryDescription(apiCat.slug, apiCat.description || ""),
     icon: apiCat.icon || "apps-outline",
     color: apiCat.color || "#6366F1",
     textColor: "#FFFFFF",
@@ -98,8 +100,8 @@ function buildDynamicPhases(cats: ApiCategory[], apiPhases: ApiPhase[]): PhaseDa
     const fallback = PHASE_META[p.slug] ?? { subtitle: "", icon: "ellipse-outline" };
     return {
       id: p.slug,
-      title: p.name,
-      subtitle: fallback.subtitle,
+      title: localizePhaseName(p.slug, p.name),
+      subtitle: localizePhaseSubtitle(p.slug, fallback.subtitle),
       icon: p.icon || fallback.icon,   // prefer icon from admin, fallback to hardcoded
       categories: phaseMap[p.slug] || [],
     };
@@ -108,6 +110,7 @@ function buildDynamicPhases(cats: ApiCategory[], apiPhases: ApiPhase[]): PhaseDa
 
 export function CategoriesProvider({ children }: PropsWithChildren) {
   const { profile } = useAuth();
+  const { i18n } = useTranslation();
   const [categories, setCategories] = useState<Category[]>(CATEGORIES);
   const [phases, setPhases] = useState<PhaseData[]>(PHASES as unknown as PhaseData[]);
   const [loading, setLoading] = useState(false);
@@ -142,7 +145,7 @@ export function CategoriesProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     fetchCategories();
-  }, [profile?.university]);
+  }, [profile?.university, i18n.language]);
 
   return (
     <CategoriesContext.Provider

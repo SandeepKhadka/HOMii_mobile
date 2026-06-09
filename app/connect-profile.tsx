@@ -95,7 +95,7 @@ export default function ConnectProfileScreen() {
         className="flex-1 px-6"
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
       >
         {/* Opt-in toggle card */}
         <View className="bg-white rounded-2xl p-5 mt-6 flex-row items-center gap-4">
@@ -191,17 +191,24 @@ export default function ConnectProfileScreen() {
           </View>
         </View>
 
-        <View className="mt-8">
-          <Button
-            variant="primary"
-            size="lg"
-            label={saving ? t("connectProfile.saving") : t("connectProfile.save")}
-            fullWidth
-            disabled={saving}
-            onPress={handleSave}
-          />
-        </View>
+        <View className="mt-8" />
       </ScrollView>
+
+      {/* Sticky save button — sits above the system gesture/nav bar via
+          safe-area insets so it never gets clipped on edge-to-edge phones. */}
+      <View
+        className="px-6 pt-3 bg-white border-t border-grey-100"
+        style={{ paddingBottom: insets.bottom + 12 }}
+      >
+        <Button
+          variant="primary"
+          size="lg"
+          label={saving ? t("connectProfile.saving") : t("connectProfile.save")}
+          fullWidth
+          disabled={saving}
+          onPress={handleSave}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }

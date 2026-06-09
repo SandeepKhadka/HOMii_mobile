@@ -27,27 +27,12 @@ export default function WelcomeScreen() {
         className="h-[58%]"
         resizeMode="cover"
       >
-        {/* Logo — transparent, tinted white to match the wordmark on the
-            purple sky background. */}
-        <View className="items-center" style={{ marginTop: insets.top + 40 }}>
+        <View className="items-center" style={{ marginTop: insets.top + 24 }}>
           <Image
             source={require("@/assets/images/logo.png")}
-            style={{ width: 110, height: 110, tintColor: "#fff" }}
+            style={{ width: 120, height: 36 }}
             resizeMode="contain"
           />
-          <Text
-            color="inverse"
-            style={{
-              fontFamily: "BricolageGrotesque_800ExtraBold",
-              fontSize: 36,
-              lineHeight: 44,
-              letterSpacing: -0.4,
-              textAlign: "center",
-              marginTop: -8,
-            }}
-          >
-            HOMii
-          </Text>
         </View>
       </ImageBackground>
 

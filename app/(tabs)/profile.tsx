@@ -1,4 +1,4 @@
-import { View, Pressable } from "react-native";
+import { View, Pressable, Image } from "react-native";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -35,9 +35,20 @@ export default function ProfileScreen() {
         colors={HEADER_GRADIENTS.profile}
         style={{ paddingTop: insets.top + 16, paddingBottom: 32, paddingHorizontal: 24, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, alignItems: "center" }}
       >
-        <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-3">
-          <Ionicons name="person" size={36} color="#fff" />
-        </View>
+        {profile?.avatar_url ? (
+          <View className="w-20 h-20 rounded-full overflow-hidden bg-white items-center justify-center mb-3" style={{ elevation: 3, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4 }}>
+            <Image
+              source={{ uri: profile.avatar_url }}
+              style={{ width: 80, height: 80, borderRadius: 40 }}
+            />
+          </View>
+        ) : (
+          <Image
+            source={require("@/assets/images/default-avatar.png")}
+            style={{ width: 76, height: 76, marginBottom: 12 }}
+            resizeMode="contain"
+          />
+        )}
         <Text
           color="inverse"
           style={{ fontFamily: "BricolageGrotesque_700Bold", fontSize: 22, lineHeight: 28 }}

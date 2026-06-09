@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { capture } from "@/lib/analytics";
+import { useTranslation } from "react-i18next";
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -12,6 +13,7 @@ function TabIcon({ name, color }: { name: IoniconsName; color: string }) {
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -39,7 +41,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: t("tabs.home"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon name={focused ? "home" : "home-outline"} color={color} />
           ),
@@ -48,7 +50,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="apps"
         options={{
-          title: "Apps",
+          title: t("tabs.apps"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon name={focused ? "grid" : "grid-outline"} color={color} />
           ),
@@ -57,7 +59,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="connect"
         options={{
-          title: "Connect",
+          title: t("tabs.connect"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon name={focused ? "people-circle" : "people-circle-outline"} color={color} />
           ),
@@ -66,7 +68,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="ambassadors"
         options={{
-          title: "Ambassadors",
+          title: t("tabs.ambassadors"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon name={focused ? "people" : "people-outline"} color={color} />
           ),
@@ -81,7 +83,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          href: null, // hidden from tab bar — accessed via the avatar in the home header
+          title: t("tabs.profile"),
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon name={focused ? "person" : "person-outline"} color={color} />
+          ),
         }}
       />
     </Tabs>

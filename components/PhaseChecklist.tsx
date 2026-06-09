@@ -10,12 +10,10 @@ import { capture } from "@/lib/analytics";
 import GradientHeader from "@/components/GradientHeader";
 import { useTranslation } from "react-i18next";
 
-// Background images only exist for the original 3 phases — new phases get no bg
-const ONBOARDING_BG: Record<string, any> = {
-  "before-fly":   require("@/assets/images/before-fly-bg.png"),
-  "upon-arrival": require("@/assets/images/upon-arrival-bg.png"),
-  "settling-in":  require("@/assets/images/settling-in-bg.png"),
-};
+// Unified lavender-London bg across every phase page — replaces the old
+// per-phase backgrounds that broke whenever a backend slug didn't match
+// one of the three hardcoded keys.
+const UNIFIED_BG = require("@/assets/images/top-banner.jpeg");
 
 interface PhaseChecklistProps {
   phaseId: string;
@@ -112,9 +110,9 @@ export default function PhaseChecklist({
   );
 
   if (isOnboarding) {
-    const bgImage = ONBOARDING_BG[phaseId];
+    const bgImage = UNIFIED_BG;
     const inner = (
-      <View className="flex-1" style={{ backgroundColor: bgImage ? "rgba(255,255,255,0.3)" : "#fff", paddingTop: insets.top + 8 }}>
+      <View className="flex-1" style={{ backgroundColor: "rgba(255,255,255,0.3)", paddingTop: insets.top + 8 }}>
         {/* Onboarding header — floating pill */}
         <View className="flex-row items-center px-4">
           <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">

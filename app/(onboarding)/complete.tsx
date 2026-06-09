@@ -36,7 +36,9 @@ export default function CompleteScreen() {
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }),
     ]).start(() => {
-      setTimeout(() => router.replace("/(tabs)"), 600);
+      // Route through the Connect intro before home so users discover the
+      // Connect tab (Luke flagged it as too easy to miss otherwise).
+      setTimeout(() => router.replace("/(onboarding)/connect-intro" as any), 600);
     });
   }, [done]);
 

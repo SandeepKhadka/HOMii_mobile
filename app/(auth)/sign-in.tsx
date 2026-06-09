@@ -59,27 +59,12 @@ export default function SignInScreen() {
           </Pressable>
         </View>
 
-        {/* Logo group positioned in the UPPER portion so the white card
-            below doesn't clip the HOMii wordmark. */}
-        <View className="items-center" style={{ marginTop: 12 }}>
+        <View className="items-center" style={{ marginTop: 16 }}>
           <Image
             source={require("@/assets/images/logo.png")}
-            style={{ width: 110, height: 110, tintColor: "#fff" }}
+            style={{ width: 130, height: 52 }}
             resizeMode="contain"
           />
-          <Text
-            color="inverse"
-            style={{
-              fontFamily: "BricolageGrotesque_800ExtraBold",
-              fontSize: 32,
-              lineHeight: 40,
-              letterSpacing: -0.4,
-              textAlign: "center",
-              marginTop: -10,
-            }}
-          >
-            HOMii
-          </Text>
         </View>
       </ImageBackground>
 

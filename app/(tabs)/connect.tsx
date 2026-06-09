@@ -54,7 +54,15 @@ export default function ConnectScreen() {
       setError(err.message);
       setProfiles([]);
     } else {
-      setProfiles((data ?? []) as ConnectProfileRow[]);
+      // Hide profiles with no usable socials — they're not actionable
+      // for other students. Should ideally be filtered at the RPC, but
+      // this is the lightest fix until the backend filter is wired up.
+      const hasAnySocial = (s: ConnectSocials | null) =>
+        !!s && (s.instagram || s.facebook || s.twitter || s.linkedin || s.custom_url);
+      const filtered = ((data ?? []) as ConnectProfileRow[]).filter(
+        (p) => hasAnySocial(p.socials),
+      );
+      setProfiles(filtered);
     }
     setLoading(false);
   }, [filterUniversity, courseQuery, filterNationality]);
@@ -125,6 +133,43 @@ export default function ConnectScreen() {
           </View>
           <Ionicons name="chevron-forward" size={18} color={Colors.grey[400]} />
         </Pressable>
+      )}
+
+      {/* "How others see you" — preview of the user's own Connect card.
+          The discovery RPC excludes self by design (you don't list yourself
+          in your own discovery), so without this preview users can't tell
+          what their card looks like to others. */}
+      {profile?.connect_enabled && (
+        <View className="px-6 pt-4">
+          <Text variant="caption" color="muted" className="tracking-widest mb-2">
+            {t("connect.previewLabel")}
+          </Text>
+          <ProfileCard
+            profile={{
+              id: profile.id,
+              full_name: profile.full_name ?? null,
+              avatar_url: profile.avatar_url ?? null,
+              university: profile.university ?? null,
+              course: profile.course ?? null,
+              nationality: profile.nationality ?? null,
+              year_of_study: profile.year_of_study ?? null,
+              socials: profile.socials ?? null,
+            }}
+            onOpenSocial={openSocial}
+          />
+          <Pressable
+            onPress={() => router.push("/connect-profile" as any)}
+            className="flex-row items-center justify-center mt-2 py-2"
+          >
+            <Ionicons name="create-outline" size={14} color={Colors.primary[600]} />
+            <Text
+              variant="caption"
+              style={{ marginLeft: 4, color: Colors.primary[600], fontFamily: "BricolageGrotesque_600SemiBold" }}
+            >
+              {t("connect.editProfile")}
+            </Text>
+          </Pressable>
+        </View>
       )}
 
       {/* Filter row: course search + university toggle + nationality chips */}

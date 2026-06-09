@@ -19,7 +19,62 @@
     "verifying": "جاري التحقق...",
     "sending": "جاري الإرسال...",
     "cameraPermission": "إذن الكاميرا مطلوب لالتقاط صورة.",
-    "libraryPermission": "إذن مكتبة الصور مطلوب."
+    "libraryPermission": "إذن مكتبة الصور مطلوب.",
+    "all": "الكل",
+    "done": "تم"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "apps": "التطبيقات",
+    "connect": "تواصل",
+    "ambassadors": "السفراء",
+    "profile": "الملف الشخصي"
+  },
+  "phaseNames": {
+    "before-fly": "قبل السفر",
+    "before-you-fly": "قبل السفر",
+    "upon-arrival": "عند الوصول",
+    "first-48-hours": "عند الوصول",
+    "settling-in": "الاستقرار",
+    "first-week": "الاستقرار"
+  },
+  "phaseSubtitles": {
+    "before-fly": "جهّز كل شيء قبل الوصول",
+    "before-you-fly": "جهّز كل شيء قبل الوصول",
+    "upon-arrival": "استقر بسلاسة عند وصولك",
+    "first-48-hours": "استقر بسلاسة عند وصولك",
+    "settling-in": "اشعر بالراحة وابدأ حياتك الجديدة",
+    "first-week": "اشعر بالراحة وابدأ حياتك الجديدة"
+  },
+  "categoryDescriptions": {
+    "accommodation": "اعثر على منزلك في UK",
+    "holidays": "خطط لرحلاتك وعطلاتك",
+    "sim-cards": "احصل على شريحة SIM في UK",
+    "sims": "احصل على شريحة SIM في UK",
+    "banking": "افتح حسابك المصرفي في UK",
+    "transport": "تنقل في مدينتك الجديدة",
+    "travel-transport": "السفر والتنقل في UK",
+    "food-delivery": "اطلب الطعام إلى باب منزلك",
+    "food": "اطلب الطعام إلى باب منزلك",
+    "student-discounts": "وفّر المال كطالب",
+    "discounts": "وفّر المال كطالب",
+    "groceries": "تزود بالضروريات",
+    "events": "اكتشف الفعاليات القريبة منك"
+  },
+  "categoryNames": {
+    "accommodation": "السكن",
+    "holidays": "العطلات",
+    "sim-cards": "شرائح SIM",
+    "sims": "شرائح SIM",
+    "banking": "الخدمات المصرفية",
+    "transport": "النقل",
+    "travel-transport": "السفر والنقل",
+    "food-delivery": "توصيل الطعام",
+    "food": "توصيل الطعام",
+    "student-discounts": "خصومات الطلاب",
+    "discounts": "خصومات الطلاب",
+    "groceries": "البقالة",
+    "events": "الفعاليات"
   },
   "auth": {
     "welcome": {
@@ -121,7 +176,9 @@
       "continue": "متابعة"
     },
     "checklistIntro": {
-      "title": "لنبدأ في إعدادك"
+      "title": "لنبدأ في إعدادك",
+      "subtitle": "أنجز الأمور على راحتك — أو تخطّها وعد لاحقًا.",
+      "skip": "تخطي الآن"
     },
     "phase": {
       "notFound": "المرحلة غير موجودة"
@@ -135,6 +192,15 @@
       "personalizing": "نقوم بتخصيص تجربتك...",
       "done": "أنت جاهز!",
       "welcome": "مرحبًا بك في HOMii"
+    },
+    "connectIntro": {
+      "title": "تعرّف على طلاب آخرين مثلك",
+      "subtitle": "تساعدك Connect في العثور على الطلاب الدوليين في جامعتك — شارك حساباتك الاجتماعية، تبادل النصائح، وابنِ دائرتك قبل وصولك.",
+      "bullet1": "ابحث عن طلاب من جامعتك",
+      "bullet2": "فلتر حسب البرنامج أو السنة أو البلد",
+      "bullet3": "شارك حساباتك الاجتماعية — لا دردشة، فقط تواصل",
+      "setUp": "إعداد ملف Connect الخاص بي",
+      "skip": "تخطي الآن"
     }
   },
   "home": {
@@ -148,7 +214,12 @@
       "title": "أحل الأصدقاء",
       "subtitle": "شارك HOMii مع أصدقائك",
       "shareMessage": "انضم إليّ على HOMii — التطبيق الأساسي للطلاب الدوليين في المملكة المتحدة! {{url}}"
-    }
+    },
+    "welcomeSubtitle": "مرحبا بك في رحلتك الدراسية",
+    "continueSetup": "متابعة الإعداد",
+    "allSet": "تم كل شيء!",
+    "completeProfileForRecommendations": "أكمل ملفك الشخصي للحصول على توصيات مخصصة",
+    "continue": "متابعة"
   },
   "yourApps": {
     "title": "تطبيقاتك",
@@ -182,6 +253,8 @@
     "statusNotStarted": "لم يبدأ",
     "allDoneTitle": "أنت جاهز!",
     "allDoneMessage": "لقد أكملت جميع مهام الإعداد.\nمرحبًا بك في المملكة المتحدة!",
+    "reviewAnytime": "يمكنك العودة إلى أي مرحلة في أي وقت.",
+    "reviewSetup": "مراجعة الإعداد",
     "journey": "رحلة الإعداد الخاصة بك"
   },
   "legal": {
@@ -193,6 +266,8 @@
     "subtitle": "ابحث عن طلاب آخرين في جامعتك",
     "optInBanner": "اجعل نفسك قابلاً للاكتشاف",
     "optInBannerSubtitle": "أضف حساباتك الاجتماعية ليتمكن الآخرون من العثور عليك",
+    "previewLabel": "كيف يراك الآخرون",
+    "editProfile": "تعديل الملف الشخصي",
     "filterAll": "الكل",
     "filterMyUni": "جامعتي",
     "courseSearchPlaceholder": "تصفية حسب البرنامج...",
@@ -331,7 +406,7 @@
     "noResults": "لم يتم العثور على تطبيقات",
     "notAvailable": "غير متاح بعد",
     "notAvailableMessage": "هذا التطبيق ليس لديه رابط تنزيل بعد. تحقق مرة أخرى قريبًا.",
-    "recommended": "موصى به",
+    "recommended": "اختيار HOMii",
     "comingSoon": "قريبًا",
     "notFound": "الفئة غير موجودة",
     "disclosure": "قد تكسب بعض الروابط HOMii عمولة دون أي تكلفة إضافية عليك.",

@@ -39,25 +39,31 @@ export default function CategoryDetailScreen() {
     }
   }, [id]);
 
-  // Check which apps are actually installed via their deep link scheme
+  // Check which apps are installed.
+  // Android: prefer package:PACKAGE_NAME which works without a registered deep link scheme.
+  // iOS: fall back to deep link scheme only.
   useEffect(() => {
     if (!category) return;
-    const appsWithScheme = category.apps.filter(
-      (a) => a.deepLinkScheme && !a.deepLinkScheme.startsWith("http")
-    );
-    if (!appsWithScheme.length) return;
     Promise.all(
-      appsWithScheme.map(async (a) => {
+      category.apps.map(async (a) => {
         try {
-          const canOpen = await Linking.canOpenURL(a.deepLinkScheme!);
-          return canOpen ? a.id : null;
+          // Android: check via package URI (works for any installed app)
+          if (Platform.OS === "android" && a.androidPackageName) {
+            const installed = await Linking.canOpenURL(`package:${a.androidPackageName}`);
+            if (installed) return a.id;
+          }
+          // Fallback: custom deep link scheme (iOS + Android)
+          if (a.deepLinkScheme && !a.deepLinkScheme.startsWith("http")) {
+            const canOpen = await Linking.canOpenURL(a.deepLinkScheme);
+            if (canOpen) return a.id;
+          }
+          return null;
         } catch {
           return null;
         }
       })
     ).then((results) => {
-      const installed = new Set(results.filter(Boolean) as string[]);
-      setInstalledIds(installed);
+      setInstalledIds(new Set(results.filter(Boolean) as string[]));
     });
   }, [category?.id]);
 

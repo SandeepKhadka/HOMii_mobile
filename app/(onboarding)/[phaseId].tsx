@@ -23,17 +23,14 @@ export default function PhaseScreen() {
     );
   }
 
-  const nextPhase = phases[phaseIndex + 1];
-  const isLastPhase = !nextPhase;
-
+  // Onboarding wizard was removed in favor of a single consolidated
+  // checklist (`checklist-intro`). When a user drills into a phase from
+  // there and finishes, send them back to the checklist instead of
+  // marching them through the next phase.
   const handleContinue = isOnboarding
     ? () => {
-        capture('onboarding_step_completed', { phase_id: phase.id, phase_title: phase.title, is_last_phase: isLastPhase });
-        if (isLastPhase) {
-          router.push("/(onboarding)/complete");
-        } else {
-          router.push({ pathname: `/(onboarding)/${nextPhase.id}` as any, params: { onboarding: "true" } });
-        }
+        capture('onboarding_step_completed', { phase_id: phase.id, phase_title: phase.title });
+        router.back();
       }
     : undefined;
 
@@ -45,7 +42,7 @@ export default function PhaseScreen() {
       categoryIds={phase.categories}
       isOnboarding={isOnboarding}
       onContinue={handleContinue}
-      continueLabel={isLastPhase ? t("common.continueToHome") : t("common.continue")}
+      continueLabel={t("common.done")}
     />
   );
 }
