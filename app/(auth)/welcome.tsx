@@ -1,4 +1,4 @@
-import { View, Pressable, ImageBackground } from "react-native";
+import { View, Pressable, ImageBackground, Image } from "react-native";
 import { router } from "expo-router";
 import { Text, Button } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,20 +27,12 @@ export default function WelcomeScreen() {
         className="h-[58%]"
         resizeMode="cover"
       >
-        {/* Logo */}
-        <View className="items-center" style={{ marginTop: insets.top + 60 }}>
-          <Text
-            color="inverse"
-            style={{
-              fontFamily: "BricolageGrotesque_800ExtraBold",
-              fontSize: 40,
-              lineHeight: 56,
-              letterSpacing: -0.4,
-              textAlign: "center",
-            }}
-          >
-            HOMii
-          </Text>
+        <View className="items-center" style={{ marginTop: insets.top + 24 }}>
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={{ width: 120, height: 36 }}
+            resizeMode="contain"
+          />
         </View>
       </ImageBackground>
 

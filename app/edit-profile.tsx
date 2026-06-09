@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAlert } from "@/contexts/AlertContext";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { uploadAvatarToSupabase } from "@/lib/avatar-upload";
 
 const YEAR_OPTIONS = [
   { key: "foundation", labelKey: "yearFoundation" },
@@ -61,12 +61,11 @@ function FieldLabel({ label, required }: { label: string; required?: boolean }) 
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { profile, updateProfile } = useAuth();
+  const { profile, updateProfile, user } = useAuth();
   const { showAlert } = useAlert();
   const { t } = useTranslation();
 
   const [fullName,    setFullName]    = useState(profile?.full_name ?? "");
-  const [phone,       setPhone]       = useState(profile?.phone_number ?? "");
   const [dob,         setDob]         = useState(profile?.date_of_birth
     ? (() => {
         const [y, m, d] = (profile.date_of_birth ?? "").split("-");
@@ -76,7 +75,6 @@ export default function EditProfileScreen() {
   const [nationality, setNationality] = useState(profile?.nationality ?? "");
   const [course,      setCourse]      = useState(profile?.course ?? "");
   const [yearStudy,   setYearStudy]   = useState(profile?.year_of_study ?? "");
-  const [address,     setAddress]     = useState(profile?.current_address ?? "");
   const [avatarUri,   setAvatarUri]   = useState<string | null>(profile?.avatar_url ?? null);
   const [saving,      setSaving]      = useState(false);
   const [uploading,   setUploading]   = useState(false);
@@ -97,12 +95,10 @@ export default function EditProfileScreen() {
 
   const hasChanges =
     fullName.trim()    !== (profile?.full_name ?? "").trim() ||
-    phone.trim()       !== (profile?.phone_number ?? "").trim() ||
     dob.trim()         !== originalDob.trim() ||
     nationality.trim() !== (profile?.nationality ?? "").trim() ||
     course.trim()      !== (profile?.course ?? "").trim() ||
     yearStudy          !== (profile?.year_of_study ?? "") ||
-    address.trim()     !== (profile?.current_address ?? "").trim() ||
     avatarUri          !== (profile?.avatar_url ?? null);
 
   const pickImage = useCallback(async (source: "camera" | "library") => {
@@ -115,25 +111,25 @@ export default function EditProfileScreen() {
       showAlert(
         t("common.error"),
         source === "camera"
-          ? "Camera permission is required to take a photo."
-          : "Photo library permission is required.",
+          ? t("common.cameraPermission")
+          : t("common.libraryPermission"),
         undefined,
         "error"
       );
       return;
     }
 
+    // No allowsEditing/cropping step — the native Android crop UI has a
+    // greyed-out Crop button users miss. The avatar is rendered with a
+    // square crop via borderRadius, so the picked image looks right
+    // regardless of original aspect. Users can re-pick if they don't like it.
     const result = source === "camera"
       ? await ImagePicker.launchCameraAsync({
           mediaTypes: "images",
-          allowsEditing: true,
-          aspect: [1, 1],
           quality: 0.75,
         })
       : await ImagePicker.launchImageLibraryAsync({
           mediaTypes: "images",
-          allowsEditing: true,
-          aspect: [1, 1],
           quality: 0.75,
         });
 
@@ -157,13 +153,14 @@ export default function EditProfileScreen() {
     let finalAvatarUrl = profile?.avatar_url ?? null;
 
     // Upload new photo if user picked a local image
-    if (avatarUri && avatarUri !== profile?.avatar_url) {
+    if (avatarUri && avatarUri !== profile?.avatar_url && user?.id) {
       setUploading(true);
       try {
-        finalAvatarUrl = await uploadImageToCloudinary(avatarUri);
-      } catch {
+        finalAvatarUrl = await uploadAvatarToSupabase(user.id, avatarUri);
+      } catch (e) {
         setUploading(false);
         setSaving(false);
+        console.log("[EditProfile] Avatar upload failed:", (e as Error).message);
         showAlert(t("editProfile.uploadFailed"), t("editProfile.uploadFailedMessage"), undefined, "error");
         return;
       }
@@ -172,18 +169,16 @@ export default function EditProfileScreen() {
 
     await updateProfile({
       full_name:       fullName.trim() || null,
-      phone_number:    phone.trim() || null,
       date_of_birth:   toDbDob(dob),
       nationality:     nationality.trim() || null,
       course:          course.trim() || null,
       year_of_study:   yearStudy || null,
-      current_address: address.trim() || null,
       avatar_url:      finalAvatarUrl,
     });
 
     setSaving(false);
     showAlert(t("editProfile.savedTitle"), t("editProfile.savedMessage"), [
-      { text: "OK", onPress: () => router.back() },
+      { text: t("common.ok"), onPress: () => router.back() },
     ], "success");
   };
 
@@ -288,23 +283,6 @@ export default function EditProfileScreen() {
             </View>
           </View>
 
-          {/* Phone */}
-          <View>
-            <FieldLabel label={t("editProfile.phoneLabel")} />
-            <View className="flex-row items-center border border-grey-200 rounded-xl px-4 h-12 bg-white gap-3">
-              <Ionicons name="call-outline" size={18} color={Colors.grey[400]} />
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                placeholder={t("editProfile.phonePlaceholder")}
-                placeholderTextColor={Colors.grey[400]}
-                keyboardType="phone-pad"
-                autoComplete="tel"
-                style={{ flex: 1, color: Colors.grey[900], fontSize: 15 }}
-              />
-            </View>
-          </View>
-
           {/* Date of Birth */}
           <View>
             <FieldLabel label={t("editProfile.dobLabel")} />
@@ -400,26 +378,6 @@ export default function EditProfileScreen() {
           </View>
         </View>
 
-        {/* ── Address ───────────────────────────────── */}
-        <SectionHeader label={t("editProfile.sectionAddress")} />
-
-        <View>
-          <FieldLabel label={t("editProfile.addressLabel")} />
-          <View className="border border-grey-200 rounded-xl px-4 pt-3 pb-3 bg-white">
-            <TextInput
-              value={address}
-              onChangeText={setAddress}
-              placeholder={t("editProfile.addressPlaceholder")}
-              placeholderTextColor={Colors.grey[400]}
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-              autoCapitalize="words"
-              style={{ color: Colors.grey[900], fontSize: 15, minHeight: 72 }}
-            />
-          </View>
-        </View>
-
         {/* ── Account ───────────────────────────────── */}
         <SectionHeader label={t("editProfile.sectionAccount")} />
 
@@ -436,18 +394,24 @@ export default function EditProfileScreen() {
           </Text>
         </View>
 
-        {/* Save button */}
-        <View className="mt-8">
-          <Button
-            variant="primary"
-            size="lg"
-            label={saving ? t("editProfile.saving") : t("editProfile.save")}
-            fullWidth
-            disabled={saving || !hasChanges}
-            onPress={handleSave}
-          />
-        </View>
+        <View className="mt-8" />
       </ScrollView>
+
+      {/* Save button — fixed at the bottom so it's always reachable while
+          editing. Only enabled when there are unsaved changes. */}
+      <View
+        className="px-6 pt-3 bg-white border-t border-grey-100"
+        style={{ paddingBottom: insets.bottom + 12 }}
+      >
+        <Button
+          variant="primary"
+          size="lg"
+          label={saving ? t("editProfile.saving") : t("editProfile.save")}
+          fullWidth
+          disabled={saving || !hasChanges}
+          onPress={handleSave}
+        />
+      </View>
 
       {/* Photo source modal */}
       <Modal

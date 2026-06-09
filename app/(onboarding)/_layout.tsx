@@ -42,7 +42,6 @@ export default function OnboardingLayout() {
         <Stack.Screen name="university" />
         <Stack.Screen name="checklist-intro" />
         <Stack.Screen name="[phaseId]" />
-        <Stack.Screen name="category-checklist" />
         <Stack.Screen name="complete" />
       </Stack>
     </OnboardingProgressProvider>

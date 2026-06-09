@@ -142,14 +142,14 @@ export const PHASES = [
   },
   {
     id: "upon-arrival",
-    title: "First 48 Hours",
+    title: "Upon Arrival",
     subtitle: "Settle in smooth when you arrive",
     icon: "location-outline",
     categories: ["food", "discounts"],
   },
   {
     id: "settling-in",
-    title: "First Week",
+    title: "Settling In",
     subtitle: "Get comfortable and start your new life",
     icon: "home-outline",
     categories: ["groceries", "events"],

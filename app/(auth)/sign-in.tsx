@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Pressable, ImageBackground, ScrollView, Keyboard } from "react-native";
+import { View, Pressable, ImageBackground, ScrollView, Keyboard, Image, KeyboardAvoidingView, Platform } from "react-native";
 import { router } from "expo-router";
 import { Text, Button, Input } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,6 +34,10 @@ export default function SignInScreen() {
   };
 
   return (
+    <KeyboardAvoidingView
+      className="flex-1 bg-white"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
     <ScrollView
       className="flex-1 bg-white"
       bounces={false}
@@ -43,7 +47,7 @@ export default function SignInScreen() {
       {/* Top hero */}
       <ImageBackground
         source={require("@/assets/images/onboarding.png")}
-        style={{ height: 220 }}
+        style={{ height: 280 }}
         resizeMode="cover"
       >
         <View className="px-4" style={{ paddingTop: insets.top + 8 }}>
@@ -55,19 +59,12 @@ export default function SignInScreen() {
           </Pressable>
         </View>
 
-        <View className="flex-1 items-center justify-center">
-          <Text
-            color="inverse"
-            style={{
-              fontFamily: "BricolageGrotesque_800ExtraBold",
-              fontSize: 40,
-              lineHeight: 56,
-              letterSpacing: -0.4,
-              textAlign: "center",
-            }}
-          >
-            HOMii
-          </Text>
+        <View className="items-center" style={{ marginTop: 16 }}>
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={{ width: 130, height: 52 }}
+            resizeMode="contain"
+          />
         </View>
       </ImageBackground>
 
@@ -163,5 +160,6 @@ export default function SignInScreen() {
         </View>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
